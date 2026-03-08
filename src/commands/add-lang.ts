@@ -29,7 +29,7 @@ export async function addLang(
   context: CommandContext
 ): Promise<void> {
   const { config, fileManager } = context;
-  const { yes, dryRun } = context.options;
+  const { yes, dryRun, ci } = context.options;
 
   const locale = lang.trim();
 
@@ -62,9 +62,15 @@ export async function addLang(
   console.log(chalk.cyan(`\nPreparing to add locale:`));
   console.log(chalk.yellow(`  ${locale}\n`));
 
+  if (ci && !yes) {
+    throw new Error(
+      `CI mode: locale "${locale}" would be created. Re-run with --yes to apply.`
+    );
+  }
+
   const confirmed = await confirmAction(
     `This will create new locale "${locale}". Continue?`,
-    { skip: yes ?? false }
+    { skip: yes ?? false, ci: ci ?? false }
   );
 
   if (!confirmed) {

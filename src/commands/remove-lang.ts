@@ -7,7 +7,7 @@ export async function removeLangCommand(
   lang: string
 ): Promise<void> {
   const { config, fileManager, options } = context;
-  const { yes, dryRun } = options;
+  const { yes, dryRun, ci } = options;
 
   const locale = lang.trim();
 
@@ -37,9 +37,15 @@ export async function removeLangCommand(
   console.log(chalk.cyan(`\nPreparing to remove locale:`));
   console.log(chalk.yellow(`  ${locale}\n`));
 
+  if (ci && !yes) {
+    throw new Error(
+      `CI mode: locale "${locale}" would be removed. Re-run with --yes to apply.`
+    );
+  }
+
   const confirmed = await confirmAction(
     `This will permanently delete "${locale}.json". Continue?`,
-    { skip: yes ?? false }
+    { skip: yes ?? false, ci: ci ?? false }
   );
 
   if (!confirmed) {

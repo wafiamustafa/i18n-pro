@@ -6,5 +6,6 @@ export interface I18nConfig {
   supportedLocales: string[];
   keyStyle: KeyStyle;
   usagePatterns: string[];
+  compiledUsagePatterns: RegExp[];
   autoSort: boolean;
 }

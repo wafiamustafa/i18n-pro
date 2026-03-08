@@ -10,11 +10,11 @@ export async function cleanUnusedCommand(
 ) {
   const { config, fileManager, options } = context;
 
-  const { dryRun, yes } = options;
+  const { dryRun, yes, ci } = options;
 
   console.log(chalk.cyan("\nScanning project for translation usage...\n"));
 
-  const patterns = config.usagePatterns;
+  const patterns = config.compiledUsagePatterns;
 
   if (!patterns || patterns.length === 0) {
     throw new Error(
@@ -30,13 +30,13 @@ export async function cleanUnusedCommand(
   for (const file of files) {
     const content = await fs.readFile(file, "utf8");
 
-    for (const pattern of patterns) {
-      const regex = new RegExp(pattern, "g");
+    for (const regex of patterns) {
+      regex.lastIndex = 0;
 
       let match;
 
       while ((match = regex.exec(content))) {
-        const key = match[1];
+        const key = match.groups?.key ?? match[1];
 
         if (key) {
           usedKeys.add(key);
@@ -85,9 +85,15 @@ export async function cleanUnusedCommand(
 
   console.log("");
 
+  if (ci && !yes) {
+    throw new Error(
+      `CI mode: ${unusedKeys.length} unused key(s) would be removed. Re-run with --yes to apply.`
+    );
+  }
+
   const confirmed = await confirmAction(
     `This will remove ${unusedKeys.length} keys from ALL locales. Continue?`,
-    { skip: yes ?? false }
+    { skip: yes ?? false, ci: ci ?? false }
   );
 
   if (!confirmed) {

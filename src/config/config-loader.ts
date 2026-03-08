@@ -3,7 +3,7 @@ import path from "path";
 import { z } from "zod";
 import type { I18nConfig } from "./types.js";
 
-const CONFIG_FILE_NAME = "i18n-pro.config.json";
+export const CONFIG_FILE_NAME = "i18n-pro.config.json";
 
 const ConfigSchema = z.object({
   localesPath: z.string().min(1),
@@ -13,6 +13,8 @@ const ConfigSchema = z.object({
   usagePatterns: z.array(z.string()).default([]),
   autoSort: z.boolean().default(true)
 });
+
+type ParsedConfig = z.infer<typeof ConfigSchema>;
 
 function resolveConfigPath(): string {
   const cwd = process.cwd();
@@ -54,11 +56,17 @@ export async function loadConfig(): Promise<I18nConfig> {
   const config = parsed.data;
 
   validateConfigLogic(config);
+  const compiledUsagePatterns = compileUsagePatterns(
+    config.usagePatterns
+  );
 
-  return config;
+  return {
+    ...config,
+    compiledUsagePatterns
+  };
 }
 
-function validateConfigLogic(config: I18nConfig): void {
+function validateConfigLogic(config: ParsedConfig): void {
   if (!config.supportedLocales.includes(config.defaultLocale)) {
     throw new Error(
       `defaultLocale "${config.defaultLocale}" must be included in supportedLocales.`
@@ -71,6 +79,85 @@ function validateConfigLogic(config: I18nConfig): void {
       `Duplicate locales found in supportedLocales: ${duplicates.join(", ")}`
     );
   }
+}
+
+export function compileUsagePatterns(patterns: string[]): RegExp[] {
+  if (patterns.length === 0) {
+    return [];
+  }
+
+  return patterns.map((pattern, index) => {
+    let regex: RegExp;
+
+    try {
+      regex = new RegExp(pattern, "g");
+    } catch (err) {
+      throw new Error(
+        `Invalid regex in usagePatterns[${index}]: ${String(err)}`
+      );
+    }
+
+    const groupCount = countCapturingGroups(pattern);
+    if (groupCount === 0) {
+      throw new Error(
+        `usagePatterns[${index}] must include a capturing group (use a named group like "(?<key>...)" or a standard "(...)").`
+      );
+    }
+
+    return regex;
+  });
+}
+
+function countCapturingGroups(pattern: string): number {
+  let count = 0;
+  let inCharClass = false;
+
+  for (let i = 0; i < pattern.length; i++) {
+    const char = pattern[i];
+
+    if (char === "\\") {
+      i += 1;
+      continue;
+    }
+
+    if (char === "[") {
+      inCharClass = true;
+      continue;
+    }
+
+    if (char === "]" && inCharClass) {
+      inCharClass = false;
+      continue;
+    }
+
+    if (inCharClass) {
+      continue;
+    }
+
+    if (char !== "(") {
+      continue;
+    }
+
+    const next = pattern[i + 1];
+    if (next !== "?") {
+      count += 1;
+      continue;
+    }
+
+    const next2 = pattern[i + 2];
+    if (next2 !== "<") {
+      continue;
+    }
+
+    const next3 = pattern[i + 3];
+    if (next3 === "=" || next3 === "!") {
+      continue;
+    }
+
+    count += 1;
+  }
+
+  return count;
 }
 
 function findDuplicates(arr: string[]): string[] {

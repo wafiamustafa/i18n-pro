@@ -12,7 +12,7 @@ export async function removeKeyCommand(
   key: string
 ): Promise<void> {
   const { config, fileManager, options } = context;
-  const { yes, dryRun } = options;
+  const { yes, dryRun, ci } = options;
 
   if (!key) {
     throw new Error("Key is required.");
@@ -46,9 +46,15 @@ export async function removeKeyCommand(
     console.log(chalk.gray(`  • ${l}.json`))
   );
 
+  if (ci && !yes) {
+    throw new Error(
+      `CI mode: key "${key}" would be removed from ${localesContainingKey.length} locale(s). Re-run with --yes to apply.`
+    );
+  }
+
   const confirmed = await confirmAction(
     "\nThis will remove the key from ALL locales. Continue?",
-    yes !== undefined ? { skip: yes } : {}
+    yes !== undefined ? { skip: yes, ci: ci ?? false } : { ci: ci ?? false }
   );
 
   if (!confirmed) {

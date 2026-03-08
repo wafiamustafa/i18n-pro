@@ -108,7 +108,7 @@ export class FileManager {
         .reduce((acc: any, key) => {
           acc[key] = this.sortKeysRecursively(obj[key]);
           return acc;
-        }, {});
+        }, Object.create(null));
     }
 
     return obj;

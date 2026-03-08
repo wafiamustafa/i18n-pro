@@ -10,7 +10,7 @@ export async function addKeyCommand(
   options: { value: string }
 ): Promise<void> {
   const { config, fileManager } = context;
-  const { yes, dryRun } = context.options;
+  const { yes, dryRun, ci } = context.options;
 
   const value = options.value;
 
@@ -46,9 +46,15 @@ export async function addKeyCommand(
     console.log(chalk.gray(`  • ${l}.json`))
   );
 
+  if (ci && !yes) {
+    throw new Error(
+      `CI mode: key "${key}" would be added to ${updatedLocales.length} locale(s). Re-run with --yes to apply.`
+    );
+  }
+
   const confirmed = await confirmAction(
     "\nDo you want to continue?",
-    { skip: yes ?? false }
+    { skip: yes ?? false, ci: ci ?? false }
   );
 
   if (!confirmed) {

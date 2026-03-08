@@ -18,7 +18,7 @@ export async function updateKeyCommand(
   options: UpdateKeyOptions
 ): Promise<void> {
   const { config, fileManager, options: globalOptions } = context;
-  const { yes, dryRun } = globalOptions;
+  const { yes, dryRun, ci } = globalOptions;
 
   const { value, locale } = options;
 
@@ -61,9 +61,15 @@ export async function updateKeyCommand(
     )
   );
 
+  if (ci && !yes) {
+    throw new Error(
+      `CI mode: key "${key}" in "${targetLocale}" would be updated. Re-run with --yes to apply.`
+    );
+  }
+
   const confirmed = await confirmAction(
     "\nDo you want to continue?",
-    { skip: yes ?? false }
+    { skip: yes ?? false, ci: ci ?? false }
   );
 
   if (!confirmed) {

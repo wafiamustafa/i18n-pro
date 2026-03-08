@@ -3,6 +3,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import { buildContext } from "../context/build-context.js";
+import { initCommand } from "../commands/init.js";
 import { addLang } from "../commands/add-lang.js";
 import { removeLangCommand } from "../commands/remove-lang.js";
 import { addKeyCommand } from "../commands/add-key.js";
@@ -27,6 +28,15 @@ function withGlobalOptions(command: Command): Command {
 }
 
 // Language Commands
+withGlobalOptions(
+  program
+    .command("init")
+    .description("Create an i18n-pro configuration file")
+    .action(async (options) => {
+      await initCommand(options);
+    })
+);
+
 withGlobalOptions(
   program
     .command("add:lang <lang>")
@@ -104,8 +114,8 @@ withGlobalOptions(
 program.exitOverride();
 
 try {
-  program.parse(process.argv);
+  await program.parseAsync(process.argv);
 } catch (err: any) {
   console.error(chalk.red("❌ Error:"), err.message);
-  process.exit(1);
+  process.exitCode = 1;
 }

@@ -9,9 +9,10 @@ Professional CLI tool for managing translation files.
 - **Cleanup**: Identify and remove unused translation keys by scanning source code.
 - **Structural Validation**: Prevents conflicts between nested and flat key structures.
 - **Dry Run**: Preview changes before they are applied.
-- **CI Friendly**: Support for non-interactive modes and validation.
+- **CI Friendly**: Non-interactive mode with deterministic exit codes and fail-on-change semantics.
 - **Auto Sort**: Automatically sorts keys in translation files.
 - **Flexible Key Styles**: Support for both flat (`auth.login.title`) and nested (`auth: { login: { title: ... } }`) key styles.
+- **Init Wizard**: Generate a starter config file with sensible defaults.
 
 ## Installation
 
@@ -23,6 +24,12 @@ npm install -g i18n-pro
 
 Create an `i18n-pro.config.json` file in your project root:
 
+```bash
+i18n-pro init
+```
+
+Or create it manually:
+
 ```json
 {
   "localesPath": "./locales",
@@ -30,9 +37,9 @@ Create an `i18n-pro.config.json` file in your project root:
   "supportedLocales": ["en", "es", "fr"],
   "keyStyle": "nested",
   "usagePatterns": [
-    "t\\(['\"](.*?)['\"]\\)",
-    "translate\\(['\"](.*?)['\"]\\)",
-    "i18n\\.t\\(['\"](.*?)['\"]\\)"
+    "t\\(['\"](?<key>.*?)['\"]\\)",
+    "translate\\(['\"](?<key>.*?)['\"]\\)",
+    "i18n\\.t\\(['\"](?<key>.*?)['\"]\\)"
   ],
   "autoSort": true
 }
@@ -46,10 +53,18 @@ Create an `i18n-pro.config.json` file in your project root:
 | `defaultLocale` | `string` | Default language code |
 | `supportedLocales` | `string[]` | List of supported language codes |
 | `keyStyle` | `"flat" \| "nested"` | Key structure style |
-| `usagePatterns` | `string[]` | Regex patterns to detect key usage in source code |
+| `usagePatterns` | `string[]` | Regex patterns to detect key usage in source code (must include a capturing group, preferably named `key`) |
 | `autoSort` | `boolean` | Automatically sort keys alphabetically |
 
 ## Usage
+
+### Initialize configuration
+```bash
+i18n-pro init
+```
+
+Options:
+- `-f, --force`: Overwrite an existing config file
 
 ### Language Commands
 
@@ -111,8 +126,8 @@ All commands support the following global options:
 |--------|-------------|
 | `-y, --yes` | Skip confirmation prompts |
 | `--dry-run` | Preview changes without writing files |
-| `--ci` | Run in CI mode (no prompts, exit on issues) |
-| `-f, --force` | Force operation even if validation fails |
+| `--ci` | Run in CI mode (no prompts; fails if changes would be made without `--yes`) |
+| `-f, --force` | Force operation even if validation fails (used by `init` to overwrite config) |
 
 ## Examples
 
@@ -134,6 +149,11 @@ i18n-pro clean:unused --yes
 ### CI/CD integration
 ```bash
 i18n-pro clean:unused --ci --dry-run
+```
+
+To apply changes in CI:
+```bash
+i18n-pro clean:unused --ci --yes
 ```
 
 ## License
