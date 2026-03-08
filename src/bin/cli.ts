@@ -3,7 +3,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import { buildContext } from "../context/build-context.js";
-import { addLangCommand } from "../commands/add-lang.js";
+import { addLang } from "../commands/add-lang.js";
 import { removeLangCommand } from "../commands/remove-lang.js";
 import { addKeyCommand } from "../commands/add-key.js";
 import { updateKeyCommand } from "../commands/update-key.js";
@@ -29,12 +29,13 @@ function withGlobalOptions(command: Command): Command {
 // Language Commands
 withGlobalOptions(
   program
-    .command("add:lang")
-    .argument("<lang>", "Language code (ISO 639-1, e.g., en, fr, ar)")
-    .description("Add new language translation file")
+    .command("add:lang <lang>")
+    .option("--from <locale>", "Clone from existing locale")
+    .option("--strict", "Enable strict mode")
+    .description("Add new language locale")
     .action(async (lang, options) => {
-        const context = await buildContext(options);
-        await addLangCommand(context, lang);
+      const context = await buildContext(options);
+      await addLang(lang, options, context);
     })
 );
 
@@ -58,9 +59,9 @@ withGlobalOptions(
     .argument("<key>", "Translation key (e.g., auth.login.title)")
     .requiredOption("-v, --value <value>", "Value for default locale")
     .description("Add new translation key to all locales")
-    .action(async (lang, options) => {
+    .action(async (key, options) => {
         const context = await buildContext(options);
-        await addKeyCommand(context, lang);
+        await addKeyCommand(context, key, options);
     })
 );
 
@@ -71,9 +72,9 @@ withGlobalOptions(
     .requiredOption("-v, --value <value>", "New value")
     .option("-l, --locale <locale>", "Specific locale to update")
     .description("Update translation key")
-    .action(async (lang, options) => {
+    .action(async (key, options) => {
         const context = await buildContext(options);
-        await updateKeyCommand(context, lang);
+        await updateKeyCommand(context, key, options);
     })
 );
 
@@ -82,9 +83,9 @@ withGlobalOptions(
     .command("remove:key")
     .argument("<key>", "Translation key to remove")
     .description("Remove translation key from all locales")
-    .action(async (lang, options) => {
+    .action(async (key, options) => {
         const context = await buildContext(options);
-        await removeKeyCommand(context, lang);
+        await removeKeyCommand(context, key);
     })
 );
 
@@ -93,9 +94,9 @@ withGlobalOptions(
   program
     .command("clean:unused")
     .description("Remove unused translation keys from all locales")
-    .action(async (lang, options) => {
+    .action(async (options) => {
         const context = await buildContext(options);
-        await cleanUnusedCommand(context, lang);
+        await cleanUnusedCommand(context);
     })
 );
 
