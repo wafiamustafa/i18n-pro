@@ -1,4 +1,4 @@
-# i18n-pro
+# i18n-cli
 
 Professional CLI tool for managing translation files in internationalized applications. Simplify your i18n workflow with automated key management, unused key detection, and flexible configuration.
 
@@ -21,43 +21,43 @@ Professional CLI tool for managing translation files in internationalized applic
 ### Global Installation
 
 ```bash
-npm install -g i18n-pro
+npm install -g i18n-cli
 ```
 
 ### Local Installation
 
 ```bash
-npm install --save-dev i18n-pro
+npm install --save-dev i18n-cli
 ```
 
 Then use with `npx`:
 
 ```bash
-npx i18n-pro --help
+npx i18n-cli --help
 ```
 
 ## Quick Start
 
 ```bash
 # Initialize configuration
-i18n-pro init
+i18n-cli init
 
 # Add a new language
-i18n-pro add:lang es --from en
+i18n-cli add:lang es --from en
 
 # Add a translation key
-i18n-pro add:key welcome.message --value "Welcome to our app"
+i18n-cli add:key welcome.message --value "Welcome to our app"
 
 # Clean up unused keys
-i18n-pro clean:unused
+i18n-cli clean:unused
 ```
 
 ## Configuration
 
-Create an `i18n-pro.config.json` file in your project root:
+Create an `i18n-cli.config.json` file in your project root:
 
 ```bash
-i18n-pro init
+i18n-cli init
 ```
 
 Or create it manually:
@@ -130,7 +130,7 @@ The `usagePatterns` array contains regex patterns used by the `clean:unused` com
 
 ### Initialize configuration
 ```bash
-i18n-pro init
+i18n-cli init
 ```
 
 Options:
@@ -140,9 +140,9 @@ Options:
 
 #### Add a new language
 ```bash
-i18n-pro add:lang <lang-code> [--from <locale>] [--strict]
+i18n-cli add:lang <lang-code> [--from <locale>] [--strict]
 ```
-Example: `i18n-pro add:lang fr`
+Example: `i18n-cli add:lang fr`
 
 Options:
 - `--from <locale>`: Clone translations from an existing locale
@@ -152,33 +152,33 @@ The language code is validated against ISO 639-1 standard (e.g., `en`, `es`, `fr
 
 #### Remove a language
 ```bash
-i18n-pro remove:lang <lang-code>
+i18n-cli remove:lang <lang-code>
 ```
-Example: `i18n-pro remove:lang fr`
+Example: `i18n-cli remove:lang fr`
 
 ### Key Commands
 
 #### Add a new translation key
 ```bash
-i18n-pro add:key <key> --value <value>
+i18n-cli add:key <key> --value <value>
 ```
-Example: `i18n-pro add:key auth.login.title --value "Login"`
+Example: `i18n-cli add:key auth.login.title --value "Login"`
 
 The key will be added to all locales with an empty string for non-default locales.
 
 #### Update a translation key
 ```bash
-i18n-pro update:key <key> --value <value> [--locale <locale>]
+i18n-cli update:key <key> --value <value> [--locale <locale>]
 ```
-Example: `i18n-pro update:key auth.login.title --value "Sign In" --locale en`
+Example: `i18n-cli update:key auth.login.title --value "Sign In" --locale en`
 
 If `--locale` is omitted, updates the default locale.
 
 #### Remove a translation key
 ```bash
-i18n-pro remove:key <key>
+i18n-cli remove:key <key>
 ```
-Example: `i18n-pro remove:key auth.login.title`
+Example: `i18n-cli remove:key auth.login.title`
 
 Removes the key from all locales.
 
@@ -186,7 +186,7 @@ Removes the key from all locales.
 
 #### Clean unused keys
 ```bash
-i18n-pro clean:unused
+i18n-cli clean:unused
 ```
 
 Scans your source code (using patterns defined in `usagePatterns`) to identify translation keys that are no longer used and removes them from all locales.
@@ -216,7 +216,7 @@ All commands support the following global options:
 Preview what changes would be made without actually modifying any files. Useful for reviewing changes before applying them.
 
 ```bash
-i18n-pro clean:unused --dry-run
+i18n-cli clean:unused --dry-run
 ```
 
 **CI Mode (`--ci`)**
@@ -224,59 +224,59 @@ Runs in non-interactive mode suitable for CI/CD pipelines. If changes would be m
 
 ```bash
 # Check for unused keys in CI (fails if any found)
-i18n-pro clean:unused --ci --dry-run
+i18n-cli clean:unused --ci --dry-run
 
 # Auto-remove unused keys in CI
-i18n-pro clean:unused --ci --yes
+i18n-cli clean:unused --ci --yes
 ```
 
 **Skip Confirmation (`-y, --yes`)**
 Automatically confirms all prompts without user interaction.
 
 ```bash
-i18n-pro remove:key auth.legacy --yes
+i18n-cli remove:key auth.legacy --yes
 ```
 
 ## Examples
 
 ### Add a new locale with fallback content
 ```bash
-i18n-pro add:lang de --from en
+i18n-cli add:lang de --from en
 ```
 
 ### Preview changes before applying
 ```bash
-i18n-pro remove:key auth.legacy --dry-run
+i18n-cli remove:key auth.legacy --dry-run
 ```
 
 ### Skip confirmation prompts
 ```bash
-i18n-pro clean:unused --yes
+i18n-cli clean:unused --yes
 ```
 
 ### CI/CD integration
 ```bash
-i18n-pro clean:unused --ci --dry-run
+i18n-cli clean:unused --ci --dry-run
 ```
 
 To apply changes in CI:
 ```bash
-i18n-pro clean:unused --ci --yes
+i18n-cli clean:unused --ci --yes
 ```
 
 ### Initialize in non-interactive mode
 ```bash
-i18n-pro init --yes
+i18n-cli init --yes
 ```
 
 ### Force overwrite existing config
 ```bash
-i18n-pro init --force
+i18n-cli init --force
 ```
 
 ## Translation Providers
 
-i18n-pro includes a flexible provider system for translation services. The following providers are available:
+i18n-cli includes a flexible provider system for translation services. The following providers are available:
 
 - **Google Translate** (`@vitalets/google-translate-api`)
 - **DeepL** (stub implementation)
@@ -285,8 +285,8 @@ i18n-pro includes a flexible provider system for translation services. The follo
 Providers can be used programmatically via the `TranslationService` class:
 
 ```typescript
-import { TranslationService } from 'i18n-pro/services';
-import { GoogleTranslator } from 'i18n-pro/providers';
+import { TranslationService } from 'i18n-cli/services';
+import { GoogleTranslator } from 'i18n-cli/providers';
 
 const translator = new GoogleTranslator();
 const service = new TranslationService(translator);
@@ -300,11 +300,11 @@ const result = await service.translate({
 
 ## Programmatic API
 
-You can also use i18n-pro programmatically in your Node.js applications:
+You can also use i18n-cli programmatically in your Node.js applications:
 
 ```typescript
-import { loadConfig } from 'i18n-pro/config/config-loader';
-import { FileManager } from 'i18n-pro/core/file-manager';
+import { loadConfig } from 'i18n-cli/config/config-loader';
+import { FileManager } from 'i18n-cli/core/file-manager';
 
 const config = await loadConfig();
 const fileManager = new FileManager(config);
@@ -337,7 +337,7 @@ npm run build
 npm link
 
 # Use in another project
-i18n-pro --help
+i18n-cli --help
 ```
 
 ## License

@@ -1,0 +1,386 @@
+# Project Overview
+
+<cite>
+**Referenced Files in This Document**
+- [README.md](file://README.md)
+- [package.json](file://package.json)
+- [src/bin/cli.ts](file://src/bin/cli.ts)
+- [src/config/config-loader.ts](file://src/config/config-loader.ts)
+- [src/config/types.ts](file://src/config/types.ts)
+- [src/context/build-context.ts](file://src/context/build-context.ts)
+- [src/context/types.ts](file://src/context/types.ts)
+- [src/core/file-manager.ts](file://src/core/file-manager.ts)
+- [src/core/key-validator.ts](file://src/core/key-validator.ts)
+- [src/core/object-utils.ts](file://src/core/object-utils.ts)
+- [src/commands/init.ts](file://src/commands/init.ts)
+- [src/commands/add-lang.ts](file://src/commands/add-lang.ts)
+- [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
+- [src/commands/add-key.ts](file://src/commands/add-key.ts)
+- [src/commands/remove-key.ts](file://src/commands/remove-key.ts)
+</cite>
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Project Structure](#project-structure)
+3. [Core Components](#core-components)
+4. [Architecture Overview](#architecture-overview)
+5. [Detailed Component Analysis](#detailed-component-analysis)
+6. [Dependency Analysis](#dependency-analysis)
+7. [Performance Considerations](#performance-considerations)
+8. [Troubleshooting Guide](#troubleshooting-guide)
+9. [Conclusion](#conclusion)
+
+## Introduction
+i18n-pro is a professional CLI tool designed to streamline internationalization (i18n) workflows for applications that manage translation files. Its primary purpose is to automate and simplify the lifecycle of translation assets across locales, including adding and removing locales, managing translation keys, detecting and cleaning unused keys, validating key structures, and integrating smoothly with CI/CD environments.
+
+Key value propositions:
+- Automated key management: Add, update, and remove translation keys consistently across all supported locales.
+- Unused key detection: Scan source code using configurable usage patterns to identify and remove orphaned translation keys.
+- Flexible configuration: Define locales path, default locale, supported locales, key styles (flat or nested), usage patterns, and auto-sort behavior.
+- CI/CD friendly: Non-interactive mode with deterministic exit codes and dry-run previews to prevent unintended changes.
+- TypeScript foundation: Built with TypeScript for strong typing and developer ergonomics.
+- Global or local installation: Install globally or locally and use with npx for quick access.
+
+Position in the internationalization ecosystem:
+- Acts as a command-line orchestrator for translation assets, complementing frontend frameworks and backend localization stacks.
+- Provides structural safeguards (e.g., preventing conflicts between flat and nested key styles) and operational controls (e.g., strict mode, dry runs, CI mode).
+
+## Project Structure
+The project follows a modular, feature-oriented layout:
+- CLI entry point defines commands and global options.
+- Commands encapsulate specific operations (init, add/remove language, add/update/remove key, clean unused).
+- Context builds a shared runtime with configuration and file manager.
+- Core utilities handle file operations, key flattening/unflattening, and structural validation.
+- Configuration loader validates and compiles user-defined settings.
+
+```mermaid
+graph TB
+CLI["CLI Entry<br/>src/bin/cli.ts"] --> CtxBuild["Context Builder<br/>src/context/build-context.ts"]
+CtxBuild --> CfgLoad["Config Loader<br/>src/config/config-loader.ts"]
+CtxBuild --> FM["FileManager<br/>src/core/file-manager.ts"]
+CLI --> CmdInit["init<br/>src/commands/init.ts"]
+CLI --> CmdAL["add:lang<br/>src/commands/add-lang.ts"]
+CLI --> CmdCK["clean:unused<br/>src/commands/clean-unused.ts"]
+CLI --> CmdAK["add:key<br/>src/commands/add-key.ts"]
+CLI --> CmdRK["remove:key<br/>src/commands/remove-key.ts"]
+FM --> ObjUtils["Object Utils<br/>src/core/object-utils.ts"]
+FM --> KV["Key Validator<br/>src/core/key-validator.ts"]
+CfgLoad --> TypesCfg["Types<br/>src/config/types.ts"]
+CtxBuild --> TypesCtx["Types<br/>src/context/types.ts"]
+```
+
+**Diagram sources**
+- [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
+- [src/context/build-context.ts:1-16](file://src/context/build-context.ts#L1-L16)
+- [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+- [src/core/object-utils.ts:1-95](file://src/core/object-utils.ts#L1-L95)
+- [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
+- [src/config/types.ts:1-12](file://src/config/types.ts#L1-L12)
+- [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
+- [src/commands/init.ts:1-236](file://src/commands/init.ts#L1-L236)
+- [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
+- [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [src/commands/add-key.ts:1-93](file://src/commands/add-key.ts#L1-L93)
+- [src/commands/remove-key.ts:1-96](file://src/commands/remove-key.ts#L1-L96)
+
+**Section sources**
+- [README.md:1-346](file://README.md#L1-L346)
+- [package.json:1-45](file://package.json#L1-L45)
+- [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
+
+## Core Components
+- CLI entrypoint: Declares commands, global options, and error handling. It delegates to command handlers after building a shared context.
+- Context builder: Loads configuration and instantiates the file manager to provide a consistent runtime for commands.
+- Configuration loader: Validates and parses the configuration file, compiles usage patterns into regular expressions, and performs logical checks (e.g., default locale inclusion, duplicates).
+- File manager: Encapsulates filesystem operations for locales, including reading, writing, creating, deleting, and recursive key sorting.
+- Object utilities: Provide safe flattening/unflattening of nested translation objects and helpers to maintain structural integrity.
+- Key validator: Enforces structural compatibility when adding keys to prevent conflicts between flat and nested styles.
+- Commands:
+  - init: Interactive or non-interactive generation of configuration and default locale initialization.
+  - add:lang: Adds a new locale with optional cloning from an existing locale and ISO 639-1 validation.
+  - clean:unused: Scans source files using compiled usage patterns, computes unused keys, and updates all locales accordingly.
+  - add:key / remove:key: Manage translation keys across locales with structural validation and optional strict mode.
+
+**Section sources**
+- [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
+- [src/context/build-context.ts:1-16](file://src/context/build-context.ts#L1-L16)
+- [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+- [src/core/object-utils.ts:1-95](file://src/core/object-utils.ts#L1-L95)
+- [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
+- [src/commands/init.ts:1-236](file://src/commands/init.ts#L1-L236)
+- [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
+- [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [src/commands/add-key.ts:1-93](file://src/commands/add-key.ts#L1-L93)
+- [src/commands/remove-key.ts:1-96](file://src/commands/remove-key.ts#L1-L96)
+
+## Architecture Overview
+The CLI architecture centers around a command-driven design with a shared context:
+- The CLI registers commands and global options.
+- Each command receives a context containing configuration and a file manager.
+- Commands rely on configuration validation and compiled usage patterns.
+- File operations are delegated to the file manager, which ensures consistent key sorting and safe JSON handling.
+
+```mermaid
+sequenceDiagram
+participant User as "User"
+participant CLI as "CLI (cli.ts)"
+participant Ctx as "Context Builder"
+participant Cfg as "Config Loader"
+participant FM as "FileManager"
+participant FS as "Filesystem"
+User->>CLI : Run command with options
+CLI->>Ctx : buildContext(options)
+Ctx->>Cfg : loadConfig()
+Cfg-->>Ctx : I18nConfig (compiled patterns)
+Ctx-->>CLI : CommandContext (config, fileManager)
+CLI->>FM : Invoke command handler
+FM->>FS : Read/Write/Delete/Create locale files
+FS-->>FM : Data or error
+FM-->>CLI : Result
+CLI-->>User : Output and exit code
+```
+
+**Diagram sources**
+- [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
+- [src/context/build-context.ts:1-16](file://src/context/build-context.ts#L1-L16)
+- [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+
+## Detailed Component Analysis
+
+### CLI Entry and Global Options
+- Registers commands: init, add:lang, remove:lang, add:key, update:key, remove:key, clean:unused.
+- Defines global options: skip confirmation, dry-run preview, CI mode, force operations.
+- Uses commander for parsing and chalk for colored output.
+- Centralizes error handling with exit override.
+
+**Section sources**
+- [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
+
+### Context and Configuration
+- Context provides config, file manager, and global options to all commands.
+- Configuration loader validates required fields, default locale inclusion, duplicates, and compiles usage patterns into RegExp instances.
+- Types define key styles and configuration shape.
+
+```mermaid
+classDiagram
+class CommandContext {
++config : I18nConfig
++fileManager : FileManager
++options : GlobalOptions
+}
+class I18nConfig {
++string localesPath
++string defaultLocale
++string[] supportedLocales
++KeyStyle keyStyle
++string[] usagePatterns
++RegExp[] compiledUsagePatterns
++boolean autoSort
+}
+class GlobalOptions {
++boolean yes
++boolean dryRun
++boolean ci
++boolean force
+}
+class FileManager {
++getLocaleFilePath(locale)
++ensureLocalesDirectory()
++localeExists(locale)
++listLocales()
++readLocale(locale)
++writeLocale(locale, data, options?)
++deleteLocale(locale, options?)
++createLocale(locale, initialData, options?)
+}
+CommandContext --> I18nConfig : "has"
+CommandContext --> FileManager : "has"
+CommandContext --> GlobalOptions : "has"
+```
+
+**Diagram sources**
+- [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
+- [src/config/types.ts:1-12](file://src/config/types.ts#L1-L12)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+
+**Section sources**
+- [src/context/build-context.ts:1-16](file://src/context/build-context.ts#L1-L16)
+- [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
+- [src/config/types.ts:1-12](file://src/config/types.ts#L1-L12)
+- [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
+
+### Language Management (add:lang)
+- Validates locale codes against ISO 639-1 (accepts language-region forms).
+- Optionally clones content from an existing locale.
+- Supports CI mode and dry-run previews.
+- Emphasizes manual addition of new locales to supportedLocales in configuration.
+
+```mermaid
+flowchart TD
+Start(["Start add:lang"]) --> Validate["Validate locale code"]
+Validate --> Exists{"Locale exists?"}
+Exists --> |Yes| ErrorExists["Throw error: already exists"]
+Exists --> |No| Clone{"Clone from base locale?"}
+Clone --> |Yes| ReadBase["Read base locale"]
+Clone --> |No| Prepare["Prepare empty content"]
+ReadBase --> Confirm["Confirm action (skip if --yes/--ci)"]
+Prepare --> Confirm
+Confirm --> |Cancel| Cancel["Exit"]
+Confirm --> |Proceed| Write["Create locale file"]
+Write --> Done(["Done"])
+```
+
+**Diagram sources**
+- [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
+
+**Section sources**
+- [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
+
+### Key Management (add:key, remove:key)
+- add:key:
+  - Validates presence of key and value.
+  - Checks structural conflicts for flat/nested styles.
+  - Updates all locales; default locale receives the provided value, others receive empty strings.
+  - Respects key style and auto-sort settings.
+- remove:key:
+  - Scans all locales to locate keys.
+  - Removes keys from all locales and rebuilds structures, pruning empty objects for nested style.
+
+```mermaid
+sequenceDiagram
+participant User as "User"
+participant CLI as "CLI"
+participant Ctx as "Context"
+participant FM as "FileManager"
+participant Obj as "Object Utils"
+User->>CLI : add : key <key> --value <value>
+CLI->>Ctx : buildContext()
+Ctx-->>CLI : CommandContext
+CLI->>FM : readLocale(all locales)
+CLI->>Obj : flattenObject()
+CLI->>CLI : validateNoStructuralConflict()
+CLI->>FM : writeLocale(all locales) with rebuilt structure
+FM-->>CLI : OK
+CLI-->>User : Success
+```
+
+**Diagram sources**
+- [src/commands/add-key.ts:1-93](file://src/commands/add-key.ts#L1-L93)
+- [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
+- [src/core/object-utils.ts:1-95](file://src/core/object-utils.ts#L1-L95)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+
+**Section sources**
+- [src/commands/add-key.ts:1-93](file://src/commands/add-key.ts#L1-L93)
+- [src/commands/remove-key.ts:1-96](file://src/commands/remove-key.ts#L1-L96)
+- [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
+- [src/core/object-utils.ts:1-95](file://src/core/object-utils.ts#L1-L95)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+
+### Unused Key Detection (clean:unused)
+- Scans source files matching a set of compiled usage patterns.
+- Compares discovered keys with the default locale’s flattened keys to compute unused keys.
+- Confirms removal and updates all locales, preserving key style and auto-sort behavior.
+
+```mermaid
+flowchart TD
+Start(["Start clean:unused"]) --> Compile["Compile usage patterns"]
+Compile --> Scan["Scan src/**/*.{ts,tsx,js,jsx,html}"]
+Scan --> Extract["Extract keys via regex groups"]
+Extract --> Flatten["Flatten default locale to flat keys"]
+Flatten --> Compare["Compare used vs locale keys"]
+Compare --> Found{"Any unused keys?"}
+Found --> |No| ExitOK["Exit success"]
+Found --> |Yes| Confirm["Confirm removal (--yes or interactive)"]
+Confirm --> |Cancel| ExitCancel["Exit canceled"]
+Confirm --> |Proceed| Update["For each locale: remove keys and write"]
+Update --> Done(["Done"])
+```
+
+**Diagram sources**
+- [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [src/core/object-utils.ts:1-95](file://src/core/object-utils.ts#L1-L95)
+- [src/config/config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
+
+**Section sources**
+- [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [src/core/object-utils.ts:1-95](file://src/core/object-utils.ts#L1-L95)
+- [src/config/config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
+
+### Initialization Wizard (init)
+- Creates configuration file with interactive prompts or non-interactive defaults.
+- Validates supported locales, normalizes entries, and compiles usage patterns.
+- Optionally initializes the default locale file if missing.
+
+**Section sources**
+- [src/commands/init.ts:1-236](file://src/commands/init.ts#L1-L236)
+
+## Dependency Analysis
+- CLI depends on commander for argument parsing, chalk for output, and inquirer for interactive prompts.
+- Configuration loading uses zod for schema validation and regex compilation.
+- File operations rely on fs-extra for robust JSON handling and glob for file discovery.
+- ISO 639-1 validation ensures locale code correctness.
+
+```mermaid
+graph TB
+CLI["CLI (commander/chalk)"] --> Init["init (inquirer)"]
+CLI --> Lang["add:lang (iso-639-1)"]
+CLI --> Keys["add:key/remove:key"]
+CLI --> Clean["clean:unused (glob)"]
+Clean --> ObjU["object-utils"]
+Init --> Cfg["config-loader (zod)"]
+Keys --> FM["file-manager (fs-extra)"]
+Lang --> FM
+Clean --> FM
+FM --> FS["fs-extra"]
+```
+
+**Diagram sources**
+- [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
+- [src/commands/init.ts:1-236](file://src/commands/init.ts#L1-L236)
+- [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
+- [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+- [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
+
+**Section sources**
+- [package.json:1-45](file://package.json#L1-L45)
+- [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
+
+## Performance Considerations
+- Regex compilation happens once during configuration load; usage patterns are reused across scans.
+- File I/O is minimized by reading/writing per locale rather than per key.
+- Auto-sorting is recursive but bounded by the size of translation objects; consider disabling for very large files if needed.
+- Dry-run mode avoids filesystem writes, enabling fast previews.
+
+## Troubleshooting Guide
+Common issues and resolutions:
+- Configuration not found or invalid:
+  - Ensure the configuration file exists in the project root and contains valid JSON.
+  - Use the initialization wizard to generate a baseline configuration.
+- Invalid locale code:
+  - Locale codes must conform to ISO 639-1 standards; region variants are accepted.
+- Structural conflicts when adding keys:
+  - Avoid creating keys that conflict with existing nested or flat structures.
+- Usage patterns misconfiguration:
+  - Ensure patterns include a capturing group for the key; invalid regex triggers explicit errors.
+- CI mode behavior:
+  - Without --yes, CI mode throws errors instead of applying changes; use --dry-run to preview.
+
+Operational tips:
+- Use --dry-run to preview changes before applying.
+- Use --ci with --yes to automatically apply changes in pipelines.
+- Use --force with init to overwrite existing configuration.
+
+**Section sources**
+- [src/config/config-loader.ts:24-67](file://src/config/config-loader.ts#L24-L67)
+- [src/commands/add-lang.ts:36-47](file://src/commands/add-lang.ts#L36-L47)
+- [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
+- [src/config/config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
+- [src/commands/init.ts:151-156](file://src/commands/init.ts#L151-L156)
+
+## Conclusion
+i18n-pro delivers a robust, TypeScript-powered CLI for managing translation assets across locales. Its command-driven architecture, strong configuration validation, and CI-friendly controls make it a reliable tool for teams seeking to automate and standardize their i18n workflows. Whether you are adding languages, managing keys, or cleaning unused translations, i18n-pro provides predictable, safe operations with flexible customization and deterministic behavior in automated environments.

@@ -14,7 +14,7 @@ import { cleanUnusedCommand } from "../commands/clean-unused.js";
 const program = new Command();
 
 program
-  .name("i18n-pro")
+  .name("i18n-cli")
   .description("Professional CLI tool for managing translation files")
   .version("1.0.0");
 
@@ -31,7 +31,7 @@ function withGlobalOptions(command: Command): Command {
 withGlobalOptions(
   program
     .command("init")
-    .description("Create an i18n-pro configuration file")
+    .description("Create an i18n-cli configuration file")
     .action(async (options) => {
       await initCommand(options);
     })

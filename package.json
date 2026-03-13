@@ -1,5 +1,5 @@
 {
-  "name": "i18n-pro",
+  "name": "i18n-cli",
   "version": "1.0.0",
   "description": "Professional CLI tool for managing translation files in internationalized applications",
   "main": "./dist/bin/cli.js",
@@ -21,7 +21,7 @@
   "license": "ISC",
   "type": "module",
   "bin": {
-    "i18n-pro": "./dist/bin/cli.js"
+    "i18n-cli": "./dist/bin/cli.js"
   },
   "dependencies": {
     "@vitalets/google-translate-api": "^9.2.1",

@@ -3,7 +3,7 @@ import path from "path";
 import { z } from "zod";
 import type { I18nConfig } from "./types.js";
 
-export const CONFIG_FILE_NAME = "i18n-pro.config.json";
+export const CONFIG_FILE_NAME = "i18n-cli.config.json";
 
 const ConfigSchema = z.object({
   localesPath: z.string().min(1),
@@ -27,7 +27,7 @@ export async function loadConfig(): Promise<I18nConfig> {
   if (!(await fs.pathExists(configPath))) {
     throw new Error(
       `Configuration file "${CONFIG_FILE_NAME}" not found in project root.\n` +
-      `Run "i18n-pro init" to create one.`
+      `Run "i18n-cli init" to create one.`
     );
   }
 
