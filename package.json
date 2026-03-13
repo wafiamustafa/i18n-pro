@@ -1,12 +1,22 @@
 {
   "name": "i18n-pro",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Professional CLI tool for managing translation files in internationalized applications",
+  "main": "./dist/bin/cli.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "localization",
+    "translation",
+    "cli",
+    "typescript"
+  ],
   "author": "Wafia Mustafa R.",
   "license": "ISC",
   "type": "module",
@@ -14,6 +24,7 @@
     "i18n-pro": "./dist/bin/cli.js"
   },
   "dependencies": {
+    "@vitalets/google-translate-api": "^9.2.1",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
     "fs-extra": "^11.2.0",
