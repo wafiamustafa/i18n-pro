@@ -18,6 +18,14 @@
 - [cli.ts](file://src/bin/cli.ts)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Updated OpenAI provider section to reflect the fully implemented AI-powered translation capabilities
+- Added comprehensive documentation for OpenAI model options and intelligent prompt engineering
+- Updated provider comparison table to reflect current implementation status
+- Enhanced troubleshooting section with OpenAI-specific error handling
+- Added detailed configuration examples for OpenAI integration
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -31,7 +39,7 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document explains the translation provider system that enables pluggable integration with external translation services. It covers the provider interface contract, the service layer abstraction, and how different providers are registered and used. Built-in providers include Google Translate integration, a DeepL stub, and an OpenAI stub. You will learn how to use the TranslationService class to coordinate provider operations, how to configure providers, and how to implement custom providers. Practical examples show programmatic usage, provider selection criteria, error handling patterns, and guidance for choosing providers based on use case and cost considerations.
+This document explains the translation provider system that enables pluggable integration with external translation services. It covers the provider interface contract, the service layer abstraction, and how different providers are registered and used. Built-in providers include Google Translate integration, DeepL stub, and a fully implemented OpenAI provider with AI-powered translation capabilities. You will learn how to use the TranslationService class to coordinate provider operations, how to configure providers, and how to implement custom providers. Practical examples show programmatic usage, provider selection criteria, error handling patterns, and guidance for choosing providers based on use case and cost considerations.
 
 ## Project Structure
 The translation provider system is organized around a small set of cohesive modules:
@@ -80,7 +88,7 @@ O --> TR
 - [translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
 - [google.ts:1-56](file://src/providers/google.ts#L1-L56)
 - [deepl.ts:1-26](file://src/providers/deepl.ts#L1-L26)
-- [openai.ts:1-27](file://src/providers/openai.ts#L1-L27)
+- [openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 
 **Section sources**
 - [cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
@@ -90,14 +98,14 @@ O --> TR
 - [translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
 - [google.ts:1-56](file://src/providers/google.ts#L1-L56)
 - [deepl.ts:1-26](file://src/providers/deepl.ts#L1-L26)
-- [openai.ts:1-27](file://src/providers/openai.ts#L1-L27)
+- [openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 
 ## Core Components
 - Provider contract: Defines TranslationRequest, TranslationResult, and the Translator interface with a name and translate method.
 - Built-in providers:
   - GoogleTranslator: Implements translation using @vitalets/google-translate-api with configurable defaults and per-request overrides.
   - DeeplTranslator: Stub implementation indicating DeepL is not implemented yet.
-  - OpenAITranslator: Stub implementation indicating OpenAI is not implemented yet.
+  - OpenAITranslator: **Fully implemented** AI-powered translation using OpenAI GPT models with intelligent prompt engineering, context awareness, and multiple model support.
 - TranslationService: Thin wrapper that delegates translate requests to the injected Translator, preserving request fidelity and propagating results and errors.
 
 These components form a clean separation of concerns: the contract defines the interface, providers implement it, and the service coordinates usage.
@@ -106,7 +114,7 @@ These components form a clean separation of concerns: the contract defines the i
 - [translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
 - [google.ts:1-56](file://src/providers/google.ts#L1-L56)
 - [deepl.ts:1-26](file://src/providers/deepl.ts#L1-L26)
-- [openai.ts:1-27](file://src/providers/openai.ts#L1-L27)
+- [openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 - [translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
 
 ## Architecture Overview
@@ -148,7 +156,7 @@ TranslationService --> Translator : "delegates translate()"
 - [translation-service.ts:7-16](file://src/services/translation-service.ts#L7-L16)
 - [google.ts:15-21](file://src/providers/google.ts#L15-L21)
 - [deepl.ts:12-18](file://src/providers/deepl.ts#L12-L18)
-- [openai.ts:13-19](file://src/providers/openai.ts#L13-L19)
+- [openai.ts:9-19](file://src/providers/openai.ts#L9-L19)
 
 ## Detailed Component Analysis
 
@@ -234,21 +242,41 @@ Throw --> End(["Error"])
 - [deepl.ts:1-26](file://src/providers/deepl.ts#L1-L26)
 - [translator.test.ts:172-202](file://src/providers/translator.test.ts#L172-L202)
 
-### OpenAI Translator Stub
-OpenAITranslator currently throws a not-implemented error. It accepts apiKey, model, and baseUrl options in the constructor but does not implement translate.
+### OpenAI Translator Implementation
+**Updated** OpenAITranslator is now a fully implemented AI-powered translation provider with sophisticated prompt engineering and multiple model support.
+
+The OpenAI provider delivers context-aware, high-quality translations using OpenAI GPT models. It features intelligent prompt engineering with separate system and user messages, supports multiple GPT models, and provides robust error handling.
+
+Key capabilities:
+- **Intelligent Prompt Engineering**: Uses a system message for translation instructions and a user message for the actual text
+- **Context Awareness**: Incorporates optional context information into the translation prompt
+- **Multiple Model Support**: Supports `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, and `gpt-3.5-turbo`
+- **Authentication Flexibility**: Accepts API keys via constructor options or environment variables
+- **Custom Endpoint Support**: Works with Azure OpenAI and other OpenAI-compatible APIs
+- **Robust Error Handling**: Propagates OpenAI API errors with full context
 
 ```mermaid
-flowchart TD
-Start(["translate(request)"]) --> Throw["Throw 'OpenAI translator is not implemented...'"]
-Throw --> End(["Error"])
+sequenceDiagram
+participant Caller as "Caller"
+participant Service as "TranslationService"
+participant OpenAI as "OpenAITranslator"
+participant API as "OpenAI API"
+Caller->>Service : translate(request)
+Service->>OpenAI : translate(request)
+OpenAI->>OpenAI : Build system/user messages
+OpenAI->>API : chat.completions.create()
+API-->>OpenAI : Response with translated text
+OpenAI-->>Service : Promise<TranslationResult>
+Service-->>Caller : TranslationResult
 ```
 
 **Diagram sources**
-- [openai.ts:21-25](file://src/providers/openai.ts#L21-L25)
+- [translation-service.ts:14-16](file://src/services/translation-service.ts#L14-L16)
+- [openai.ts:30-58](file://src/providers/openai.ts#L30-L58)
 
 **Section sources**
-- [openai.ts:1-27](file://src/providers/openai.ts#L1-L27)
-- [translator.test.ts:204-235](file://src/providers/translator.test.ts#L204-L235)
+- [openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
+- [translator.test.ts:218-408](file://src/providers/translator.test.ts#L218-L408)
 
 ### TranslationService Coordination
 TranslationService is a minimal façade that:
@@ -281,15 +309,15 @@ Behavior verified by tests:
 - [translation-service.test.ts:11-184](file://src/services/translation-service.test.ts#L11-L184)
 
 ### Programmatic Usage and Provider Selection
-Programmatic usage is demonstrated in the repository’s README and tests. Typical steps:
-- Instantiate a provider (e.g., GoogleTranslator)
+Programmatic usage is demonstrated in the repository's README and tests. Typical steps:
+- Instantiate a provider (e.g., GoogleTranslator or OpenAITranslator)
 - Wrap it with TranslationService
 - Call translate with a TranslationRequest
 
 Provider selection criteria:
-- Google Translate: Good general-purpose coverage, free tier with quotas; suitable for broad language pairs and prototyping.
-- DeepL: Premium quality; stub indicates future integration; consider when quality is prioritized over cost.
-- OpenAI: Stub indicates future integration; consider when advanced prompt-based translation is desired.
+- **Google Translate**: Good general-purpose coverage, free tier with quotas; suitable for broad language pairs and prototyping.
+- **DeepL**: Premium quality; stub indicates future integration; consider when quality is prioritized over cost.
+- **OpenAI**: **Fully implemented** AI-powered translation with context awareness and multiple model options; ideal for high-quality, context-sensitive translations.
 
 Switching providers:
 - Replace the provider instance passed to TranslationService while keeping the same interface contract.
@@ -330,86 +358,164 @@ Translator <|.. MyProvider
 ## Dependency Analysis
 External dependencies relevant to translation providers:
 - @vitalets/google-translate-api: Enables Google Translate integration in GoogleTranslator.
+- **openai**: **New dependency** enabling AI-powered translation in OpenAITranslator.
 - zod: Used for configuration validation; indirectly affects provider usage by ensuring valid configuration for the broader system.
 
 ```mermaid
 graph LR
 Pkg["package.json"]
 GDA["@vitalets/google-translate-api"]
+OA["openai"]
 Zod["zod"]
 Pkg --> GDA
+Pkg --> OA
 Pkg --> Zod
 ```
 
 **Diagram sources**
-- [package.json:26-36](file://package.json#L26-L36)
+- [package.json:40-51](file://package.json#L40-L51)
 
 **Section sources**
-- [package.json:1-45](file://package.json#L1-L45)
+- [package.json:1-60](file://package.json#L1-L60)
 
 ## Performance Considerations
 - Network latency: Provider calls are asynchronous; batch operations where feasible.
 - Request size: Very long texts may be truncated or rate-limited; consider chunking.
 - Rate limits: Respect provider quotas; implement retries with backoff for transient failures.
+- **OpenAI costs**: Monitor API usage carefully; consider using lower-cost models like `gpt-3.5-turbo` for bulk translations.
+- **Model selection**: Choose appropriate models based on quality needs and budget constraints.
 - Caching: Cache frequent translations to reduce network calls.
 - Error propagation: Let TranslationService propagate provider errors so callers can decide retry or fallback strategies.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common scenarios and patterns:
-- Not implemented errors: DeeplTranslator and OpenAITranslator throw explicit errors. Implement or replace with a real provider.
-- API errors: GoogleTranslator re-throws underlying API errors; wrap calls with try/catch and log context.
-- Missing detected source locale: When provider response lacks raw metadata, detectedSourceLocale is undefined; handle gracefully.
-- Configuration issues: While not provider-specific, invalid configuration can prevent proper context creation; ensure valid i18n-pro.config.json.
+- **Not implemented errors**: DeeplTranslator throws explicit errors. Implement or replace with a real provider.
+- **API errors**: GoogleTranslator and OpenAITranslator rethrow underlying API errors; wrap calls with try/catch and log context.
+- **Missing detected source locale**: When provider response lacks raw metadata, detectedSourceLocale is undefined; handle gracefully.
+- **Configuration issues**: Invalid configuration can prevent proper context creation; ensure valid i18n-cli.config.json.
+
+**OpenAI-specific troubleshooting**:
+- **"OpenAI API key is required"**: Ensure OPENAI_API_KEY environment variable is set or apiKey option is provided
+- **"Incorrect API key provided"**: Verify API key validity and billing setup
+- **"Rate limit exceeded"**: Implement request delays or upgrade plan; consider cheaper models
+- **"Model not found"**: Verify model name and account access permissions
+- **Poor translation quality**: Use higher-capability models or provide context for ambiguous terms
 
 Operational tips:
 - Log TranslationRequest fields (text length, target/source locales) to diagnose provider behavior.
 - Use dry-run modes where available to test workflows without network calls.
 - Prefer deterministic provider behavior by specifying sourceLocale explicitly.
+- **Monitor OpenAI costs** and implement caching for frequently translated content.
 
 **Section sources**
-- [translator.test.ts:172-235](file://src/providers/translator.test.ts#L172-L235)
+- [translator.test.ts:172-408](file://src/providers/translator.test.ts#L172-L408)
 - [translation-service.test.ts:85-96](file://src/services/translation-service.test.ts#L85-L96)
 
 ## Conclusion
-The translation provider system offers a clean, extensible architecture for integrating external translation services. The Translator interface and TranslationService provide a consistent contract and coordination layer. Built-in providers demonstrate how to implement and configure translators, while stubs indicate future integrations. By following the established patterns, you can implement custom providers, switch between providers programmatically, and integrate the system into broader i18n workflows.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The translation provider system offers a clean, extensible architecture for integrating external translation services. The Translator interface and TranslationService provide a consistent contract and coordination layer. Built-in providers demonstrate how to implement and configure translators, with the OpenAI provider now offering fully implemented AI-powered translation capabilities. By following the established patterns, you can implement custom providers, switch between providers programmatically, and integrate the system into broader i18n workflows.
 
 ## Appendices
 
+### Provider Comparison Matrix
+**Updated** Current implementation status and capabilities:
+
+| Provider | Status | Quality | Cost | Context Support | Model Options |
+|----------|--------|---------|------|-----------------|---------------|
+| Google Translate | ✅ Fully Implemented | Good | Low | ❌ No | ❌ None |
+| DeepL | ⏳ Stub (Coming Soon) | Premium | High | ❌ No | ❌ None |
+| OpenAI | ✅ Fully Implemented | Excellent | Medium-High | ✅ Yes | ✅ Multiple |
+
 ### Provider-Specific Configuration and Authentication
-- Google Translate
+**Updated** Comprehensive configuration options for all providers:
+
+- **Google Translate**
   - Defaults: from, to, host, fetchOptions
   - Behavior: Per-request sourceLocale overrides default from
   - Notes: No explicit API key required by the wrapper used here; consider fetchOptions for headers if needed
-- DeepL
+
+- **DeepL**
   - Options: apiKey, apiUrl
-  - Status: Not implemented; throws an error
-- OpenAI
-  - Options: apiKey, model, baseUrl
-  - Status: Not implemented; throws an error
+  - Status: Stub implementation pending
+  - Note: Future integration planned
+
+- **OpenAI** *(Fully Implemented)*
+  - **Authentication**: apiKey (constructor option) or OPENAI_API_KEY environment variable
+  - **Model Options**: gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-3.5-turbo (default: gpt-3.5-turbo)
+  - **Custom Endpoint**: baseUrl for Azure OpenAI or compatible APIs
+  - **Context Support**: Automatic inclusion in translation prompts
+  - **Error Handling**: Full propagation of OpenAI API errors
 
 **Section sources**
 - [google.ts:8-21](file://src/providers/google.ts#L8-L21)
 - [google.ts:23-54](file://src/providers/google.ts#L23-L54)
 - [deepl.ts:7-18](file://src/providers/deepl.ts#L7-L18)
-- [openai.ts:7-19](file://src/providers/openai.ts#L7-L19)
+- [openai.ts:14-28](file://src/providers/openai.ts#L14-L28)
+- [openai.ts:30-58](file://src/providers/openai.ts#L30-L58)
 
 ### Example Workflows
-- Programmatic translation with Google:
-  - Instantiate GoogleTranslator
-  - Wrap with TranslationService
-  - Call translate with text, targetLocale, and optional sourceLocale
-- Switching providers:
+**Updated** Practical implementation examples:
+
+- **Programmatic translation with OpenAI**:
+  ```typescript
+  import { TranslationService } from 'i18n-ai-cli/services';
+  import { OpenAITranslator } from 'i18n-ai-cli/providers';
+
+  const translator = new OpenAITranslator({
+    apiKey: 'sk-your-api-key-here',
+    model: 'gpt-4o', // or 'gpt-3.5-turbo'
+  });
+  const service = new TranslationService(translator);
+
+  const result = await service.translate({
+    text: 'Hello world',
+    targetLocale: 'es',
+    sourceLocale: 'en',
+    context: 'Technical documentation'
+  });
+
+  console.log(result.text); // "Hola mundo"
+  ```
+
+- **Switching providers**:
   - Keep the same TranslationService instance
-  - Replace the underlying provider (e.g., swap GoogleTranslator for a custom implementation)
-- Error handling:
-  - Catch provider errors and decide on retries or fallbacks
-  - Log request context for diagnostics
+  - Replace the underlying provider (e.g., swap GoogleTranslator for OpenAITranslator)
+  - Both implement the same Translator interface
+
+- **Error handling patterns**:
+  ```typescript
+  try {
+    const result = await service.translate(request);
+    // Handle successful translation
+  } catch (error) {
+    if (error.message.includes('API key')) {
+      // Handle authentication issues
+    } else if (error.message.includes('rate limit')) {
+      // Handle rate limiting
+    } else {
+      // Handle other provider-specific errors
+    }
+  }
+  ```
 
 **Section sources**
-- [README.md:285-299](file://README.md#L285-L299)
-- [translator.test.ts:15-170](file://src/providers/translator.test.ts#L15-L170)
+- [README.md:332-350](file://README.md#L332-L350)
+- [translator.test.ts:218-408](file://src/providers/translator.test.ts#L218-L408)
 - [translation-service.test.ts:85-96](file://src/services/translation-service.test.ts#L85-L96)
+
+### OpenAI Model Selection Guide
+**New** Guidance for choosing the right OpenAI model:
+
+- **gpt-4o** (Recommended): Latest flagship model with best quality and multimodal capabilities
+- **gpt-4o-mini**: Fast and cost-effective for simpler translations
+- **gpt-4-turbo**: Previous generation, still excellent quality
+- **gpt-3.5-turbo** (Default): Fast and cost-effective for general use
+
+**Cost considerations**:
+- **gpt-4o**: Higher cost, best quality for complex content
+- **gpt-4o-mini**: Lower cost, good balance for bulk translations
+- **gpt-3.5-turbo**: Most cost-effective for simple translations
+
+**Quality vs. Cost trade-offs**:
+- Use gpt-4o for critical content requiring highest accuracy
+- Use gpt-4o-mini for bulk translations where cost is a concern
+- Use gpt-3.5-turbo for simple, everyday translations

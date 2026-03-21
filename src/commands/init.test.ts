@@ -49,7 +49,7 @@ describe('init command', () => {
 
   describe('initCommand', () => {
     it('should throw error when config already exists and no force flag', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
 
       const options: GlobalOptions = {};
       await expect(initCommand(options)).rejects.toThrow(
@@ -58,7 +58,7 @@ describe('init command', () => {
     });
 
     it('should create config with default values in non-interactive mode', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
 
@@ -86,7 +86,7 @@ describe('init command', () => {
     });
 
     it('should create config with force flag even if exists', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
 
@@ -104,7 +104,7 @@ describe('init command', () => {
     });
 
     it('should throw error in CI mode without yes flag', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
 
       // Non-interactive mode
       Object.defineProperty(process.stdout, 'isTTY', {
@@ -120,7 +120,7 @@ describe('init command', () => {
     });
 
     it('should create config in CI mode with yes flag', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
 
@@ -138,7 +138,7 @@ describe('init command', () => {
     });
 
     it('should not write config in dry run mode', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
 
       // Non-interactive mode
       Object.defineProperty(process.stdout, 'isTTY', {
@@ -154,7 +154,7 @@ describe('init command', () => {
     });
 
     it('should create interactive config with user input', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
       vi.mocked(inquirer.prompt)
@@ -184,7 +184,7 @@ describe('init command', () => {
     });
 
     it('should include default locale in supported locales', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
 
@@ -198,12 +198,12 @@ describe('init command', () => {
       const options: GlobalOptions = {};
       await initCommand(options);
 
-      const writtenConfig = vi.mocked(fs.writeJson).mock.calls[0][1] as any;
+      const writtenConfig = vi.mocked(fs.writeJson).mock.calls[0]![1] as any;
       expect(writtenConfig.supportedLocales).toContain('en');
     });
 
     it('should remove duplicates from supported locales', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
 
@@ -220,12 +220,12 @@ describe('init command', () => {
       const options: GlobalOptions = {};
       await initCommand(options);
 
-      const writtenConfig = vi.mocked(fs.writeJson).mock.calls[0][1] as any;
+      const writtenConfig = vi.mocked(fs.writeJson).mock.calls[0]![1] as any;
       expect(writtenConfig.supportedLocales).toEqual(['en', 'de']);
     });
 
     it('should validate usage patterns', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
 
@@ -244,7 +244,7 @@ describe('init command', () => {
     });
 
     it('should create default locale file', async () => {
-      vi.mocked(fs.pathExists)
+      (vi.mocked(fs.pathExists) as any)
         .mockResolvedValueOnce(false) // config doesn't exist
         .mockResolvedValueOnce(false); // locale file doesn't exist
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
@@ -265,7 +265,7 @@ describe('init command', () => {
     });
 
     it('should handle custom usage patterns', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       vi.mocked(fs.writeJson).mockResolvedValue(undefined);
       vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
 
@@ -284,7 +284,7 @@ describe('init command', () => {
       const options: GlobalOptions = {};
       await initCommand(options);
 
-      const writtenConfig = vi.mocked(fs.writeJson).mock.calls[0][1] as any;
+      const writtenConfig = vi.mocked(fs.writeJson).mock.calls[0]![1] as any;
       expect(writtenConfig.usagePatterns).toContain('custom\\((.+?)\\)');
     });
   });

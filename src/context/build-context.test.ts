@@ -92,7 +92,7 @@ describe('buildContext', () => {
   it('should create FileManager with correct config', async () => {
     await buildContext({});
 
-    const fileManagerCall = vi.mocked(FileManager).mock.calls[0];
+    const fileManagerCall = vi.mocked(FileManager).mock.calls[0]!;
     expect(fileManagerCall[0]).toBe(mockConfig);
   });
 

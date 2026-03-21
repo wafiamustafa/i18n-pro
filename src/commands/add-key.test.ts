@@ -71,12 +71,12 @@ describe('add:key command', () => {
       expect(context.fileManager.writeLocale).toHaveBeenCalledTimes(2);
       
       // Check en locale gets the value
-      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(enCall[0]).toBe('en');
       expect(enCall[1]).toHaveProperty('greeting', 'Hello');
       
       // Check de locale gets empty string
-      const deCall = vi.mocked(context.fileManager.writeLocale).mock.calls[1];
+      const deCall = vi.mocked(context.fileManager.writeLocale).mock.calls[1]!;
       expect(deCall[0]).toBe('de');
       expect(deCall[1]).toHaveProperty('greeting', '');
     });
@@ -121,7 +121,7 @@ describe('add:key command', () => {
 
       await addKeyCommand(context, 'auth.login.title', { value: 'Login Page' });
 
-      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(enCall[1]).toEqual({
         auth: {
           login: {
@@ -141,7 +141,7 @@ describe('add:key command', () => {
 
       await addKeyCommand(context, 'auth.login.title', { value: 'Login Page' });
 
-      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(enCall[1]).toEqual({
         'auth.login.title': 'Login Page'
       });

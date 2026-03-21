@@ -74,13 +74,13 @@ describe('remove:key command', () => {
       expect(context.fileManager.writeLocale).toHaveBeenCalledTimes(2);
       
       // Check en locale
-      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(enCall[0]).toBe('en');
       expect(enCall[1]).not.toHaveProperty('greeting');
       expect(enCall[1]).toHaveProperty('other');
       
       // Check de locale
-      const deCall = vi.mocked(context.fileManager.writeLocale).mock.calls[1];
+      const deCall = vi.mocked(context.fileManager.writeLocale).mock.calls[1]!;
       expect(deCall[0]).toBe('de');
       expect(deCall[1]).not.toHaveProperty('greeting');
       expect(deCall[1]).toHaveProperty('other');
@@ -113,7 +113,7 @@ describe('remove:key command', () => {
 
       await removeKeyCommand(context, 'auth.login.title');
 
-      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(enCall[1]).toEqual({
         auth: {
           login: {
@@ -139,7 +139,7 @@ describe('remove:key command', () => {
 
       await removeKeyCommand(context, 'auth.login.title');
 
-      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(enCall[1]).toEqual({
         'auth.login.button': 'Sign In'
       });
@@ -154,7 +154,7 @@ describe('remove:key command', () => {
 
       await removeKeyCommand(context, 'auth.login.title');
 
-      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const enCall = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       // Empty objects should be removed
       expect(enCall[1]).toEqual({});
     });

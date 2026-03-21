@@ -129,7 +129,7 @@ describe('update:key command', () => {
 
       await updateKeyCommand(context, 'auth.login.title', { value: 'Sign In Page' });
 
-      const call = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const call = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(call[1]).toEqual({
         auth: {
           login: {
@@ -152,7 +152,7 @@ describe('update:key command', () => {
 
       await updateKeyCommand(context, 'auth.login.title', { value: 'Sign In Page' });
 
-      const call = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const call = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(call[1]).toEqual({
         'auth.login.title': 'Sign In Page'
       });
@@ -253,7 +253,7 @@ describe('update:key command', () => {
 
       await updateKeyCommand(context, 'greeting', { value: 'Hi' });
 
-      const call = vi.mocked(context.fileManager.writeLocale).mock.calls[0];
+      const call = vi.mocked(context.fileManager.writeLocale).mock.calls[0]!;
       expect(call[1]).toEqual({
         greeting: 'Hi',
         farewell: 'Goodbye',

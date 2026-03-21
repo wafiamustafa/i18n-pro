@@ -27,7 +27,7 @@ describe('config-loader', () => {
 
   describe('loadConfig', () => {
     it('should throw error when config file does not exist', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
 
       await expect(loadConfig()).rejects.toThrow(
         `Configuration file "${CONFIG_FILE_NAME}" not found in project root`
@@ -35,7 +35,7 @@ describe('config-loader', () => {
     });
 
     it('should throw error when config file contains invalid JSON', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockRejectedValue(new Error('Invalid JSON'));
 
       await expect(loadConfig()).rejects.toThrow(
@@ -44,7 +44,7 @@ describe('config-loader', () => {
     });
 
     it('should throw error when config has missing required fields', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales'
         // missing other required fields
@@ -54,7 +54,7 @@ describe('config-loader', () => {
     });
 
     it('should throw error when defaultLocale is not in supportedLocales', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales',
         defaultLocale: 'fr',
@@ -70,7 +70,7 @@ describe('config-loader', () => {
     });
 
     it('should throw error when supportedLocales contains duplicates', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales',
         defaultLocale: 'en',
@@ -86,7 +86,7 @@ describe('config-loader', () => {
     });
 
     it('should load valid config with default values', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales',
         defaultLocale: 'en',
@@ -110,7 +110,7 @@ describe('config-loader', () => {
     });
 
     it('should apply default keyStyle when not specified', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales',
         defaultLocale: 'en',
@@ -125,7 +125,7 @@ describe('config-loader', () => {
     });
 
     it('should apply default autoSort when not specified', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales',
         defaultLocale: 'en',
@@ -140,7 +140,7 @@ describe('config-loader', () => {
     });
 
     it('should apply default usagePatterns when not specified', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales',
         defaultLocale: 'en',
@@ -155,7 +155,7 @@ describe('config-loader', () => {
     });
 
     it('should compile usage patterns into regex', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue({
         localesPath: './locales',
         defaultLocale: 'en',
@@ -251,8 +251,8 @@ describe('config-loader', () => {
       
       // Test the regex with global flag behavior
       const testString = "t('hello.world')";
-      result[0].lastIndex = 0;
-      const match = result[0].exec(testString);
+      result[0]!.lastIndex = 0;
+      const match = result[0]!.exec(testString);
       expect(match).toBeTruthy();
       expect(match![1]).toBe('hello.world');
     });

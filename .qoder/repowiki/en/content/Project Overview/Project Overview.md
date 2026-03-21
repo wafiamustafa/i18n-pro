@@ -17,7 +17,18 @@
 - [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
 - [src/commands/add-key.ts](file://src/commands/add-key.ts)
 - [src/commands/remove-key.ts](file://src/commands/remove-key.ts)
+- [src/providers/openai.ts](file://src/providers/openai.ts)
+- [src/services/translation-service.ts](file://src/services/translation-service.ts)
+- [src/providers/translator.ts](file://src/providers/translator.ts)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated all references from 'i18n-pro' to 'i18n-ai-cli' throughout the documentation
+- Added comprehensive coverage of AI-powered translation capabilities
+- Updated package.json and binary name references to reflect the new AI-focused identity
+- Enhanced documentation to highlight AI provider integration and translation services
+- Updated all CLI command examples and installation instructions
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -25,33 +36,43 @@
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
 5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
+6. [AI-Powered Translation Capabilities](#ai-powered-translation-capabilities)
+7. [Dependency Analysis](#dependency-analysis)
+8. [Performance Considerations](#performance-considerations)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Conclusion](#conclusion)
 
 ## Introduction
-i18n-pro is a professional CLI tool designed to streamline internationalization (i18n) workflows for applications that manage translation files. Its primary purpose is to automate and simplify the lifecycle of translation assets across locales, including adding and removing locales, managing translation keys, detecting and cleaning unused keys, validating key structures, and integrating smoothly with CI/CD environments.
+i18n-ai-cli is a professional AI-powered CLI tool designed to streamline internationalization (i18n) workflows for applications that manage translation files. As the evolution of i18n-pro, this tool introduces cutting-edge AI capabilities while maintaining the robust foundation for automating and simplifying the lifecycle of translation assets across locales.
 
-Key value propositions:
-- Automated key management: Add, update, and remove translation keys consistently across all supported locales.
-- Unused key detection: Scan source code using configurable usage patterns to identify and remove orphaned translation keys.
-- Flexible configuration: Define locales path, default locale, supported locales, key styles (flat or nested), usage patterns, and auto-sort behavior.
-- CI/CD friendly: Non-interactive mode with deterministic exit codes and dry-run previews to prevent unintended changes.
-- TypeScript foundation: Built with TypeScript for strong typing and developer ergonomics.
-- Global or local installation: Install globally or locally and use with npx for quick access.
+**Key AI-Powered Value Propositions:**
+- **AI-Powered Translation**: Leverage OpenAI GPT models for context-aware, high-quality translations with automatic key cloning and translation workflows
+- **Intelligent Key Management**: Enhanced key management with AI-assisted suggestions and validation
+- **Smart Cleanup**: Advanced unused key detection with AI-powered context analysis
+- **Flexible AI Providers**: Support for multiple translation providers including OpenAI, Google Translate, and DeepL stub implementations
 
-Position in the internationalization ecosystem:
-- Acts as a command-line orchestrator for translation assets, complementing frontend frameworks and backend localization stacks.
-- Provides structural safeguards (e.g., preventing conflicts between flat and nested key styles) and operational controls (e.g., strict mode, dry runs, CI mode).
+**Traditional Capabilities:**
+- Automated key management: Add, update, and remove translation keys consistently across all supported locales
+- Unused key detection: Scan source code using configurable usage patterns to identify and remove orphaned translation keys
+- Flexible configuration: Define locales path, default locale, supported locales, key styles (flat or nested), usage patterns, and auto-sort behavior
+- CI/CD friendly: Non-interactive mode with deterministic exit codes and dry-run previews to prevent unintended changes
+- TypeScript foundation: Built with TypeScript for strong typing and developer ergonomics
+- Global or local installation: Install globally or locally and use with npx for quick access
+
+**Position in the internationalization ecosystem:**
+- Acts as a command-line orchestrator for translation assets with AI assistance, complementing frontend frameworks and backend localization stacks
+- Provides structural safeguards (e.g., preventing conflicts between flat and nested key styles) and operational controls (e.g., strict mode, dry runs, CI mode)
+- Integrates seamlessly with modern AI translation workflows for enhanced translation quality
 
 ## Project Structure
-The project follows a modular, feature-oriented layout:
-- CLI entry point defines commands and global options.
-- Commands encapsulate specific operations (init, add/remove language, add/update/remove key, clean unused).
-- Context builds a shared runtime with configuration and file manager.
-- Core utilities handle file operations, key flattening/unflattening, and structural validation.
-- Configuration loader validates and compiles user-defined settings.
+The project follows a modular, feature-oriented layout with enhanced AI capabilities:
+- CLI entry point defines commands and global options with AI-aware operations
+- Commands encapsulate specific operations (init, add/remove language, add/update/remove key, clean unused)
+- Context builds a shared runtime with configuration and file manager
+- Core utilities handle file operations, key flattening/unflattening, and structural validation
+- Configuration loader validates and compiles user-defined settings
+- AI translation services provide context-aware translation capabilities
+- Provider system supports multiple translation engines (OpenAI, Google, DeepL)
 
 ```mermaid
 graph TB
@@ -67,6 +88,9 @@ FM --> ObjUtils["Object Utils<br/>src/core/object-utils.ts"]
 FM --> KV["Key Validator<br/>src/core/key-validator.ts"]
 CfgLoad --> TypesCfg["Types<br/>src/config/types.ts"]
 CtxBuild --> TypesCtx["Types<br/>src/context/types.ts"]
+TS["Translation Service<br/>src/services/translation-service.ts"] --> OA["OpenAI Provider<br/>src/providers/openai.ts"]
+TS --> GT["Google Provider<br/>src/providers/google.ts"]
+TS --> DP["DeepL Provider<br/>src/providers/deepl.ts"]
 ```
 
 **Diagram sources**
@@ -83,24 +107,28 @@ CtxBuild --> TypesCtx["Types<br/>src/context/types.ts"]
 - [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
 - [src/commands/add-key.ts:1-93](file://src/commands/add-key.ts#L1-L93)
 - [src/commands/remove-key.ts:1-96](file://src/commands/remove-key.ts#L1-L96)
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 
 **Section sources**
-- [README.md:1-346](file://README.md#L1-L346)
-- [package.json:1-45](file://package.json#L1-L45)
+- [README.md:1-499](file://README.md#L1-L499)
+- [package.json:1-60](file://package.json#L1-L60)
 - [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
 
 ## Core Components
-- CLI entrypoint: Declares commands, global options, and error handling. It delegates to command handlers after building a shared context.
-- Context builder: Loads configuration and instantiates the file manager to provide a consistent runtime for commands.
-- Configuration loader: Validates and parses the configuration file, compiles usage patterns into regular expressions, and performs logical checks (e.g., default locale inclusion, duplicates).
-- File manager: Encapsulates filesystem operations for locales, including reading, writing, creating, deleting, and recursive key sorting.
-- Object utilities: Provide safe flattening/unflattening of nested translation objects and helpers to maintain structural integrity.
-- Key validator: Enforces structural compatibility when adding keys to prevent conflicts between flat and nested styles.
-- Commands:
-  - init: Interactive or non-interactive generation of configuration and default locale initialization.
-  - add:lang: Adds a new locale with optional cloning from an existing locale and ISO 639-1 validation.
-  - clean:unused: Scans source files using compiled usage patterns, computes unused keys, and updates all locales accordingly.
-  - add:key / remove:key: Manage translation keys across locales with structural validation and optional strict mode.
+- **CLI entrypoint**: Declares commands, global options, and error handling with AI-aware operations. It delegates to command handlers after building a shared context.
+- **Context builder**: Loads configuration and instantiates the file manager to provide a consistent runtime for commands.
+- **Configuration loader**: Validates and parses the configuration file, compiles usage patterns into regular expressions, and performs logical checks (e.g., default locale inclusion, duplicates).
+- **File manager**: Encapsulates filesystem operations for locales, including reading, writing, creating, deleting, and recursive key sorting.
+- **Object utilities**: Provide safe flattening/unflattening of nested translation objects and helpers to maintain structural integrity.
+- **Key validator**: Enforces structural compatibility when adding keys to prevent conflicts between flat and nested styles.
+- **Translation Service**: Orchestrates AI-powered translation operations with provider abstraction.
+- **AI Providers**: Implement translation interfaces for different AI services (OpenAI, Google, DeepL).
+- **Commands**:
+  - **init**: Interactive or non-interactive generation of configuration and default locale initialization.
+  - **add:lang**: Adds a new locale with optional cloning from an existing locale and AI-powered translation capabilities.
+  - **clean:unused**: Scans source files using compiled usage patterns, computes unused keys, and updates all locales accordingly.
+  - **add:key / remove:key**: Manage translation keys across locales with structural validation and optional strict mode.
 
 **Section sources**
 - [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
@@ -114,13 +142,16 @@ CtxBuild --> TypesCtx["Types<br/>src/context/types.ts"]
 - [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
 - [src/commands/add-key.ts:1-93](file://src/commands/add-key.ts#L1-L93)
 - [src/commands/remove-key.ts:1-96](file://src/commands/remove-key.ts#L1-L96)
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 
 ## Architecture Overview
-The CLI architecture centers around a command-driven design with a shared context:
-- The CLI registers commands and global options.
+The CLI architecture centers around a command-driven design with AI integration and a shared context:
+- The CLI registers commands and global options with AI-aware capabilities.
 - Each command receives a context containing configuration and a file manager.
 - Commands rely on configuration validation and compiled usage patterns.
 - File operations are delegated to the file manager, which ensures consistent key sorting and safe JSON handling.
+- AI translation services provide contextual translation capabilities when requested.
 
 ```mermaid
 sequenceDiagram
@@ -129,6 +160,8 @@ participant CLI as "CLI (cli.ts)"
 participant Ctx as "Context Builder"
 participant Cfg as "Config Loader"
 participant FM as "FileManager"
+participant TS as "Translation Service"
+participant OA as "OpenAI Provider"
 participant FS as "Filesystem"
 User->>CLI : Run command with options
 CLI->>Ctx : buildContext(options)
@@ -136,6 +169,12 @@ Ctx->>Cfg : loadConfig()
 Cfg-->>Ctx : I18nConfig (compiled patterns)
 Ctx-->>CLI : CommandContext (config, fileManager)
 CLI->>FM : Invoke command handler
+alt AI Translation Requested
+CLI->>TS : translate(text, from, to, context)
+TS->>OA : translate(request)
+OA-->>TS : translated text
+TS-->>CLI : TranslationResult
+end
 FM->>FS : Read/Write/Delete/Create locale files
 FS-->>FM : Data or error
 FM-->>CLI : Result
@@ -147,6 +186,8 @@ CLI-->>User : Output and exit code
 - [src/context/build-context.ts:1-16](file://src/context/build-context.ts#L1-L16)
 - [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
 - [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 
 ## Detailed Component Analysis
 
@@ -155,6 +196,7 @@ CLI-->>User : Output and exit code
 - Defines global options: skip confirmation, dry-run preview, CI mode, force operations.
 - Uses commander for parsing and chalk for colored output.
 - Centralizes error handling with exit override.
+- **Updated**: Now branded as 'i18n-ai-cli' with AI-aware operations.
 
 **Section sources**
 - [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
@@ -217,6 +259,7 @@ CommandContext --> GlobalOptions : "has"
 - Optionally clones content from an existing locale.
 - Supports CI mode and dry-run previews.
 - Emphasizes manual addition of new locales to supportedLocales in configuration.
+- **Enhanced**: Now includes AI-powered translation capabilities through the TranslationService integration.
 
 ```mermaid
 flowchart TD
@@ -226,7 +269,10 @@ Exists --> |Yes| ErrorExists["Throw error: already exists"]
 Exists --> |No| Clone{"Clone from base locale?"}
 Clone --> |Yes| ReadBase["Read base locale"]
 Clone --> |No| Prepare["Prepare empty content"]
-ReadBase --> Confirm["Confirm action (skip if --yes/--ci)"]
+ReadBase --> AI{"AI Translation Enabled?"}
+AI --> |Yes| TranslateAll["Translate all keys using AI"]
+AI --> |No| Confirm["Confirm action (skip if --yes/--ci)"]
+TranslateAll --> Confirm
 Prepare --> Confirm
 Confirm --> |Cancel| Cancel["Exit"]
 Confirm --> |Proceed| Write["Create locale file"]
@@ -240,12 +286,12 @@ Write --> Done(["Done"])
 - [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
 
 ### Key Management (add:key, remove:key)
-- add:key:
+- **add:key**:
   - Validates presence of key and value.
   - Checks structural conflicts for flat/nested styles.
   - Updates all locales; default locale receives the provided value, others receive empty strings.
   - Respects key style and auto-sort settings.
-- remove:key:
+- **remove:key**:
   - Scans all locales to locate keys.
   - Removes keys from all locales and rebuilds structures, pruning empty objects for nested style.
 
@@ -282,7 +328,7 @@ CLI-->>User : Success
 
 ### Unused Key Detection (clean:unused)
 - Scans source files matching a set of compiled usage patterns.
-- Compares discovered keys with the default locale’s flattened keys to compute unused keys.
+- Compares discovered keys with the default locale's flattened keys to compute unused keys.
 - Confirms removal and updates all locales, preserving key style and auto-sort behavior.
 
 ```mermaid
@@ -318,11 +364,85 @@ Update --> Done(["Done"])
 **Section sources**
 - [src/commands/init.ts:1-236](file://src/commands/init.ts#L1-L236)
 
+## AI-Powered Translation Capabilities
+
+### Translation Service Architecture
+i18n-ai-cli introduces a sophisticated translation service that provides AI-powered capabilities through a unified interface:
+
+```mermaid
+classDiagram
+class TranslationService {
+-translator : Translator
++constructor(translator : Translator)
++translate(request : TranslationRequest) : Promise~TranslationResult~
+}
+class Translator {
+<<interface>>
++readonly name : string
++translate(request : TranslationRequest) : Promise~TranslationResult~
+}
+class OpenAITranslator {
+-readonly name : string = "openai"
+-private client : OpenAI
+-private model : string
++constructor(options : OpenAITranslatorOptions)
++translate(request : TranslationRequest) : Promise~TranslationResult~
+}
+class TranslationRequest {
++text : string
++targetLocale : string
++sourceLocale? : string
++context? : string
+}
+class TranslationResult {
++text : string
++detectedSourceLocale? : string
++provider : string
+}
+class OpenAITranslatorOptions {
++apiKey? : string
++model? : string
++baseUrl? : string
+}
+TranslationService --> Translator : uses
+Translator <|.. OpenAITranslator : implements
+TranslationService --> TranslationRequest : processes
+TranslationService --> TranslationResult : produces
+OpenAITranslator --> OpenAITranslatorOptions : configured with
+```
+
+**Diagram sources**
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/translator.ts:1-44](file://src/providers/translator.ts#L1-L44)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
+
+### AI Provider Integration
+The CLI supports multiple translation providers with OpenAI as the primary AI-powered option:
+
+**OpenAI Integration Features:**
+- **Context-Aware Translation**: Uses system messages with source and target locale context
+- **Model Flexibility**: Supports various GPT models (gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-3.5-turbo)
+- **Custom Endpoints**: Supports Azure OpenAI and custom OpenAI-compatible APIs
+- **Environment Configuration**: Automatic API key detection from environment variables
+- **Quality Control**: Temperature settings optimized for translation accuracy
+
+**Provider System Benefits:**
+- **Extensible Architecture**: Easy to add new AI providers
+- **Consistent Interface**: Unified API across all translation providers
+- **Fallback Support**: Graceful degradation when AI services are unavailable
+- **Programmatic Access**: Full API access for custom integrations
+
+**Section sources**
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/translator.ts:1-44](file://src/providers/translator.ts#L1-L44)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
+
 ## Dependency Analysis
 - CLI depends on commander for argument parsing, chalk for output, and inquirer for interactive prompts.
 - Configuration loading uses zod for schema validation and regex compilation.
 - File operations rely on fs-extra for robust JSON handling and glob for file discovery.
 - ISO 639-1 validation ensures locale code correctness.
+- **Enhanced**: AI translation capabilities depend on OpenAI SDK and environment configuration.
 
 ```mermaid
 graph TB
@@ -336,6 +456,9 @@ Keys --> FM["file-manager (fs-extra)"]
 Lang --> FM
 Clean --> FM
 FM --> FS["fs-extra"]
+TS["Translation Service"] --> OA["OpenAI SDK"]
+TS --> GT["Google Translate API"]
+TS --> DP["DeepL API"]
 ```
 
 **Diagram sources**
@@ -345,9 +468,11 @@ FM --> FS["fs-extra"]
 - [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
 - [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
 - [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 
 **Section sources**
-- [package.json:1-45](file://package.json#L1-L45)
+- [package.json:1-60](file://package.json#L1-L60)
 - [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
 
 ## Performance Considerations
@@ -355,25 +480,32 @@ FM --> FS["fs-extra"]
 - File I/O is minimized by reading/writing per locale rather than per key.
 - Auto-sorting is recursive but bounded by the size of translation objects; consider disabling for very large files if needed.
 - Dry-run mode avoids filesystem writes, enabling fast previews.
+- **Enhanced**: AI translation operations are asynchronous and may introduce network latency; consider batching operations for bulk translations.
 
 ## Troubleshooting Guide
 Common issues and resolutions:
-- Configuration not found or invalid:
+- **Configuration not found or invalid**:
   - Ensure the configuration file exists in the project root and contains valid JSON.
   - Use the initialization wizard to generate a baseline configuration.
-- Invalid locale code:
+- **Invalid locale code**:
   - Locale codes must conform to ISO 639-1 standards; region variants are accepted.
-- Structural conflicts when adding keys:
+- **Structural conflicts when adding keys**:
   - Avoid creating keys that conflict with existing nested or flat structures.
-- Usage patterns misconfiguration:
+- **Usage patterns misconfiguration**:
   - Ensure patterns include a capturing group for the key; invalid regex triggers explicit errors.
-- CI mode behavior:
+- **CI mode behavior**:
   - Without --yes, CI mode throws errors instead of applying changes; use --dry-run to preview.
+- **AI Translation Issues**:
+  - **OpenAI API Key Required**: Ensure OPENAI_API_KEY environment variable is set or apiKey option is provided.
+  - **API Key Validation**: Verify the key starts with 'sk-' and has proper permissions.
+  - **Rate Limit Exceeded**: Implement backoff strategies or upgrade OpenAI plan.
+  - **Model Access**: Verify your account has access to the requested GPT model.
 
 Operational tips:
 - Use --dry-run to preview changes before applying.
 - Use --ci with --yes to automatically apply changes in pipelines.
 - Use --force with init to overwrite existing configuration.
+- **AI Integration Tips**: Set OPENAI_API_KEY environment variable for seamless AI operations.
 
 **Section sources**
 - [src/config/config-loader.ts:24-67](file://src/config/config-loader.ts#L24-L67)
@@ -381,6 +513,15 @@ Operational tips:
 - [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
 - [src/config/config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
 - [src/commands/init.ts:151-156](file://src/commands/init.ts#L151-L156)
+- [src/providers/openai.ts:14-28](file://src/providers/openai.ts#L14-L28)
 
 ## Conclusion
-i18n-pro delivers a robust, TypeScript-powered CLI for managing translation assets across locales. Its command-driven architecture, strong configuration validation, and CI-friendly controls make it a reliable tool for teams seeking to automate and standardize their i18n workflows. Whether you are adding languages, managing keys, or cleaning unused translations, i18n-pro provides predictable, safe operations with flexible customization and deterministic behavior in automated environments.
+i18n-ai-cli represents the next evolution of i18n-pro, delivering a robust, AI-powered CLI for managing translation assets across locales. The transformation to an AI-focused tool enhances traditional capabilities with intelligent translation services, while maintaining the command-driven architecture, strong configuration validation, and CI-friendly controls that make it a reliable tool for teams seeking to automate and standardize their i18n workflows.
+
+**Key Advantages of the AI Transformation:**
+- **Enhanced Translation Quality**: AI-powered context-aware translations improve accuracy and cultural appropriateness
+- **Seamless Integration**: AI capabilities integrate naturally with existing workflows without disrupting established processes
+- **Future-Ready Architecture**: Extensible provider system prepares for additional AI services and advanced translation features
+- **Developer Experience**: Maintains familiar CLI interface while adding powerful AI capabilities
+
+Whether you are adding languages, managing keys, cleaning unused translations, or leveraging AI-powered translations, i18n-ai-cli provides predictable, safe operations with flexible customization and deterministic behavior in automated environments. The AI integration represents a significant enhancement while preserving the reliability and developer-friendly approach that made the original i18n-pro successful.

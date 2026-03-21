@@ -72,7 +72,7 @@ describe('clean:unused command', () => {
     it('should return early when no unused keys found', async () => {
       const context = createMockContext();
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         greeting: 'Hello'
       });
@@ -85,7 +85,7 @@ describe('clean:unused command', () => {
     it('should remove unused keys from all locales', async () => {
       const context = createMockContext();
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       
       // Read order: default locale (en) first for analysis, then all locales for processing
       vi.mocked(context.fileManager.readLocale)
@@ -126,7 +126,7 @@ describe('clean:unused command', () => {
     it('should scan multiple files', async () => {
       const context = createMockContext();
       vi.mocked(glob).mockResolvedValue(['src/app.ts', 'src/components/Button.ts']);
-      vi.mocked(fs.readFile)
+      (vi.mocked(fs.readFile) as any)
         .mockResolvedValueOnce("t('greeting')")
         .mockResolvedValueOnce("t('button.label')");
       
@@ -150,7 +150,7 @@ describe('clean:unused command', () => {
     it('should extract keys from different patterns', async () => {
       const context = createMockContext();
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue(`
+      (vi.mocked(fs.readFile) as any).mockResolvedValue(`
         t('key1')
         i18n.t('key2')
         translate('key3')
@@ -178,7 +178,7 @@ describe('clean:unused command', () => {
       ];
       
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('my.key')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('my.key')");
       
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         'my.key': 'Value',
@@ -196,7 +196,7 @@ describe('clean:unused command', () => {
     it('should not modify files in dry run mode', async () => {
       const context = createMockContext({ dryRun: true });
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         greeting: 'Hello',
         unused: 'Not used'
@@ -215,7 +215,7 @@ describe('clean:unused command', () => {
     it('should throw error in CI mode without yes flag', async () => {
       const context = createMockContext({ ci: true });
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         greeting: 'Hello',
         unused: 'Not used'
@@ -229,7 +229,7 @@ describe('clean:unused command', () => {
     it('should clean in CI mode with yes flag', async () => {
       const context = createMockContext({ ci: true, yes: true });
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         greeting: 'Hello',
         unused: 'Not used'
@@ -244,7 +244,7 @@ describe('clean:unused command', () => {
     it('should cancel operation when user declines confirmation', async () => {
       const context = createMockContext();
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         greeting: 'Hello',
         unused: 'Not used'
@@ -259,7 +259,7 @@ describe('clean:unused command', () => {
     it('should skip confirmation with yes flag', async () => {
       const context = createMockContext({ yes: true });
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         greeting: 'Hello',
         unused: 'Not used'
@@ -279,7 +279,7 @@ describe('clean:unused command', () => {
     it('should handle nested keys', async () => {
       const context = createMockContext();
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('auth.login.title')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('auth.login.title')");
       
       vi.mocked(context.fileManager.readLocale).mockResolvedValue({
         'auth.login.title': 'Login',
@@ -309,7 +309,7 @@ describe('clean:unused command', () => {
       context.config = multiConfig;
       
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
-      vi.mocked(fs.readFile).mockResolvedValue("t('greeting')");
+      (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");
       
       // default locale is read first, then all locales are processed
       vi.mocked(context.fileManager.readLocale)

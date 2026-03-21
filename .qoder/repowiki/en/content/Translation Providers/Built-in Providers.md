@@ -13,6 +13,14 @@
 - [package.json](file://package.json)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Updated OpenAI provider section to reflect the fully implemented AI translation features
+- Added comprehensive documentation for OpenAI provider's model selection, API key management, custom base URLs, and context-aware translations
+- Updated provider status indicators to show OpenAI is now fully functional
+- Enhanced error handling and configuration sections for OpenAI provider
+- Added practical examples demonstrating OpenAI provider capabilities
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -25,7 +33,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document explains the built-in translation provider implementations for Google Translate, DeepL, and OpenAI. It focuses on how each provider is structured, what configuration options are available, how they integrate with the TranslationService, and how to use them programmatically. It also covers the current state of each provider (fully implemented vs. stub), error handling patterns, and guidance for choosing a provider based on use case, budget, and performance expectations.
+This document explains the built-in translation provider implementations for Google Translate, DeepL, and OpenAI. It focuses on how each provider is structured, what configuration options are available, how they integrate with the TranslationService, and how to use them programmatically. The OpenAI provider is now fully implemented with comprehensive AI translation features, while Google Translate remains fully functional and DeepL continues as a stub for future implementation.
 
 ## Project Structure
 The provider system is organized around a shared interface and a small set of provider implementations. The TranslationService acts as a thin wrapper around any Translator implementation, enabling pluggable providers.
@@ -47,9 +55,9 @@ TS --> TIF
 
 **Diagram sources**
 - [translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
-- [google.ts:15-56](file://src/providers/google.ts#L15-L56)
+- [google.ts:15-50](file://src/providers/google.ts#L15-L50)
 - [deepl.ts:12-26](file://src/providers/deepl.ts#L12-L26)
-- [openai.ts:13-27](file://src/providers/openai.ts#L13-L27)
+- [openai.ts:9-60](file://src/providers/openai.ts#L9-L60)
 - [translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
 
 **Section sources**
@@ -62,14 +70,16 @@ TS --> TIF
 - Provider implementations:
   - GoogleTranslator: Fully implemented using @vitalets/google-translate-api.
   - DeeplTranslator: Stub implementation that throws when translate is called.
-  - OpenAITranslator: Stub implementation that throws when translate is called.
+  - OpenAITranslator: **Fully implemented** AI-powered translation using OpenAI's Chat Completions API with comprehensive configuration options.
+
+**Updated** OpenAI provider is now fully functional with complete AI translation capabilities
 
 **Section sources**
 - [translator.ts:14-17](file://src/providers/translator.ts#L14-L17)
 - [translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
-- [google.ts:15-56](file://src/providers/google.ts#L15-L56)
+- [google.ts:9-50](file://src/providers/google.ts#L9-L50)
 - [deepl.ts:12-26](file://src/providers/deepl.ts#L12-L26)
-- [openai.ts:13-27](file://src/providers/openai.ts#L13-L27)
+- [openai.ts:9-60](file://src/providers/openai.ts#L9-L60)
 
 ## Architecture Overview
 The provider architecture follows a simple, extensible pattern:
@@ -109,7 +119,8 @@ class DeeplTranslator {
 +translate(request) TranslationResult
 }
 class OpenAITranslator {
--options : OpenAITranslatorOptions
+-private client : OpenAI
+-private model : string
 +name : string
 +translate(request) TranslationResult
 }
@@ -124,9 +135,9 @@ TranslationService --> Translator : "delegates"
 - [translator.ts:1-6](file://src/providers/translator.ts#L1-L6)
 - [translator.ts:8-12](file://src/providers/translator.ts#L8-L12)
 - [translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
-- [google.ts:15-56](file://src/providers/google.ts#L15-L56)
+- [google.ts:9-50](file://src/providers/google.ts#L9-L50)
 - [deepl.ts:12-26](file://src/providers/deepl.ts#L12-L26)
-- [openai.ts:13-27](file://src/providers/openai.ts#L13-L27)
+- [openai.ts:9-60](file://src/providers/openai.ts#L9-L60)
 
 ## Detailed Component Analysis
 
@@ -161,35 +172,34 @@ Service-->>Client : TranslationResult
 ```
 
 **Diagram sources**
-- [google.ts:23-54](file://src/providers/google.ts#L23-L54)
+- [google.ts:17-48](file://src/providers/google.ts#L17-L48)
 - [translator.ts:1-6](file://src/providers/translator.ts#L1-L6)
 - [translator.ts:8-12](file://src/providers/translator.ts#L8-L12)
 - [translation-service.ts:14-16](file://src/services/translation-service.ts#L14-L16)
 
 **Section sources**
-- [google.ts:8-13](file://src/providers/google.ts#L8-L13)
-- [google.ts:19-21](file://src/providers/google.ts#L19-L21)
-- [google.ts:23-54](file://src/providers/google.ts#L23-L54)
-- [translator.test.ts:20-122](file://src/providers/translator.test.ts#L20-L122)
+- [google.ts:18-23](file://src/providers/google.ts#L18-L23)
+- [google.ts:25-48](file://src/providers/google.ts#L25-L48)
+- [translator.test.ts:29-184](file://src/providers/translator.test.ts#L29-L184)
 
 #### Configuration and Authentication
-- Authentication: The Google provider does not require explicit API keys; it relies on the underlying library’s default behavior.
-- Rate limiting and quotas: Not handled by the provider itself; consult the library’s documentation for limits and usage policies.
+- Authentication: The Google provider does not require explicit API keys; it relies on the underlying library's default behavior.
+- Rate limiting and quotas: Not handled by the provider itself; consult the library's documentation for limits and usage policies.
 - Practical example:
   - Initialize with default options and call translate with a TranslationRequest.
   - Override from and host for advanced scenarios.
 
 **Section sources**
-- [google.ts:19-21](file://src/providers/google.ts#L19-L21)
-- [translator.test.ts:73-99](file://src/providers/translator.test.ts#L73-L99)
+- [google.ts:18-23](file://src/providers/google.ts#L18-L23)
+- [translator.test.ts:87-136](file://src/providers/translator.test.ts#L87-L136)
 
 #### Error Handling and Fallbacks
 - Errors thrown by the underlying API propagate to the caller.
 - Fallback behavior is not implemented in the provider; callers should wrap translate in try/catch and implement retries or fallbacks as needed.
 
 **Section sources**
-- [google.ts:47-54](file://src/providers/google.ts#L47-L54)
-- [translator.test.ts:142-152](file://src/providers/translator.test.ts#L142-L152)
+- [google.ts:41-48](file://src/providers/google.ts#L41-L48)
+- [translator.test.ts:156-166](file://src/providers/translator.test.ts#L156-L166)
 
 ### DeepL Provider
 - Implementation: Stub implementation that throws an error when translate is invoked.
@@ -214,7 +224,7 @@ Throw --> End(["Error"])
 - [deepl.ts:7-10](file://src/providers/deepl.ts#L7-L10)
 - [deepl.ts:16-18](file://src/providers/deepl.ts#L16-L18)
 - [deepl.ts:20-24](file://src/providers/deepl.ts#L20-L24)
-- [translator.test.ts:172-202](file://src/providers/translator.test.ts#L172-L202)
+- [translator.test.ts:186-216](file://src/providers/translator.test.ts#L186-L216)
 
 #### Configuration and Authentication
 - Authentication: Not applicable until a real adapter is implemented.
@@ -232,49 +242,91 @@ Throw --> End(["Error"])
 - [deepl.ts:20-24](file://src/providers/deepl.ts#L20-L24)
 
 ### OpenAI Provider
-- Implementation: Stub implementation that throws an error when translate is invoked.
+- Implementation: **Fully implemented** AI-powered translation using OpenAI's Chat Completions API.
 - Configuration options:
-  - apiKey: Placeholder for future API key support.
-  - model: Placeholder for model selection.
-  - baseUrl: Placeholder for custom base URL.
+  - apiKey: OpenAI API key (required). Can be provided via constructor option or OPENAI_API_KEY environment variable.
+  - model: AI model to use (default: "gpt-3.5-turbo"). Supports any OpenAI chat model.
+  - baseUrl: Custom base URL for alternative OpenAI-compatible APIs.
 - Behavior:
-  - Intentionally not implemented; use as a placeholder for a future adapter.
-- Usage pattern:
-  - Instantiate with options and replace with a real adapter when ready.
+  - Uses system messages for context-aware translations with source locale detection.
+  - Incorporates context information when provided in TranslationRequest.
+  - Returns normalized TranslationResult with provider metadata.
+  - Handles API key precedence: constructor options override environment variables.
+- Advanced features:
+  - Context-aware translations with contextual hints.
+  - Temperature control for translation consistency (0.3).
+  - Support for custom OpenAI-compatible endpoints.
+  - Comprehensive error handling and validation.
 
 ```mermaid
-flowchart TD
-Start(["translate(request)"]) --> Throw["Throw 'OpenAI translator is not implemented...'"]
-Throw --> End(["Error"])
+sequenceDiagram
+participant Client as "Client"
+participant Service as "TranslationService"
+participant Provider as "OpenAITranslator"
+participant API as "OpenAI Chat Completions"
+Client->>Service : translate({text,targetLocale,sourceLocale,context})
+Service->>Provider : translate(request)
+Provider->>Provider : validate API key & configure model
+Provider->>API : chat.completions.create({model,temperature,messages})
+API-->>Provider : {choices[0].message.content}
+Provider-->>Service : {text, provider : "openai"}
+Service-->>Client : TranslationResult
 ```
 
 **Diagram sources**
-- [openai.ts:21-25](file://src/providers/openai.ts#L21-L25)
+- [openai.ts:30-58](file://src/providers/openai.ts#L30-L58)
+- [translator.ts:1-6](file://src/providers/translator.ts#L1-L6)
+- [translator.ts:8-12](file://src/providers/translator.ts#L8-L12)
+- [translation-service.ts:14-16](file://src/services/translation-service.ts#L14-L16)
+
+**Updated** OpenAI provider is now fully implemented with comprehensive AI translation features
 
 **Section sources**
-- [openai.ts:7-11](file://src/providers/openai.ts#L7-L11)
-- [openai.ts:17-19](file://src/providers/openai.ts#L17-L19)
-- [openai.ts:21-25](file://src/providers/openai.ts#L21-L25)
-- [translator.test.ts:204-235](file://src/providers/translator.test.ts#L204-L235)
+- [openai.ts:14-28](file://src/providers/openai.ts#L14-L28)
+- [openai.ts:30-58](file://src/providers/openai.ts#L30-L58)
+- [translator.test.ts:218-408](file://src/providers/translator.test.ts#L218-L408)
 
 #### Configuration and Authentication
-- Authentication: Not applicable until a real adapter is implemented.
-- Rate limiting and quotas: Not applicable until a real adapter is implemented.
-- Practical example:
-  - Initialize with apiKey, model, and baseUrl placeholders; replace with a real adapter later.
+- Authentication: Requires OpenAI API key via constructor option or OPENAI_API_KEY environment variable.
+- API key precedence: Constructor options override environment variables.
+- Model selection: Default "gpt-3.5-turbo", supports any OpenAI chat model.
+- Custom base URLs: Supports alternative OpenAI-compatible endpoints.
+- Practical examples:
+  - Initialize with API key: `new OpenAITranslator({ apiKey: 'your-key' })`
+  - Use environment variable: `new OpenAITranslator()`
+  - Custom model: `new OpenAITranslator({ apiKey: 'key', model: 'gpt-4o' })`
+  - Custom endpoint: `new OpenAITranslator({ apiKey: 'key', baseUrl: 'https://custom.api.com' })`
 
 **Section sources**
-- [openai.ts:7-11](file://src/providers/openai.ts#L7-L11)
+- [openai.ts:14-28](file://src/providers/openai.ts#L14-L28)
+- [translator.test.ts:319-374](file://src/providers/translator.test.ts#L319-L374)
 
 #### Error Handling and Fallbacks
-- Throws immediately upon translate; implement a real adapter to handle errors gracefully.
+- API key validation: Throws descriptive error if no API key is available.
+- API errors: Propagates underlying OpenAI API errors to caller.
+- Empty responses: Returns empty string for empty content responses.
+- Fallback behavior: Implement application-level retry logic and error handling.
 
 **Section sources**
-- [openai.ts:21-25](file://src/providers/openai.ts#L21-L25)
+- [openai.ts:17-21](file://src/providers/openai.ts#L17-L21)
+- [openai.ts:52-58](file://src/providers/openai.ts#L52-L58)
+- [translator.test.ts:353-363](file://src/providers/translator.test.ts#L353-L363)
+
+#### Context-Aware Translation Features
+- System message construction: Includes source locale and target locale in system instructions.
+- Context injection: Automatically includes context information in user messages when provided.
+- Translation quality: AI-powered translations with contextual awareness.
+- Practical usage:
+  - Provide context for domain-specific translations: `context: 'technical documentation'`
+  - Specify source locale for better accuracy: `sourceLocale: 'en'`
+
+**Section sources**
+- [openai.ts:37-41](file://src/providers/openai.ts#L37-L41)
+- [translator.test.ts:270-286](file://src/providers/translator.test.ts#L270-L286)
 
 ### TranslationService Integration
 - TranslationService wraps any Translator and forwards requests unchanged.
-- It preserves all request fields (text, targetLocale, sourceLocale, context) and returns the provider’s normalized result.
+- It preserves all request fields (text, targetLocale, sourceLocale, context) and returns the provider's normalized result.
 
 ```mermaid
 sequenceDiagram
@@ -294,10 +346,12 @@ Service-->>Client : TranslationResult
 
 **Section sources**
 - [translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
-- [translation-service.test.ts:20-96](file://src/services/translation-service.test.ts#L20-L96)
+- [translation-service.test.ts:20-184](file://src/services/translation-service.test.ts#L20-L184)
 
 ## Dependency Analysis
-- External dependency for Google: @vitalets/google-translate-api is declared in package.json.
+- External dependencies:
+  - Google: @vitalets/google-translate-api for Google Translate integration.
+  - OpenAI: openai SDK for AI-powered translations.
 - Internal dependencies:
   - Providers depend on the Translator interface.
   - TranslationService depends on the Translator interface.
@@ -308,7 +362,9 @@ Service-->>Client : TranslationResult
 ```mermaid
 graph LR
 PJSON["package.json<br/>dependencies"] --> GAPI["@vitalets/google-translate-api"]
+PJSON --> OAS["openai SDK"]
 GAPI --> GT["GoogleTranslator"]
+OAS --> OT["OpenAITranslator"]
 TS["TranslationService"] --> TIF["Translator interface"]
 TIF --> GT
 TIF --> DT
@@ -316,47 +372,63 @@ TIF --> OT
 ```
 
 **Diagram sources**
-- [package.json:26-36](file://package.json#L26-L36)
-- [google.ts:1-6](file://src/providers/google.ts#L1-L6)
+- [package.json:40-51](file://package.json#L40-L51)
+- [google.ts:1-7](file://src/providers/google.ts#L1-L7)
+- [openai.ts:1-7](file://src/providers/openai.ts#L1-L7)
 - [translation-service.ts:1-5](file://src/services/translation-service.ts#L1-L5)
 - [translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
 
 **Section sources**
-- [package.json:26-36](file://package.json#L26-L36)
-- [google.ts:1-6](file://src/providers/google.ts#L1-L6)
+- [package.json:40-51](file://package.json#L40-L51)
+- [google.ts:1-7](file://src/providers/google.ts#L1-L7)
+- [openai.ts:1-7](file://src/providers/openai.ts#L1-L7)
 - [translation-service.ts:1-5](file://src/services/translation-service.ts#L1-L5)
 - [translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
 
 ## Performance Considerations
 - Google Translate:
-  - Relies on the underlying library’s network behavior; no built-in retry or caching in the provider.
+  - Relies on the underlying library's network behavior; no built-in retry or caching in the provider.
   - Consider batching or rate-limiting at the application level if translating large volumes.
-- DeepL and OpenAI:
-  - Both are stubs; performance characteristics are not applicable until adapters are implemented.
+- OpenAI Provider:
+  - **Fully implemented** with configurable model selection and temperature control.
+  - Network latency depends on OpenAI API response times.
+  - Consider implementing application-level caching for repeated translations.
+  - Model selection affects both cost and performance (e.g., gpt-3.5-turbo vs gpt-4o).
+- DeepL:
+  - Still a stub; performance characteristics are not applicable until an adapter is implemented.
 - General:
   - Use TranslationService to swap providers without changing application logic.
   - Implement retry/backoff and circuit breaker patterns at the application layer if needed.
 
-[No sources needed since this section provides general guidance]
+**Updated** OpenAI provider now has comprehensive performance considerations including model selection and cost optimization
 
 ## Troubleshooting Guide
 - Google Translate:
   - If translate throws, inspect the underlying error and consider wrapping with retry logic.
   - Verify that from/sourceLocale resolution behaves as expected in your scenario.
-- DeepL/OpenAI:
-  - Both throw “not implemented” errors; implement or replace with a real adapter.
+- OpenAI Provider:
+  - **API key issues**: Ensure OPENAI_API_KEY environment variable or constructor option is set.
+  - **Model availability**: Verify selected model is available in your OpenAI account.
+  - **Rate limiting**: OpenAI API may rate limit requests; implement exponential backoff.
+  - **Context handling**: Ensure context is properly formatted when using context-aware features.
+  - **Empty responses**: Handle empty content gracefully in application logic.
+- DeepL:
+  - Throws "DeepL translator is not implemented" error; implement or replace with a real adapter.
 - TranslationService:
   - Errors from providers propagate through TranslationService.translate; wrap calls in try/catch.
 
+**Updated** Added comprehensive troubleshooting for OpenAI provider including API key, model, and rate limiting issues
+
 **Section sources**
-- [translator.test.ts:142-152](file://src/providers/translator.test.ts#L142-L152)
-- [translator.test.ts:178-188](file://src/providers/translator.test.ts#L178-L188)
-- [translator.test.ts:210-219](file://src/providers/translator.test.ts#L210-L219)
+- [translator.test.ts:156-166](file://src/providers/translator.test.ts#L156-L166)
+- [translator.test.ts:346-363](file://src/providers/translator.test.ts#L346-L363)
+- [translator.test.ts:192-202](file://src/providers/translator.test.ts#L192-L202)
 - [translation-service.test.ts:85-96](file://src/services/translation-service.test.ts#L85-L96)
 
 ## Conclusion
 - Google Translate is fully functional and integrates via @vitalets/google-translate-api. Configure via constructor options and handle errors at the application level.
-- DeepL and OpenAI are currently stubs intended as placeholders for future adapters. Use them to align your application’s provider interface while you implement or adopt third-party adapters.
+- **OpenAI provider is now fully implemented** with comprehensive AI translation features including model selection, API key management, custom base URLs, and context-aware translations. It provides advanced AI-powered translation capabilities suitable for complex localization needs.
+- DeepL remains a stub intended as a placeholder for future adapters. Use it to align your application's provider interface while you implement or adopt third-party adapters.
 - TranslationService provides a clean abstraction that enables easy swapping of providers and consistent error propagation.
 
-[No sources needed since this section summarizes without analyzing specific files]
+**Updated** Added comprehensive conclusion covering the newly fully implemented OpenAI provider capabilities

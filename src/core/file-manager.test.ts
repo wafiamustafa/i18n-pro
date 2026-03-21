@@ -71,14 +71,14 @@ describe('FileManager', () => {
 
   describe('localeExists', () => {
     it('should return true when locale file exists', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       const result = await fileManager.localeExists('en');
       expect(result).toBe(true);
       expect(fs.pathExists).toHaveBeenCalledWith(path.join(mockCwd, 'locales', 'en.json'));
     });
 
     it('should return false when locale file does not exist', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       const result = await fileManager.localeExists('fr');
       expect(result).toBe(false);
     });
@@ -94,7 +94,7 @@ describe('FileManager', () => {
   describe('readLocale', () => {
     it('should read and parse locale file', async () => {
       const mockData = { greeting: 'Hello' };
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockResolvedValue(mockData);
 
       const result = await fileManager.readLocale('en');
@@ -103,7 +103,7 @@ describe('FileManager', () => {
     });
 
     it('should throw error when locale file does not exist', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
 
       await expect(fileManager.readLocale('fr')).rejects.toThrow(
         'Locale file "fr.json" does not exist.'
@@ -111,7 +111,7 @@ describe('FileManager', () => {
     });
 
     it('should throw error when locale file has invalid JSON', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       vi.mocked(fs.readJson).mockRejectedValue(new Error('Invalid JSON'));
 
       await expect(fileManager.readLocale('en')).rejects.toThrow(
@@ -135,7 +135,7 @@ describe('FileManager', () => {
       const data = { zebra: 'z', apple: 'a', mango: 'm' };
       await fileManager.writeLocale('en', data);
       
-      const writtenData = vi.mocked(fs.writeJson).mock.calls[0][1];
+      const writtenData = vi.mocked(fs.writeJson).mock.calls[0]![1];
       expect(Object.keys(writtenData)).toEqual(['apple', 'mango', 'zebra']);
     });
 
@@ -146,7 +146,7 @@ describe('FileManager', () => {
       const data = { zebra: 'z', apple: 'a', mango: 'm' };
       await unsortedFileManager.writeLocale('en', data);
       
-      const writtenData = vi.mocked(fs.writeJson).mock.calls[0][1];
+      const writtenData = vi.mocked(fs.writeJson).mock.calls[0]![1];
       expect(Object.keys(writtenData)).toEqual(['zebra', 'apple', 'mango']);
     });
 
@@ -157,7 +157,7 @@ describe('FileManager', () => {
       };
       await fileManager.writeLocale('en', data);
       
-      const writtenData = vi.mocked(fs.writeJson).mock.calls[0][1];
+      const writtenData = vi.mocked(fs.writeJson).mock.calls[0]![1];
       expect(writtenData).toEqual({
         a: { x: 1, y: 2 },
         z: { a: 1, b: 2 }
@@ -171,7 +171,7 @@ describe('FileManager', () => {
       };
       await fileManager.writeLocale('en', data);
       
-      const writtenData = vi.mocked(fs.writeJson).mock.calls[0][1];
+      const writtenData = vi.mocked(fs.writeJson).mock.calls[0]![1];
       expect(writtenData.items).toEqual([3, 1, 2]);
     });
 
@@ -184,13 +184,13 @@ describe('FileManager', () => {
 
   describe('deleteLocale', () => {
     it('should delete locale file', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       await fileManager.deleteLocale('de');
       expect(fs.remove).toHaveBeenCalledWith(path.join(mockCwd, 'locales', 'de.json'));
     });
 
     it('should throw error when locale file does not exist', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
 
       await expect(fileManager.deleteLocale('fr')).rejects.toThrow(
         'Locale "fr" does not exist.'
@@ -198,7 +198,7 @@ describe('FileManager', () => {
     });
 
     it('should not delete file in dry run mode', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
       await fileManager.deleteLocale('de', { dryRun: true });
       expect(fs.remove).not.toHaveBeenCalled();
     });
@@ -206,7 +206,7 @@ describe('FileManager', () => {
 
   describe('createLocale', () => {
     it('should create new locale file', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       const initialData = { greeting: 'Hello' };
       
       await fileManager.createLocale('fr', initialData);
@@ -220,7 +220,7 @@ describe('FileManager', () => {
     });
 
     it('should throw error when locale already exists', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(true);
 
       await expect(fileManager.createLocale('en', {})).rejects.toThrow(
         'Locale "en" already exists.'
@@ -228,13 +228,13 @@ describe('FileManager', () => {
     });
 
     it('should not create file in dry run mode', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       await fileManager.createLocale('fr', {}, { dryRun: true });
       expect(fs.writeJson).not.toHaveBeenCalled();
     });
 
     it('should ensure directory before creating file', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      (vi.mocked(fs.pathExists) as any).mockResolvedValue(false);
       await fileManager.createLocale('fr', {});
       
       // ensureDir should be called before writeJson
@@ -255,7 +255,7 @@ describe('FileManager', () => {
       };
       await fileManager.writeLocale('en', data);
       
-      const writtenData = vi.mocked(fs.writeJson).mock.calls[0][1];
+      const writtenData = vi.mocked(fs.writeJson).mock.calls[0]![1];
       expect(writtenData).toEqual({
         apple: 'a',
         zebra: {
@@ -272,7 +272,7 @@ describe('FileManager', () => {
       };
       await fileManager.writeLocale('en', data);
       
-      const writtenData = vi.mocked(fs.writeJson).mock.calls[0][1];
+      const writtenData = vi.mocked(fs.writeJson).mock.calls[0]![1];
       expect(writtenData).toEqual({
         a: 'value',
         z: null
@@ -286,7 +286,7 @@ describe('FileManager', () => {
       };
       await fileManager.writeLocale('en', data);
       
-      const writtenData = vi.mocked(fs.writeJson).mock.calls[0][1];
+      const writtenData = vi.mocked(fs.writeJson).mock.calls[0]![1];
       expect(writtenData).toEqual({
         a: { nested: [2, 1] },
         z: [3, 1, 2]
