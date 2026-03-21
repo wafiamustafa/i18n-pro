@@ -1,13 +1,17 @@
 {
-  "name": "i18n-cli",
+  "name": "i18n-ai-cli",
   "version": "1.0.0",
-  "description": "Professional CLI tool for managing translation files in internationalized applications",
-  "main": "./dist/bin/cli.js",
+  "description": "AI-powered CLI tool for managing translation files in internationalized applications",
+  "main": "./dist/cli.js",
+  "exports": {
+    ".": "./dist/cli.js"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build"
   },
   "keywords": [
     "i18n",
@@ -15,13 +19,23 @@
     "localization",
     "translation",
     "cli",
-    "typescript"
+    "typescript",
+    "ai",
+    "openai",
+    "gpt"
   ],
   "author": "Wafia Mustafa R.",
   "license": "ISC",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "bin": {
-    "i18n-cli": "./dist/bin/cli.js"
+    "i18n-ai-cli": "./dist/cli.js"
   },
   "dependencies": {
     "@vitalets/google-translate-api": "^9.2.1",
@@ -32,6 +46,7 @@
     "inquirer": "^13.3.0",
     "iso-639-1": "^3.1.5",
     "leven": "^4.1.0",
+    "openai": "^6.29.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

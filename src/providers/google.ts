@@ -2,15 +2,9 @@ import { translate } from "@vitalets/google-translate-api";
 import type {
   Translator,
   TranslationRequest,
-  TranslationResult
+  TranslationResult,
+  GoogleTranslatorOptions
 } from "./translator.js";
-
-export interface GoogleTranslatorOptions {
-  from?: string;
-  to?: string;
-  host?: string;
-  fetchOptions?: Record<string, unknown>;
-}
 
 export class GoogleTranslator implements Translator {
   readonly name = "google";

@@ -14,7 +14,7 @@ import { cleanUnusedCommand } from "../commands/clean-unused.js";
 const program = new Command();
 
 program
-  .name("i18n-cli")
+  .name("i18n-ai-cli")
   .description("Professional CLI tool for managing translation files")
   .version("1.0.0");
 
