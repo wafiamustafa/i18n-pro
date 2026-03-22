@@ -15,6 +15,7 @@ export interface Translator {
   readonly name: string;
   translate(request: TranslationRequest): Promise<TranslationResult>;
 }
+
 export interface GoogleTranslatorOptions {
   from?: string;
   to?: string;
@@ -40,4 +41,19 @@ export interface AIProvider {
     text: string,
     namespace?: string
   ): Promise<string>;
+}
+
+export interface LocaleIssues {
+  missingKeys: string[];
+  extraKeys: string[];
+  typeMismatches: { key: string; expected: string; actual: string }[];
+}
+
+export interface ValidationReport {
+  locale: string;
+  issues: LocaleIssues;
+}
+
+export interface ValidateOptions {
+  translator?: Translator | undefined;
 }

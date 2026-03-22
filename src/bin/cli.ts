@@ -10,6 +10,10 @@ import { addKeyCommand } from "../commands/add-key.js";
 import { updateKeyCommand } from "../commands/update-key.js";
 import { removeKeyCommand } from "../commands/remove-key.js";
 import { cleanUnusedCommand } from "../commands/clean-unused.js";
+import { validateCommand } from "../commands/validate.js";
+import { GoogleTranslator } from "../providers/google.js";
+import { OpenAITranslator } from "../providers/openai.js";
+import type { Translator } from "../providers/translator.js";
 
 const program = new Command();
 
@@ -107,6 +111,42 @@ withGlobalOptions(
     .action(async (options) => {
         const context = await buildContext(options);
         await cleanUnusedCommand(context);
+    })
+);
+
+// Validate Command
+withGlobalOptions(
+  program
+    .command("validate")
+    .description("Validate & auto-correct existing translation files")
+    .option(
+      "-p, --provider <provider>",
+      "Translation provider for missing keys (google, openai)"
+    )
+    .action(async (options) => {
+        const context = await buildContext(options);
+
+        let translator: Translator | undefined;
+
+        if (options.provider) {
+          const provider = options.provider as string;
+
+          if (provider === "google") {
+            translator = new GoogleTranslator();
+          } else if (provider === "openai") {
+            translator = new OpenAITranslator();
+          } else {
+            throw new Error(
+              `Unknown translation provider "${provider}". Use "google" or "openai".`
+            );
+          }
+        } else if (process.env.OPENAI_API_KEY) {
+          translator = new OpenAITranslator();
+        } else {
+          translator = new GoogleTranslator();
+        }
+
+        await validateCommand(context, { translator });
     })
 );
 

@@ -8,6 +8,7 @@ AI-powered CLI tool for managing translation files in internationalized applicat
 - **Language Management**: Add or remove locales with ease, with optional cloning from existing locales.
 - **Key Management**: Add, update, or remove translation keys across all locales.
 - **Cleanup**: Identify and remove unused translation keys by scanning source code.
+- **Validation**: Detect missing, extra, or type-mismatched keys across locale files with auto-correction support.
 - **Structural Validation**: Prevents conflicts between nested and flat key structures.
 - **Dry Run**: Preview changes before they are applied.
 - **CI Friendly**: Non-interactive mode with deterministic exit codes and fail-on-change semantics.
@@ -71,6 +72,9 @@ i18n-ai-cli add:key welcome.message --value "Welcome to our app"
 
 # Clean up unused keys
 i18n-ai-cli clean:unused
+
+# Validate translation files
+i18n-ai-cli validate
 ```
 
 ## Configuration
@@ -203,6 +207,28 @@ Example: `i18n-ai-cli remove:key auth.login.title`
 
 Removes the key from all locales.
 
+### Validation Commands
+
+#### Validate translation files
+
+```bash
+i18n-ai-cli validate [--provider <provider>]
+```
+
+Validates all translation files against the default locale, detecting:
+- **Missing keys**: Keys present in the default locale but missing in other locales
+- **Extra keys**: Keys present in other locales but not in the default locale
+- **Type mismatches**: Keys where the value type differs from the default locale
+
+Options:
+- `--provider <provider>`: Use a translation provider to auto-translate missing keys. Supported: `openai`, `google`
+
+The command will display a report of all issues found and optionally auto-correct them:
+- Without a provider: Missing keys are filled with empty strings
+- With a provider: Missing keys are automatically translated
+
+**Note:** Extra keys are always removed during auto-correction, and type mismatches are fixed based on the default locale's value type.
+
 ### Maintenance Commands
 
 #### Clean unused keys
@@ -270,6 +296,16 @@ i18n-ai-cli add:lang de --from en
 i18n-ai-cli remove:key auth.legacy --dry-run
 ```
 
+### Validate with auto-translation
+```bash
+# Validate and auto-translate missing keys using OpenAI
+export OPENAI_API_KEY=sk-your-api-key-here
+i18n-ai-cli validate --provider openai
+
+# Or use Google Translate (no API key required)
+i18n-ai-cli validate --provider google
+```
+
 ### Skip confirmation prompts
 ```bash
 i18n-ai-cli clean:unused --yes
@@ -283,6 +319,15 @@ i18n-ai-cli clean:unused --ci --dry-run
 To apply changes in CI:
 ```bash
 i18n-ai-cli clean:unused --ci --yes
+```
+
+### Validate in CI
+```bash
+# Check for validation issues (fails if any found)
+i18n-ai-cli validate --ci --dry-run
+
+# Auto-correct validation issues in CI
+i18n-ai-cli validate --ci --yes
 ```
 
 ### Initialize in non-interactive mode

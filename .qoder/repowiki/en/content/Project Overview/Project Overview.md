@@ -4,6 +4,7 @@
 **Referenced Files in This Document**
 - [README.md](file://README.md)
 - [package.json](file://package.json)
+- [package-lock.json](file://package-lock.json)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
 - [src/config/types.ts](file://src/config/types.ts)
@@ -24,11 +25,10 @@
 
 ## Update Summary
 **Changes Made**
-- Updated all references from 'i18n-pro' to 'i18n-ai-cli' throughout the documentation
-- Added comprehensive coverage of AI-powered translation capabilities
-- Updated package.json and binary name references to reflect the new AI-focused identity
-- Enhanced documentation to highlight AI provider integration and translation services
-- Updated all CLI command examples and installation instructions
+- Updated version references from 1.0.1 to 1.0.2 throughout the documentation
+- Updated CLI version display to reflect the new version
+- Updated package.json and package-lock.json version identifiers
+- Maintained all existing functionality and architectural descriptions
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -196,7 +196,7 @@ CLI-->>User : Output and exit code
 - Defines global options: skip confirmation, dry-run preview, CI mode, force operations.
 - Uses commander for parsing and chalk for colored output.
 - Centralizes error handling with exit override.
-- **Updated**: Now branded as 'i18n-ai-cli' with AI-aware operations.
+- **Updated**: Now displays version 1.0.2 and maintains AI-aware operations.
 
 **Section sources**
 - [src/bin/cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
@@ -523,5 +523,10 @@ i18n-ai-cli represents the next evolution of i18n-pro, delivering a robust, AI-p
 - **Seamless Integration**: AI capabilities integrate naturally with existing workflows without disrupting established processes
 - **Future-Ready Architecture**: Extensible provider system prepares for additional AI services and advanced translation features
 - **Developer Experience**: Maintains familiar CLI interface while adding powerful AI capabilities
+
+**Version Information:**
+- Current version: 1.0.2 (patch release with no functional changes)
+- Maintains backward compatibility with previous versions
+- Updated dependency tracking in package-lock.json for consistent package resolution
 
 Whether you are adding languages, managing keys, cleaning unused translations, or leveraging AI-powered translations, i18n-ai-cli provides predictable, safe operations with flexible customization and deterministic behavior in automated environments. The AI integration represents a significant enhancement while preserving the reliability and developer-friendly approach that made the original i18n-pro successful.
