@@ -2,8 +2,8 @@
 
 <cite>
 **Referenced Files in This Document**
-- [package.json](file://package.json)
 - [README.md](file://README.md)
+- [package.json](file://package.json)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/commands/init.ts](file://src/commands/init.ts)
 - [src/commands/add-lang.ts](file://src/commands/add-lang.ts)
@@ -20,6 +20,14 @@
 - [src/core/confirmation.ts](file://src/core/confirmation.ts)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Enhanced installation section with comprehensive coverage of multiple installation methods
+- Updated quick start section with clearer workflow examples
+- Improved troubleshooting section with specific error handling guidance
+- Added detailed explanation of global vs local installation benefits
+- Updated architecture overview to reflect current implementation
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Installation](#installation)
@@ -33,195 +41,329 @@
 10. [Conclusion](#conclusion)
 
 ## Introduction
-i18n-pro is a professional CLI tool for managing translation files in internationalized applications. It helps you initialize configuration, manage locales, add and update translation keys, and clean unused keys. The tool supports both flat and nested key styles, structural validation to prevent conflicts, and CI-friendly modes for automation.
+i18n-ai-cli is a powerful CLI tool for managing translation files in internationalized applications. It provides AI-powered translation capabilities, automated key management, unused key detection, and flexible configuration options. The tool supports both flat and nested key styles, structural validation to prevent conflicts, and CI-friendly modes for automation.
 
 ## Installation
-You can install i18n-pro globally or locally in your project. Both approaches are supported.
+The tool supports multiple installation methods to accommodate different workflow preferences and project requirements.
 
-- Global installation
-  - Install globally using your package manager and run the command directly.
-  - See [README.md:19-37](file://README.md#L19-L37) for the global installation command.
+### Global Installation
+Install the package globally for system-wide access:
 
-- Local installation
-  - Install as a development dependency in your project and run via npx.
-  - See [README.md:19-37](file://README.md#L19-L37) for the local installation command and npx usage.
+```bash
+npm install -g i18n-ai-cli
+```
 
-- Package entry point
-  - The CLI binary is exposed under the package name and maps to the built entry script.
-  - See [package.json:23-25](file://package.json#L23-L25) for the binary mapping.
+**Benefits:**
+- Available from anywhere in your terminal
+- No need for npx prefix
+- Consistent across projects
+
+**When to use:** Quick access outside of specific projects or when you frequently use the tool across multiple repositories.
+
+### Local Installation
+Install as a development dependency within your project:
+
+```bash
+npm install --save-dev i18n-ai-cli
+```
+
+**Benefits:**
+- Keeps tooling scoped to the project
+- Ensures reproducible versions across environments
+- Ideal for CI/CD pipelines
+
+**When to use:** Projects requiring consistent versions or integration with CI/CD workflows.
+
+### Using Locally Installed Packages
+
+When installed locally, the `i18n-ai-cli` command is not automatically available in your shell PATH. Use one of these methods:
+
+**Option 1: Use npx (Recommended)**
+```bash
+npx i18n-ai-cli --help
+```
+
+**Option 2: Add a script to your package.json**
+```json
+{
+  "scripts": {
+    "i18n": "i18n-ai-cli"
+  }
+}
+```
+Then run:
+```bash
+npm run i18n -- --help
+```
+
+**Option 3: Install globally**
+```bash
+npm install -g i18n-ai-cli
+i18n-ai-cli --help
+```
 
 **Section sources**
-- [README.md:19-37](file://README.md#L19-L37)
-- [package.json:23-25](file://package.json#L23-L25)
+- [README.md:20-58](file://README.md#L20-L58)
+- [package.json:37-39](file://package.json#L37-L39)
 
 ## Quick Start
 Get up and running quickly with a minimal workflow: initialize configuration, add a language, add a key, and clean unused keys.
 
-- Minimal workflow
-  - Initialize configuration, add a language, add a key, and clean unused keys.
-  - See [README.md:39-53](file://README.md#L39-L53) for the quick start commands.
+### Basic Workflow
+```bash
+# Initialize configuration
+i18n-ai-cli init
 
-- Interactive initialization
-  - Run the interactive wizard to generate a configuration file with sensible defaults.
-  - See [README.md:131-134](file://README.md#L131-L134) for the init command.
+# Add a new language
+i18n-ai-cli add:lang es --from en
 
-- Dry run preview
-  - Use the dry run option to preview changes before applying them.
-  - See [README.md:215-220](file://README.md#L215-L220) for the dry run option.
+# Add a translation key
+i18n-ai-cli add:key welcome.message --value "Welcome to our app"
+
+# Clean up unused keys
+i18n-ai-cli clean:unused
+```
+
+### Interactive Initialization
+Run the interactive wizard to generate a configuration file with sensible defaults:
+```bash
+i18n-ai-cli init
+```
+
+### Dry Run Preview
+Use the dry run option to preview changes before applying them:
+```bash
+i18n-ai-cli clean:unused --dry-run
+```
 
 **Section sources**
-- [README.md:39-53](file://README.md#L39-L53)
-- [README.md:131-134](file://README.md#L131-L134)
-- [README.md:215-220](file://README.md#L215-L220)
+- [README.md:60-74](file://README.md#L60-L74)
+- [README.md:152-155](file://README.md#L152-L155)
+- [README.md:236-241](file://README.md#L236-L241)
 
 ## Prerequisites
-Ensure your environment meets the minimum requirements before installing and using i18n-pro.
+Ensure your environment meets the minimum requirements before installing and using i18n-ai-cli.
 
-- Node.js version
-  - Development requires Node.js 18+.
-  - See [README.md:321-325](file://README.md#L321-L325) for the Node.js requirement.
+### Node.js Version
+Development requires Node.js 18+:
+```bash
+node --version
+# Should output 18.x or higher
+```
 
-- Package manager preference
-  - The project is configured to use npm scripts for building and testing.
-  - See [package.json:6-11](file://package.json#L6-L11) for the scripts section.
+### Package Manager Preference
+The project is configured to use npm scripts for building and testing:
+```json
+{
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  }
+}
+```
 
-- OS compatibility
-  - The CLI shebang indicates a Unix-like environment.
-  - See [src/bin/cli.ts](file://src/bin/cli.ts#L1) for the interpreter directive.
+### OS Compatibility
+The CLI shebang indicates a Unix-like environment:
+```typescript
+#!/usr/bin/env node
+```
 
 **Section sources**
-- [README.md:321-325](file://README.md#L321-L325)
-- [package.json:6-11](file://package.json#L6-L11)
+- [README.md:494-497](file://README.md#L494-L497)
+- [package.json:9-14](file://package.json#L9-L14)
 - [src/bin/cli.ts:1](file://src/bin/cli.ts#L1)
 
 ## Choosing Between Global and Local Installation
 Select the installation method that best fits your workflow and project needs.
 
-- Global installation
-  - Pros: Available system-wide, convenient for ad-hoc tasks.
-  - Cons: Can cause version conflicts across projects.
-  - Use when you need quick access outside of a specific project.
+### Global Installation
+**Pros:**
+- Available system-wide, convenient for ad-hoc tasks
+- No npx prefix required
+- Consistent across projects
 
-- Local installation
-  - Pros: Keeps tooling scoped to the project, ensures reproducibility across environments.
-  - Cons: Requires npx to run.
-  - Use when you want consistent versions per project or integrate with CI/CD.
+**Cons:**
+- Can cause version conflicts across projects
+- May lead to inconsistent tool versions
 
-- Binary mapping
-  - The package exposes a binary mapped to the CLI entry script.
-  - See [package.json:23-25](file://package.json#L23-L25) for the binary mapping.
+**Use when:** You need quick access outside of a specific project or when working with multiple unrelated projects.
+
+### Local Installation
+**Pros:**
+- Keeps tooling scoped to the project
+- Ensures reproducibility across environments
+- Integrates seamlessly with CI/CD pipelines
+
+**Cons:**
+- Requires npx to run or script wrapper
+- Slightly more setup overhead
+
+**Use when:** You want consistent versions per project, integrate with CI/CD, or work in team environments.
+
+### Binary Mapping
+The package exposes a binary mapped to the CLI entry script:
+```json
+{
+  "bin": {
+    "i18n-ai-cli": "dist/cli.js"
+  }
+}
+```
 
 **Section sources**
-- [package.json:23-25](file://package.json#L23-L25)
-- [README.md:19-37](file://README.md#L19-L37)
+- [package.json:37-39](file://package.json#L37-L39)
+- [README.md:20-58](file://README.md#L20-L58)
 
 ## Step-by-Step Setup
-Follow this step-by-step guide to set up i18n-pro in a new project.
+Follow this step-by-step guide to set up i18n-ai-cli in a new project.
 
-1. Initialize configuration
-   - Run the interactive init wizard to create a configuration file and default locale.
-   - See [README.md:131-134](file://README.md#L131-L134) for the init command.
-   - Internally, the init command validates inputs, compiles usage patterns, and optionally creates the default locale file.
-   - See [src/commands/init.ts:25-182](file://src/commands/init.ts#L25-L182) for the init command implementation.
+### 1. Initialize Configuration
+Run the interactive init wizard to create a configuration file and default locale:
+```bash
+i18n-ai-cli init
+```
 
-2. Add a new language
-   - Add a new locale and optionally clone content from an existing locale.
-   - See [README.md:141-149](file://README.md#L141-L149) for the add:lang command.
-   - The command validates the locale code and checks for duplicates and existing files.
-   - See [src/commands/add-lang.ts:26-97](file://src/commands/add-lang.ts#L26-L97) for the add:lang command implementation.
+Internally, the init command validates inputs, compiles usage patterns, and optionally creates the default locale file.
 
-3. Add a translation key
-   - Add a new key across all supported locales with a default value.
-   - See [README.md:161-167](file://README.md#L161-L167) for the add:key command.
-   - The command validates structural conflicts and applies the key style (flat or nested).
-   - See [src/commands/add-key.ts:7-92](file://src/commands/add-key.ts#L7-L92) for the add:key command implementation.
+### 2. Add a New Language
+Add a new locale and optionally clone content from an existing locale:
+```bash
+i18n-ai-cli add:lang fr
+i18n-ai-cli add:lang de --from en
+```
 
-4. Clean unused keys
-   - Scan source files using configured patterns and remove unused keys from all locales.
-   - See [README.md:187-199](file://README.md#L187-L199) for the clean:unused command.
-   - The command compiles usage patterns, scans files, and updates locales accordingly.
-   - See [src/commands/clean-unused.ts:8-137](file://src/commands/clean-unused.ts#L8-L137) for the clean:unused command implementation.
+The command validates the locale code against ISO 639-1 standard and checks for duplicates and existing files.
 
-5. Optional: Update or remove keys and languages
-   - Update a key’s value in a specific locale.
-     - See [README.md:169-175](file://README.md#L169-L175) and [src/commands/update-key.ts:15-102](file://src/commands/update-key.ts#L15-L102).
-   - Remove a key from all locales.
-     - See [README.md:177-183](file://README.md#L177-L183) and [src/commands/remove-key.ts:10-95](file://src/commands/remove-key.ts#L10-L95).
-   - Remove a language.
-     - See [README.md:153-157](file://README.md#L153-L157) and [src/commands/remove-lang.ts:5-73](file://src/commands/remove-lang.ts#L5-L73).
+### 3. Add a Translation Key
+Add a new key across all supported locales with a default value:
+```bash
+i18n-ai-cli add:key auth.login.title --value "Login"
+```
+
+The command validates structural conflicts and applies the key style (flat or nested).
+
+### 4. Clean Unused Keys
+Scan source files using configured patterns and remove unused keys from all locales:
+```bash
+i18n-ai-cli clean:unused
+```
+
+The command compiles usage patterns, scans files, and updates locales accordingly.
+
+### 5. Optional: Update or Remove Keys and Languages
+- Update a key's value in a specific locale:
+  ```bash
+  i18n-ai-cli update:key auth.login.title --value "Sign In" --locale en
+  ```
+- Remove a key from all locales:
+  ```bash
+  i18n-ai-cli remove:key auth.login.title
+  ```
+- Remove a language:
+  ```bash
+  i18n-ai-cli remove:lang fr
+  ```
 
 **Section sources**
-- [README.md:131-199](file://README.md#L131-L199)
+- [README.md:152-213](file://README.md#L152-L213)
 - [src/commands/init.ts:25-182](file://src/commands/init.ts#L25-L182)
 - [src/commands/add-lang.ts:26-97](file://src/commands/add-lang.ts#L26-L97)
 - [src/commands/add-key.ts:7-92](file://src/commands/add-key.ts#L7-L92)
 - [src/commands/clean-unused.ts:8-137](file://src/commands/clean-unused.ts#L8-L137)
-- [src/commands/update-key.ts:15-102](file://src/commands/update-key.ts#L15-L102)
-- [src/commands/remove-key.ts:10-95](file://src/commands/remove-key.ts#L10-L95)
-- [src/commands/remove-lang.ts:5-73](file://src/commands/remove-lang.ts#L5-L73)
 
 ## Common First-Time Scenarios
 Demonstrate typical first-time user workflows with practical examples.
 
-- Setting up a new project
-  - Initialize configuration and create the default locale file.
-  - See [src/commands/init.ts:210-235](file://src/commands/init.ts#L210-L235) for automatic default locale creation.
+### Setting Up a New Project
+Initialize configuration and create the default locale file:
+```bash
+i18n-ai-cli init
+```
 
-- Adding multiple languages
-  - Add a new locale and optionally clone from an existing locale.
-  - See [src/commands/add-lang.ts:49-60](file://src/commands/add-lang.ts#L49-L60) for cloning behavior.
+### Adding Multiple Languages
+Add a new locale and optionally clone from an existing locale:
+```bash
+i18n-ai-cli add:lang de --from en
+i18n-ai-cli add:lang fr --from en
+```
 
-- Managing translation keys
-  - Add a key with a default value and update it later.
-  - See [src/commands/add-key.ts:65-77](file://src/commands/add-key.ts#L65-L77) and [src/commands/update-key.ts:79-89](file://src/commands/update-key.ts#L79-L89).
+### Managing Translation Keys
+Add a key with a default value and update it later:
+```bash
+i18n-ai-cli add:key auth.login.title --value "Login"
+i18n-ai-cli update:key auth.login.title --value "Sign In" --locale en
+```
 
-- Cleaning up unused keys
-  - Configure usage patterns and remove keys not found in source files.
-  - See [src/config/config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109) and [src/commands/clean-unused.ts:25-46](file://src/commands/clean-unused.ts#L25-L46).
+### Cleaning Up Unused Keys
+Configure usage patterns and remove keys not found in source files:
+```bash
+i18n-ai-cli clean:unused --dry-run
+i18n-ai-cli clean:unused --yes
+```
 
 **Section sources**
 - [src/commands/init.ts:210-235](file://src/commands/init.ts#L210-L235)
 - [src/commands/add-lang.ts:49-60](file://src/commands/add-lang.ts#L49-L60)
 - [src/commands/add-key.ts:65-77](file://src/commands/add-key.ts#L65-L77)
 - [src/commands/update-key.ts:79-89](file://src/commands/update-key.ts#L79-L89)
-- [src/config/config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
-- [src/commands/clean-unused.ts:25-46](file://src/commands/clean-unused.ts#L25-L46)
 
 ## Verification and Troubleshooting
 Confirm successful setup and resolve common issues.
 
-- Verify installation
-  - Check that the CLI is available and shows help.
-  - See [README.md:19-37](file://README.md#L19-L37) for the npx usage example.
+### Verify Installation
+Check that the CLI is available and shows help:
+```bash
+npx i18n-ai-cli --help
+# or
+i18n-ai-cli --help
+```
 
-- Configuration file presence
-  - Ensure the configuration file exists in the project root.
-  - See [src/config/config-loader.ts:24-32](file://src/config/config-loader.ts#L24-L32) for the configuration loading behavior.
+### Configuration File Presence
+Ensure the configuration file exists in the project root:
+```bash
+ls -la i18n-cli.config.json
+```
 
-- Dry run and CI modes
-  - Use dry run to preview changes and CI mode for non-interactive automation.
-  - See [README.md:202-231](file://README.md#L202-L231) for global options.
+### Dry Run and CI Modes
+Use dry run to preview changes and CI mode for non-interactive automation:
+```bash
+# Dry run preview
+i18n-ai-cli clean:unused --dry-run
 
-- Common issues and resolutions
-  - Invalid configuration file: Ensure the configuration file contains valid JSON and matches the schema.
-    - See [src/config/config-loader.ts:34-54](file://src/config/config-loader.ts#L34-L54) for parsing and validation errors.
-  - Locale validation failures: Locale codes must be valid and not duplicated.
-    - See [src/commands/add-lang.ts:36-47](file://src/commands/add-lang.ts#L36-L47) and [src/config/config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82) for validation logic.
-  - Structural conflicts when adding keys: Resolve conflicts between flat and nested key structures.
-    - See [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33) for conflict detection.
-  - Usage patterns not defined: Configure usage patterns for the clean:unused command.
-    - See [src/commands/clean-unused.ts:19-23](file://src/commands/clean-unused.ts#L19-L23) for the requirement.
+# CI mode for non-interactive automation
+i18n-ai-cli clean:unused --ci --dry-run
+i18n-ai-cli clean:unused --ci --yes
+```
+
+### Common Issues and Resolutions
+
+**Invalid configuration file:**
+- Ensure the configuration file contains valid JSON and matches the schema
+- Check for syntax errors in the JSON file
+
+**Locale validation failures:**
+- Locale codes must be valid and not duplicated
+- Use ISO 639-1 standard codes (e.g., `en`, `es`, `fr`) or extended codes (e.g., `en-US`, `pt-BR`)
+
+**Structural conflicts when adding keys:**
+- Resolve conflicts between flat and nested key structures
+- Check for existing keys that would create conflicts
+
+**Usage patterns not defined:**
+- Configure usage patterns for the clean:unused command
+- Define regex patterns to detect key usage in source code
 
 **Section sources**
-- [README.md:19-37](file://README.md#L19-L37)
+- [README.md:236-252](file://README.md#L236-L252)
 - [src/config/config-loader.ts:24-54](file://src/config/config-loader.ts#L24-L54)
 - [src/commands/add-lang.ts:36-47](file://src/commands/add-lang.ts#L36-L47)
 - [src/config/config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82)
 - [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
-- [src/commands/clean-unused.ts:19-23](file://src/commands/clean-unused.ts#L19-L23)
 
 ## Architecture Overview
-Understand how i18n-pro is structured and how commands interact with configuration and file management.
+Understand how i18n-ai-cli is structured and how commands interact with configuration and file management.
 
 ```mermaid
 graph TB
@@ -263,9 +405,6 @@ UK --> Ctx
 - [src/commands/add-lang.ts:26-97](file://src/commands/add-lang.ts#L26-L97)
 - [src/commands/add-key.ts:7-92](file://src/commands/add-key.ts#L7-L92)
 - [src/commands/clean-unused.ts:8-137](file://src/commands/clean-unused.ts#L8-L137)
-- [src/commands/remove-key.ts:10-95](file://src/commands/remove-key.ts#L10-L95)
-- [src/commands/remove-lang.ts:5-73](file://src/commands/remove-lang.ts#L5-L73)
-- [src/commands/update-key.ts:15-102](file://src/commands/update-key.ts#L15-L102)
 
 ## Conclusion
-You now have the essentials to install i18n-pro, choose between global and local setups, and perform the most common first-time tasks. Use the interactive init wizard to bootstrap your configuration, add languages and keys, and keep your translation files tidy with the clean:unused command. For advanced automation, leverage dry run and CI modes to preview and enforce changes in non-interactive environments.
+You now have the essentials to install i18n-ai-cli, choose between global and local setups, and perform the most common first-time tasks. Use the interactive init wizard to bootstrap your configuration, add languages and keys, and keep your translation files tidy with the clean:unused command. For advanced automation, leverage dry run and CI modes to preview and enforce changes in non-interactive environments. The enhanced installation instructions provide multiple pathways to get started quickly, whether you prefer global accessibility or project-scoped tooling.

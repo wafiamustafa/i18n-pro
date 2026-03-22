@@ -14,6 +14,13 @@
 - [README.md](file://README.md)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Updated locale file naming logic section to reflect the bug fix for double '.json' extension handling
+- Enhanced troubleshooting guide with specific guidance for locale file naming issues
+- Added improved test coverage documentation for locale file naming validation
+- Updated the detailed component analysis to include the specific fix for `.json` extension stripping
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -26,7 +33,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document explains the initialization process for the i18n-pro CLI tool, focusing on the init command and configuration setup. It covers the complete lifecycle from command invocation to configuration file generation, including interactive and non-interactive modes, validation rules, schema requirements, and the relationship between initialization and subsequent commands. It also provides step-by-step examples, troubleshooting guidance, and best practices for avoiding common pitfalls.
+This document explains the initialization process for the i18n-cli tool, focusing on the init command and configuration setup. It covers the complete lifecycle from command invocation to configuration file generation, including interactive and non-interactive modes, validation rules, schema requirements, and the relationship between initialization and subsequent commands. It also provides step-by-step examples, troubleshooting guidance, and best practices for avoiding common pitfalls.
 
 ## Project Structure
 The initialization command is part of a modular CLI architecture:
@@ -85,7 +92,7 @@ participant Init as "Init Command"
 participant FS as "File System"
 participant Cfg as "Config Loader"
 participant FM as "File Manager"
-User->>CLI : "i18n-pro init [options]"
+User->>CLI : "i18n-cli init [options]"
 CLI->>Init : "initCommand(options)"
 Init->>FS : "Check config existence"
 alt Interactive mode
@@ -96,9 +103,9 @@ Init->>Init : "Use defaults"
 end
 Init->>Init : "Normalize locales and compile usage patterns"
 Init->>Init : "Confirm overwrite (if needed)"
-Init->>FS : "Write i18n-pro.config.json"
+Init->>FS : "Write i18n-cli.config.json"
 Init->>FS : "Ensure locales directory"
-Init->>FS : "Create default locale file"
+Init->>FS : "Create default locale file with proper naming"
 Init-->>User : "Success message"
 User->>CLI : "Subsequent commands"
 CLI->>Cfg : "loadConfig()"
@@ -121,7 +128,7 @@ The init command performs:
 - Interactive or non-interactive configuration generation.
 - Locale normalization and usage pattern compilation.
 - CI-mode and dry-run safeguards.
-- Optional default locale file creation.
+- Optional default locale file creation with proper naming validation.
 
 Key behaviors:
 - Uses inquirer for interactive prompts when stdout is TTY and not in CI mode.
@@ -129,6 +136,9 @@ Key behaviors:
 - Normalizes supported locales to include the default locale and deduplicate entries.
 - Compiles usage patterns and validates regex syntax and capturing groups.
 - Respects global options: yes, dry-run, ci, force.
+- **Enhanced**: Properly strips `.json` extension from default locale to prevent double extensions.
+
+**Updated** Enhanced locale file naming logic to prevent double `.json` extension when the default locale includes `.json`
 
 ```mermaid
 flowchart TD
@@ -153,7 +163,9 @@ Confirmed --> |Yes| DryRun
 DryRun --> |Yes| ExitDry["Exit without writing"]
 DryRun --> |No| Write["Write config file"]
 Write --> InitLocales["Ensure locales dir and create default locale file"]
-InitLocales --> Done(["Success"])
+InitLocales --> StripExtension["Strip .json extension if present"]
+StripExtension --> CreateFile["Create locale file with proper naming"]
+CreateFile --> Done(["Success"])
 ```
 
 **Diagram sources**
@@ -191,11 +203,28 @@ boolean autoSort
 - [config-loader.ts:8-82](file://src/config/config-loader.ts#L8-L82)
 - [types.ts:3-11](file://src/config/types.ts#L3-L11)
 
+### Locale File Naming Logic
+**Updated** The init command now includes robust locale file naming validation to prevent double extensions.
+
+The `maybeInitLocales` function handles locale file creation with enhanced naming logic:
+- Strips `.json` extension from default locale to prevent double extensions like `en.json.json`
+- Creates the default locale file with proper `.json` extension
+- Ensures the file path resolves correctly relative to the configured locales directory
+
+Key behaviors:
+- Uses regex `/\.json$/i` to match and remove `.json` extension case-insensitively
+- Validates that the resulting filename ends with `.json` before creating the file
+- Preserves the original locale name for display purposes while ensuring proper file naming
+
+**Section sources**
+- [init.ts:210-239](file://src/commands/init.ts#L210-L239)
+- [init.test.ts:291-314](file://src/commands/init.test.ts#L291-L314)
+
 ### Relationship Between Initialization and Subsequent Commands
 After successful initialization:
 - Other commands rely on loadConfig() to validate and load the configuration.
 - The context builder constructs a CommandContext with config and FileManager.
-- FileManager ensures the locales directory exists and manages locale files.
+- FileManager ensures the locales directory exists and manages locale files with proper naming conventions.
 
 ```mermaid
 sequenceDiagram
@@ -204,12 +233,12 @@ participant CLI as "CLI Entrypoint"
 participant Ctx as "Context Builder"
 participant Cfg as "Config Loader"
 participant FM as "File Manager"
-User->>CLI : "i18n-pro add : lang es"
+User->>CLI : "i18n-cli add : lang es"
 CLI->>Ctx : "buildContext(options)"
 Ctx->>Cfg : "loadConfig()"
 Cfg-->>Ctx : "I18nConfig with compiled patterns"
 Ctx->>FM : "new FileManager(config)"
-FM-->>Ctx : "Ready to operate on locales"
+FM-->>Ctx : "Ready to operate on locales with proper naming"
 Ctx-->>CLI : "CommandContext"
 CLI-->>User : "Execute command"
 ```
@@ -264,50 +293,63 @@ FM --> FS
 - Dry-run mode avoids filesystem writes, minimizing I/O cost.
 - Locale directory creation and default locale file creation are lightweight operations.
 - Usage pattern compilation occurs once during init and is reused by downstream commands.
-
-[No sources needed since this section provides general guidance]
+- **Enhanced**: Locale file naming validation adds minimal performance overhead with critical correctness benefits.
 
 ## Troubleshooting Guide
 
-Common initialization issues and resolutions:
-- Configuration file already exists
-  - Symptom: Error indicating the configuration file already exists.
-  - Resolution: Use the force option to overwrite or remove the existing file.
-  - Reference: [init.ts:32-37](file://src/commands/init.ts#L32-L37)
+### Common Initialization Issues and Resolutions
 
-- CI mode without confirmation
-  - Symptom: Error requiring explicit confirmation in CI mode.
-  - Resolution: Add the yes option to proceed automatically.
-  - Reference: [init.ts:151-156](file://src/commands/init.ts#L151-L156), [confirmation.ts:20-25](file://src/core/confirmation.ts#L20-L25)
+**Configuration file already exists**
+- Symptom: Error indicating the configuration file already exists.
+- Resolution: Use the force option to overwrite or remove the existing file.
+- Reference: [init.ts:32-37](file://src/commands/init.ts#L32-L37)
 
-- Permission problems
-  - Symptom: Failure to write configuration or create directories.
-  - Resolution: Ensure write permissions in the project root and locales directory; run with appropriate privileges.
-  - Reference: [init.ts:175](file://src/commands/init.ts#L175), [init.ts:223](file://src/commands/init.ts#L223)
+**CI mode without confirmation**
+- Symptom: Error requiring explicit confirmation in CI mode.
+- Resolution: Add the yes option to proceed automatically.
+- Reference: [init.ts:151-156](file://src/commands/init.ts#L151-L156), [confirmation.ts:20-25](file://src/core/confirmation.ts#L20-L25)
 
-- Configuration conflicts
-  - Symptom: Validation errors for unsupported locales or invalid usage patterns.
-  - Resolution: Fix defaultLocale inclusion, remove duplicates, and correct regex syntax with capturing groups.
-  - References: [config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82), [config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
+**Permission problems**
+- Symptom: Failure to write configuration or create directories.
+- Resolution: Ensure write permissions in the project root and locales directory; run with appropriate privileges.
+- Reference: [init.ts:175](file://src/commands/init.ts#L175), [init.ts:223](file://src/commands/init.ts#L223)
 
-- Dry-run behavior
-  - Symptom: Expecting changes without seeing them applied.
-  - Resolution: Understand that dry-run prevents file writes; remove the flag to apply changes.
-  - Reference: [init.ts:170-173](file://src/commands/init.ts#L170-L173)
+**Configuration conflicts**
+- Symptom: Validation errors for unsupported locales or invalid usage patterns.
+- Resolution: Fix defaultLocale inclusion, remove duplicates, and correct regex syntax with capturing groups.
+- References: [config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82), [config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
 
-Step-by-step examples
+**Locale file naming issues**
+- **Updated** Symptom: Double `.json` extension in locale filenames (e.g., `en.json.json`).
+- Resolution: The init command now automatically strips `.json` extension from default locale input to prevent double extensions.
+- Behavior: Input like `en.json` becomes `en` for file naming purposes while preserving display value.
+- Test coverage: Comprehensive test validation ensures proper handling of various locale naming scenarios.
+- Reference: [init.ts:225](file://src/commands/init.ts#L225), [init.test.ts:291-314](file://src/commands/init.test.ts#L291-L314)
 
-Interactive mode
+**Dry-run behavior**
+- Symptom: Expecting changes without seeing them applied.
+- Resolution: Understand that dry-run prevents file writes; remove the flag to apply changes.
+- Reference: [init.ts:170-173](file://src/commands/init.ts#L170-L173)
+
+### Step-by-Step Examples
+
+**Interactive mode**
 - Run the init command without arguments in a terminal with TTY support.
 - Follow the prompts to set locales path, default locale, supported locales, key style, auto-sort, and usage patterns.
 - Review the generated configuration file in the project root.
 
-Non-interactive mode
+**Non-interactive mode**
 - Run the init command with the yes option to bypass prompts.
 - Optionally combine with force to overwrite an existing configuration.
 - Optionally combine with dry-run to preview changes without writing files.
 
-Validation errors
+**Locale file naming validation**
+- **Updated** When specifying a default locale, the system automatically handles `.json` extensions:
+  - Input: `en.json` → File created as `en.json` (single extension)
+  - Input: `es` → File created as `es.json` (proper extension added)
+  - Input: `fr.json` → File created as `fr.json` (extension stripped then re-added)
+
+**Validation errors**
 - If the configuration file is malformed or missing required fields, the loader throws descriptive errors.
 - Correct the configuration file according to the schema and validation messages.
 
@@ -318,6 +360,10 @@ Validation errors
 - [config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82)
 - [config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
 - [confirmation.ts:20-25](file://src/core/confirmation.ts#L20-L25)
+- [init.ts:225](file://src/commands/init.ts#L225)
+- [init.test.ts:291-314](file://src/commands/init.test.ts#L291-L314)
 
 ## Conclusion
-The init command provides a robust, configurable foundation for i18n-pro by generating a validated configuration file and initializing the default locale. Its behavior adapts to interactive and non-interactive environments, respects CI constraints, and integrates seamlessly with subsequent commands through the configuration loader and context builder. By following the examples and troubleshooting guidance, users can reliably set up their i18n workflow and avoid common pitfalls.
+The init command provides a robust, configurable foundation for i18n-cli by generating a validated configuration file and initializing the default locale. Its behavior adapts to interactive and non-interactive environments, respects CI constraints, and integrates seamlessly with subsequent commands through the configuration loader and context builder. 
+
+**Enhanced** Recent improvements include critical bug fixes for locale file naming validation, preventing double `.json` extensions and ensuring proper file creation. The comprehensive test coverage demonstrates the reliability of these enhancements while maintaining backward compatibility. By following the examples and troubleshooting guidance, users can reliably set up their internationalization workflow and avoid common pitfalls related to configuration and file naming.
