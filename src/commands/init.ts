@@ -222,9 +222,12 @@ async function maybeInitLocales(
 
   await fs.ensureDir(localesPath);
 
+  // Strip .json extension if present to avoid double extension
+  const defaultLocale = config.defaultLocale.replace(/\.json$/i, '');
+
   const defaultLocaleFile = path.join(
     localesPath,
-    `${config.defaultLocale}.json`
+    `${defaultLocale}.json`
   );
 
   if (await fs.pathExists(defaultLocaleFile)) {

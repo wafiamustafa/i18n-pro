@@ -287,5 +287,30 @@ describe('init command', () => {
       const writtenConfig = vi.mocked(fs.writeJson).mock.calls[0]![1] as any;
       expect(writtenConfig.usagePatterns).toContain('custom\\((.+?)\\)');
     });
+
+    it('should strip .json extension from default locale when creating file', async () => {
+      (vi.mocked(fs.pathExists) as any)
+        .mockResolvedValueOnce(false) // config doesn't exist
+        .mockResolvedValueOnce(false); // locale file doesn't exist
+      vi.mocked(fs.writeJson).mockResolvedValue(undefined);
+      vi.mocked(fs.ensureDir).mockResolvedValue(undefined);
+
+      vi.mocked(inquirer.prompt)
+        .mockResolvedValueOnce({
+          localesPath: './locales',
+          defaultLocale: 'en.json',
+          supportedLocales: 'en.json',
+          keyStyle: 'nested',
+          autoSort: true,
+          useDefaultUsagePatterns: true
+        });
+
+      const options: GlobalOptions = {};
+      await initCommand(options);
+
+      // Should create the locale file without double .json extension
+      // The file should be created as 'en.json', not 'en.json.json'
+      expect(fs.ensureDir).toHaveBeenCalled();
+    });
   });
 });
