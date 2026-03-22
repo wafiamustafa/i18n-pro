@@ -31,10 +31,30 @@ npm install -g i18n-ai-cli
 npm install --save-dev i18n-ai-cli
 ```
 
-Then use with `npx`:
+When installed locally, the `i18n-ai-cli` command is not automatically available in your shell PATH. Use one of these methods:
 
+**Option 1: Use npx (recommended)**
 ```bash
 npx i18n-ai-cli --help
+```
+
+**Option 2: Add a script to your package.json**
+```json
+{
+  "scripts": {
+    "i18n": "i18n-ai-cli"
+  }
+}
+```
+Then run:
+```bash
+npm run i18n -- --help
+```
+
+**Option 3: Install globally**
+```bash
+npm install -g i18n-ai-cli
+i18n-ai-cli --help
 ```
 
 ## Quick Start
