@@ -26,6 +26,14 @@
   ],
   "author": "Wafia Mustafa R.",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wafiamustafa/i18n-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wafiamustafa/i18n-cli/issues"
+  },
+  "homepage": "https://github.com/wafiamustafa/i18n-cli#readme",
   "type": "module",
   "files": [
     "dist",

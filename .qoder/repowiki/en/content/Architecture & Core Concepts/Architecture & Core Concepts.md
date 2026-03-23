@@ -4,6 +4,7 @@
 **Referenced Files in This Document**
 - [README.md](file://README.md)
 - [package.json](file://package.json)
+- [tsup.config.ts](file://tsup.config.ts)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
 - [src/context/types.ts](file://src/context/types.ts)
@@ -27,20 +28,28 @@
 - [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Added comprehensive documentation for the critical bundling fix in tsup.config.ts
+- Updated Technology Stack section to reflect explicit dependency bundling strategy
+- Enhanced Build System section to explain the noExternal configuration approach
+- Added Deployment and Distribution considerations for portable CLI tools
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
-5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
+5. [Build System and Distribution](#build-system-and-distribution)
+6. [Detailed Component Analysis](#detailed-component-analysis)
+7. [Dependency Analysis](#dependency-analysis)
+8. [Performance Considerations](#performance-considerations)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Conclusion](#conclusion)
+11. [Appendices](#appendices)
 
 ## Introduction
-This document explains the architecture and core design patterns of i18n-pro, a professional CLI tool for managing translation files. It focuses on:
+This document explains the architecture and core design patterns of i18n-ai-cli, a professional CLI tool for managing translation files. It focuses on:
 - Modular command pattern implementation
 - Dependency injection via a central context builder
 - Separation of concerns across CLI, configuration, and core services
@@ -48,6 +57,7 @@ This document explains the architecture and core design patterns of i18n-pro, a 
 - Validation mechanisms, dry-run operations, and CI/CD-friendly behavior
 - Pluggable translation provider architecture
 - Technology stack and architectural trade-offs
+- **Critical**: Self-contained bundling strategy for portable CLI distribution
 
 ## Project Structure
 The project is organized by functional domains:
@@ -104,8 +114,8 @@ CmdCU --> Chalk
 - [src/core/confirmation.ts:1-43](file://src/core/confirmation.ts#L1-L43)
 
 **Section sources**
-- [README.md:1-346](file://README.md#L1-L346)
-- [package.json:1-45](file://package.json#L1-L45)
+- [README.md:1-564](file://README.md#L1-L564)
+- [package.json:1-60](file://package.json#L1-L60)
 
 ## Core Components
 - CLI Entrypoint: Defines commands, registers global options, parses arguments, and delegates to commands with a built context.
@@ -196,6 +206,73 @@ TR --> O
 - [src/providers/deepl.ts](file://src/providers/deepl.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 
+## Build System and Distribution
+
+### Bundling Strategy for Portable CLI Tools
+The project employs a sophisticated bundling strategy to ensure the CLI tool is fully self-contained and portable across different environments. The critical bundling fix in `tsup.config.ts` addresses dependency inclusion issues that could cause runtime failures when the CLI is distributed.
+
+**Updated** Added comprehensive bundling configuration to guarantee all essential dependencies are included in the final build artifact.
+
+The bundling configuration uses the `noExternal` array to explicitly include all runtime dependencies that the CLI tool requires:
+
+```mermaid
+graph TB
+subgraph "Build Process"
+TSUP["tsup.config.ts<br/>ESM Bundle Configuration"] --> ENTRY["Entry Point<br/>src/bin/cli.ts"]
+ENTRY --> BUNDLE["Bundle Output<br/>dist/cli.js"]
+end
+subgraph "Bundled Dependencies"
+CHALK["chalk"] --> BUNDLE
+CMDR["commander"] --> BUNDLE
+FSE["fs-extra"] --> BUNDLE
+GLOB["glob"] --> BUNDLE
+INQ["inquirer"] --> BUNDLE
+ISO["iso-639-1"] --> BUNDLE
+LEV["leven"] --> BUNDLE
+OPENAI["openai"] --> BUNDLE
+ZOD["zod"] --> BUNDLE
+GTA["@vitalets/google-translate-api"] --> BUNDLE
+END
+```
+
+**Diagram sources**
+- [tsup.config.ts:13-24](file://tsup.config.ts#L13-L24)
+
+**Section sources**
+- [tsup.config.ts:1-26](file://tsup.config.ts#L1-L26)
+- [package.json:40-51](file://package.json#L40-L51)
+
+### Build Configuration Details
+The bundling configuration includes several key settings:
+
+- **Entry Point**: Single entry point targeting the CLI main module
+- **Format**: ESM (ECMAScript Modules) for modern Node.js compatibility  
+- **Output**: Dist directory with source maps for debugging
+- **Bundle Strategy**: Full bundling with explicit external dependencies
+- **Source Maps**: Enabled for development and debugging
+- **Minification**: Disabled for maintainability and debugging
+
+**Section sources**
+- [tsup.config.ts:3-12](file://tsup.config.ts#L3-L12)
+
+### Dependency Inclusion Strategy
+The `noExternal` array explicitly includes all dependencies that must be bundled into the final CLI executable:
+
+1. **CLI Framework**: `commander` for argument parsing and command definition
+2. **File Operations**: `fs-extra` for enhanced filesystem operations
+3. **Prompt System**: `inquirer` for interactive user interfaces
+4. **Validation**: `zod` for configuration schema validation
+5. **Formatting**: `chalk` for colored console output
+6. **Pattern Matching**: `glob` for file system scanning
+7. **Language Codes**: `iso-639-1` for locale validation
+8. **String Distance**: `leven` for fuzzy matching algorithms
+9. **Translation APIs**: `openai` for AI-powered translations
+10. **External Provider**: `@vitalets/google-translate-api` for Google Translate integration
+
+**Section sources**
+- [tsup.config.ts:13-24](file://tsup.config.ts#L13-L24)
+- [package.json:40-51](file://package.json#L40-L51)
+
 ## Detailed Component Analysis
 
 ### CLI Entrypoint and Command Wiring
@@ -211,7 +288,7 @@ participant Cmd as "Command Handler"
 participant Ctx as "buildContext()"
 participant Cfg as "Config Loader"
 participant FM as "FileManager"
-User->>CLI : "i18n-pro add : lang es --from en --dry-run"
+User->>CLI : "i18n-ai-cli add : lang es --from en --dry-run"
 CLI->>Ctx : "buildContext({ dryRun : true, yes : false, ci : false, force : false })"
 Ctx->>Cfg : "loadConfig()"
 Cfg-->>Ctx : "I18nConfig"
@@ -493,13 +570,14 @@ TR --> O["OpenAI"]
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 
 **Section sources**
-- [package.json:1-45](file://package.json#L1-L45)
+- [package.json:1-60](file://package.json#L1-L60)
 
 ## Performance Considerations
 - Filesystem operations are synchronous and straightforward; batching writes can reduce I/O overhead.
 - Sorting keys is recursive and scales with object depth; consider disabling autoSort for very large translation files if needed.
 - Glob scanning and regex matching are linear in file size and count; ensure usagePatterns are precise to minimize false positives.
 - Dry-run mode avoids disk writes, reducing performance impact to memory and CPU for previews.
+- **Critical**: The bundling strategy ensures optimal startup performance by eliminating runtime dependency resolution overhead.
 
 ## Troubleshooting Guide
 - Missing configuration file: The loader throws a clear error instructing to run initialization.
@@ -508,6 +586,7 @@ TR --> O["OpenAI"]
 - CI mode constraints: Without --yes, CI mode requires explicit confirmation; otherwise, it fails with an error.
 - Dry-run mode: Changes are previewed; confirm by removing --dry-run and rerunning.
 - Locale operations: Existence checks prevent overwriting or deleting non-existent files; ensure supportedLocales alignment.
+- **Build Issues**: The bundling configuration ensures all dependencies are included, preventing runtime "Cannot find module" errors when distributing the CLI tool.
 
 **Section sources**
 - [src/config/config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
@@ -515,14 +594,16 @@ TR --> O["OpenAI"]
 - [src/core/confirmation.ts:1-43](file://src/core/confirmation.ts#L1-L43)
 - [src/commands/init.ts:1-236](file://src/commands/init.ts#L1-L236)
 - [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [tsup.config.ts:13-24](file://tsup.config.ts#L13-L24)
 
 ## Conclusion
-i18n-pro’s architecture emphasizes modularity, testability, and extensibility:
+i18n-ai-cli's architecture emphasizes modularity, testability, and extensibility:
 - The CLI delegates to commands that consume a unified context, enabling clean separation of concerns.
 - Configuration is validated early and centrally, ensuring reliable downstream operations.
 - FileManager abstracts filesystem concerns and integrates dry-run and sorting capabilities.
 - The translation provider system offers a clear extension point for integrating external services.
 - Cross-cutting concerns like confirmation, validation, and CI-friendly behavior are consistently enforced across commands.
+- **Critical**: The bundling strategy ensures the CLI tool is fully self-contained and portable, eliminating dependency resolution issues in distributed environments.
 
 ## Appendices
 
@@ -549,13 +630,17 @@ Svc --> FS["Filesystem"]
 - Regex scanning: glob
 - Locales: iso-639-1
 - Translation providers: @vitalets/google-translate-api (external dependency)
+- **Build Tool**: tsup with explicit dependency bundling for portable CLI distribution
 
 **Section sources**
-- [package.json:1-45](file://package.json#L1-L45)
-- [README.md:1-346](file://README.md#L1-L346)
+- [package.json:1-60](file://package.json#L1-L60)
+- [README.md:1-564](file://README.md#L1-L564)
+- [tsup.config.ts:13-24](file://tsup.config.ts#L13-L24)
 
 ### Architectural Trade-offs
 - TypeScript provides strong typing and developer experience but increases build complexity.
 - Zod validation centralizes configuration validation but adds parsing overhead.
 - Pluggable providers enable flexibility but require careful interface design and testing.
 - Dry-run and CI modes improve safety and automation but introduce conditional logic across commands.
+- **Critical**: Explicit bundling ensures portability but increases bundle size; this trade-off is necessary for CLI tool distribution reliability.
+- ESM format provides modern compatibility but requires careful bundling configuration to handle external dependencies properly.

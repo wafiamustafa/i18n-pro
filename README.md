@@ -558,6 +558,10 @@ npm link
 i18n-ai-cli --help
 ```
 
+## Contributing
+
+Pull requests are welcome! Feel free to open issues or suggest improvements.
+
 ## License
 
 ISC
