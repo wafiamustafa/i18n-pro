@@ -40,29 +40,72 @@
 
 ## Update Summary
 **Changes Made**
-- Added comprehensive unit testing framework documentation covering all 16 test files
-- Updated testing methodology to reflect Vitest-based testing with extensive mocking
-- Documented testing patterns for commands, configuration, context, core utilities, providers, and services
-- Added coverage requirements and testing best practices established in the codebase
-- Enhanced testing documentation with specific examples from the existing test suite
+- Updated version from 1.0.5 to 1.0.6 in package metadata
+- Added comprehensive Contributing section from README.md with community guidelines
+- Enhanced repository metadata with official GitHub repository URL and bug tracking
+- Expanded development workflow documentation with community contribution expectations
+- Updated pull request process and issue reporting guidelines
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Project Structure](#project-structure)
-3. [Core Components](#core-components)
-4. [Architecture Overview](#architecture-overview)
-5. [Testing Framework](#testing-framework)
-6. [Detailed Component Analysis](#detailed-component-analysis)
-7. [Dependency Analysis](#dependency-analysis)
-8. [Performance Considerations](#performance-considerations)
-9. [Troubleshooting Guide](#troubleshooting-guide)
-10. [Conclusion](#conclusion)
-11. [Appendices](#appendices)
+2. [Version History](#version-history)
+3. [Repository Metadata](#repository-metadata)
+4. [Contributing Guidelines](#contributing-guidelines)
+5. [Project Structure](#project-structure)
+6. [Core Components](#core-components)
+7. [Architecture Overview](#architecture-overview)
+8. [Testing Framework](#testing-framework)
+9. [Detailed Component Analysis](#detailed-component-analysis)
+10. [Dependency Analysis](#dependency-analysis)
+11. [Performance Considerations](#performance-considerations)
+12. [Troubleshooting Guide](#troubleshooting-guide)
+13. [Conclusion](#conclusion)
+14. [Appendices](#appendices)
 
 ## Introduction
-This guide explains how to set up a development environment for i18n-pro, contribute effectively, and maintain high-quality code. It covers prerequisites, build and test processes, project structure, TypeScript configuration, comprehensive unit testing with Vitest, code style, commit conventions, pull request expectations, and practical development tasks such as adding new commands, implementing translation providers, and extending configuration options.
+This guide explains how to set up a development environment for i18n-ai-cli, contribute effectively, and maintain high-quality code. It covers prerequisites, build and test processes, project structure, TypeScript configuration, comprehensive unit testing with Vitest, code style, commit conventions, pull request expectations, and practical development tasks such as adding new commands, implementing translation providers, and extending configuration options.
 
-**Updated** The project now includes a comprehensive unit testing framework with 16 test files covering all core functionality, establishing robust testing patterns and coverage requirements.
+**Updated** The project now includes a comprehensive unit testing framework with 16 test files covering all core functionality, establishing robust testing patterns and coverage requirements. Version 1.0.6 introduces enhanced community contribution guidelines and improved repository metadata.
+
+## Version History
+The project follows semantic versioning with the current version being 1.0.6. This release maintains backward compatibility while enhancing development experience and community contribution workflows.
+
+**Section sources**
+- [package.json](file://package.json)
+
+## Repository Metadata
+The project maintains official repository metadata for community collaboration and issue tracking.
+
+**Section sources**
+- [package.json](file://package.json)
+
+## Contributing Guidelines
+We welcome community contributions to i18n-ai-cli! Feel free to open issues, suggest improvements, or submit pull requests to help enhance this AI-powered internationalization tool.
+
+### Pull Request Workflow
+- Fork the repository and create your branch from main
+- Ensure your code follows the established patterns and includes comprehensive tests
+- Update documentation as needed to reflect your changes
+- Submit pull requests with clear descriptions of the problem being solved and the solution implemented
+
+### Issue Reporting
+When encountering bugs or requesting features:
+- Provide a clear and concise description of the problem
+- Include steps to reproduce the issue with expected vs. actual behavior
+- Specify your environment details (Node.js version, operating system)
+- Include relevant configuration and test scenarios
+- Reference related issues or pull requests when applicable
+
+### Code Quality Expectations
+- Maintain consistent TypeScript coding standards
+- Include unit tests for all new functionality
+- Follow the existing architectural patterns
+- Keep changes focused and scoped appropriately
+- Update documentation and examples when modifying public APIs
+
+**Section sources**
+- [README.md](file://README.md)
+- [package.json](file://package.json)
 
 ## Project Structure
 The project is organized around a CLI entrypoint, a command layer, configuration loading, a context builder, core utilities, providers for translation services, and a translation service wrapper. Tests live alongside source files with a naming convention ending in .test.ts.
@@ -260,6 +303,8 @@ Tests are organized following the same directory structure as source files, with
 - [src/commands/init.ts](file://src/commands/init.ts)
 - [src/commands/init.test.ts](file://src/commands/init.test.ts)
 - [src/commands/add-key.ts](file://src/commands/add-key.ts)
+- [src/commands/add-lang.ts](file://src/commands/add-lang.ts)
+- [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
 
 ### Translation Providers and Service
 - Translator interface defines a uniform contract.
@@ -378,7 +423,9 @@ vitest["vitest.config.ts"] --> coverage["Coverage Settings"]
 - [src/providers/openai.test.ts](file://src/providers/openai.test.ts)
 
 ## Conclusion
-By following this guide, you can confidently develop, test, and extend i18n-pro. The comprehensive unit testing framework with 16 test files ensures robust coverage across all core functionality. Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns, and implement new features by extending the context, commands, providers, or configuration schema.
+By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files ensures robust coverage across all core functionality. Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns, and implement new features by extending the context, commands, providers, or configuration schema.
+
+Version 1.0.6 enhances the development experience with improved community contribution guidelines and repository metadata, making it easier for developers to participate in the project's growth and improvement.
 
 ## Appendices
 
@@ -483,3 +530,15 @@ By following this guide, you can confidently develop, test, and extend i18n-pro.
 ### Issue Reporting
 - Provide a clear description, reproduction steps, expected vs. actual behavior, and environment details (Node.js version, OS).
 - Include test coverage information and any failing test scenarios.
+
+### Community Contribution Process
+- Fork the repository and create feature branches
+- Follow established code patterns and testing requirements
+- Submit pull requests with comprehensive descriptions
+- Engage constructively in code review discussions
+- Update documentation to reflect changes
+- Test thoroughly across supported environments
+
+**Section sources**
+- [README.md](file://README.md)
+- [package.json](file://package.json)

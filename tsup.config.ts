@@ -10,7 +10,11 @@ export default defineConfig({
   minify: false,
   shims: true,
   bundle: true,
-  noExternal: [
+  // Externalize all dependencies - let Node.js resolve them at runtime
+  // This avoids issues with CommonJS dynamic requires in bundled dependencies
+  external: [
+    // All production dependencies
+    "@vitalets/google-translate-api",
     "chalk",
     "commander",
     "fs-extra",
@@ -20,6 +24,5 @@ export default defineConfig({
     "leven",
     "openai",
     "zod",
-    "@vitalets/google-translate-api",
   ],
 });
