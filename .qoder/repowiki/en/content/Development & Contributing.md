@@ -4,6 +4,7 @@
 **Referenced Files in This Document**
 - [package.json](file://package.json)
 - [tsconfig.json](file://tsconfig.json)
+- [tsup.config.ts](file://tsup.config.ts)
 - [vitest.config.ts](file://vitest.config.ts)
 - [README.md](file://README.md)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
@@ -40,11 +41,11 @@
 
 ## Update Summary
 **Changes Made**
-- Updated version from 1.0.5 to 1.0.6 in package metadata
-- Added comprehensive Contributing section from README.md with community guidelines
-- Enhanced repository metadata with official GitHub repository URL and bug tracking
-- Expanded development workflow documentation with community contribution expectations
-- Updated pull request process and issue reporting guidelines
+- Updated version from 1.0.5 to 1.0.7 in package metadata
+- Enhanced build configuration documentation to reflect dependency externalization approach
+- Updated development workflow documentation with improved build process details
+- Revised TypeScript configuration documentation to align with current setup
+- Expanded troubleshooting guide with build-specific guidance
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -54,21 +55,22 @@
 5. [Project Structure](#project-structure)
 6. [Core Components](#core-components)
 7. [Architecture Overview](#architecture-overview)
-8. [Testing Framework](#testing-framework)
-9. [Detailed Component Analysis](#detailed-component-analysis)
-10. [Dependency Analysis](#dependency-analysis)
-11. [Performance Considerations](#performance-considerations)
-12. [Troubleshooting Guide](#troubleshooting-guide)
-13. [Conclusion](#conclusion)
-14. [Appendices](#appendices)
+8. [Build System](#build-system)
+9. [Testing Framework](#testing-framework)
+10. [Detailed Component Analysis](#detailed-component-analysis)
+11. [Dependency Analysis](#dependency-analysis)
+12. [Performance Considerations](#performance-considerations)
+13. [Troubleshooting Guide](#troubleshooting-guide)
+14. [Conclusion](#conclusion)
+15. [Appendices](#appendices)
 
 ## Introduction
 This guide explains how to set up a development environment for i18n-ai-cli, contribute effectively, and maintain high-quality code. It covers prerequisites, build and test processes, project structure, TypeScript configuration, comprehensive unit testing with Vitest, code style, commit conventions, pull request expectations, and practical development tasks such as adding new commands, implementing translation providers, and extending configuration options.
 
-**Updated** The project now includes a comprehensive unit testing framework with 16 test files covering all core functionality, establishing robust testing patterns and coverage requirements. Version 1.0.6 introduces enhanced community contribution guidelines and improved repository metadata.
+**Updated** The project now includes an enhanced build system with dependency externalization for better CommonJS compatibility and runtime module resolution. Version 1.0.7 introduces improved build performance and compatibility with modern Node.js environments.
 
 ## Version History
-The project follows semantic versioning with the current version being 1.0.6. This release maintains backward compatibility while enhancing development experience and community contribution workflows.
+The project follows semantic versioning with the current version being 1.0.7. This release maintains backward compatibility while enhancing build system performance and dependency management.
 
 **Section sources**
 - [package.json](file://package.json)
@@ -213,6 +215,79 @@ Cmd-->>User : Output and logs
 - [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
 - [src/commands/init.ts](file://src/commands/init.ts)
 - [src/commands/init.test.ts](file://src/commands/init.test.ts)
+
+## Build System
+
+### Build Configuration Overview
+The project uses tsup as its build tool with a dependency externalization strategy for optimal CommonJS compatibility and runtime module resolution. The build configuration is designed to produce ESM bundles while letting Node.js handle dependency resolution at runtime.
+
+**Updated** The build system now employs a strategic externalization approach where all production dependencies are marked as external, allowing Node.js to resolve them dynamically at runtime rather than bundling them statically.
+
+### Tsup Configuration Details
+The build system is configured with the following key settings:
+
+- **Entry Point**: Single entry point targeting the CLI binary (`src/bin/cli.ts`)
+- **Output Format**: ESM (ECMAScript Modules) for modern compatibility
+- **Bundle Strategy**: External dependencies approach for better runtime resolution
+- **Source Maps**: Enabled for debugging and development
+- **Minification**: Disabled for better debugging and smaller bundle size
+- **Shims**: Enabled for compatibility with various module systems
+
+### External Dependencies Strategy
+The build system externalizes all production dependencies to address CommonJS compatibility issues:
+
+```mermaid
+graph LR
+subgraph "Build Output"
+Bundle["ESM Bundle<br/>dist/cli.js"]
+end
+subgraph "Runtime Dependencies"
+Google["@vitalets/google-translate-api"]
+Chalk["chalk"]
+Commander["commander"]
+FSExtra["fs-extra"]
+Glob["glob"]
+Inquirer["inquirer"]
+ISO639["iso-639-1"]
+Leven["leven"]
+OpenAI["openai"]
+Zod["zod"]
+end
+Bundle -.->|"External References"| Google
+Bundle -.->|"External References"| Chalk
+Bundle -.->|"External References"| Commander
+Bundle -.->|"External References"| FSExtra
+Bundle -.->|"External References"| Glob
+Bundle -.->|"External References"| Inquirer
+Bundle -.->|"External References"| ISO639
+Bundle -.->|"External References"| Leven
+Bundle -.->|"External References"| OpenAI
+Bundle -.->|"External References"| Zod
+```
+
+**Diagram sources**
+- [tsup.config.ts](file://tsup.config.ts)
+- [package.json](file://package.json)
+
+### Build Process
+The build process follows these steps:
+
+1. **TypeScript Compilation**: Source files are compiled with strict TypeScript settings
+2. **Dependency Resolution**: External dependencies are excluded from the bundle
+3. **ESM Generation**: Output is generated in ESM format for modern Node.js compatibility
+4. **Source Map Creation**: Debugging information is preserved for development
+5. **Distribution Packaging**: Final artifacts are placed in the dist directory
+
+### Build Scripts
+The project provides several build-related scripts:
+
+- `npm run build`: Creates optimized production builds
+- `npm run dev`: Starts development watch mode for continuous compilation
+- `npm run typecheck`: Performs TypeScript type checking without emitting files
+
+**Section sources**
+- [tsup.config.ts](file://tsup.config.ts)
+- [package.json](file://package.json)
 
 ## Testing Framework
 
@@ -387,22 +462,27 @@ pkg["package.json"] --> deps["Runtime Dependencies"]
 pkg --> devDeps["Dev Dependencies"]
 cfg["tsconfig.json"] --> tsc["TypeScript Compiler Options"]
 vitest["vitest.config.ts"] --> coverage["Coverage Settings"]
+tsup["tsup.config.ts"] --> external["External Dependencies"]
 ```
 
 **Diagram sources**
 - [package.json](file://package.json)
 - [tsconfig.json](file://tsconfig.json)
 - [vitest.config.ts](file://vitest.config.ts)
+- [tsup.config.ts](file://tsup.config.ts)
 
 **Section sources**
 - [package.json](file://package.json)
 - [tsconfig.json](file://tsconfig.json)
 - [vitest.config.ts](file://vitest.config.ts)
+- [tsup.config.ts](file://tsup.config.ts)
 
 ## Performance Considerations
 - Prefer batch operations where feasible (e.g., updating multiple locales).
 - Use dry-run mode to preview work before committing changes.
 - Keep usage patterns precise to avoid expensive scans during cleanup operations.
+- The external dependency approach reduces bundle size and improves startup performance.
+- ESM format provides better tree-shaking and import performance.
 
 ## Troubleshooting Guide
 - Configuration file not found or invalid JSON: ensure the configuration file exists and is valid JSON; review validation messages for missing or incorrect fields.
@@ -411,6 +491,11 @@ vitest["vitest.config.ts"] --> coverage["Coverage Settings"]
 - Provider not implemented: DeepL and OpenAI translators are stubs; implement or provide an adapter conforming to the Translator interface.
 - Test failures due to mocking: ensure proper mock setup and restoration in beforeEach/afterEach hooks.
 - Coverage not meeting requirements: add tests for new functionality and verify coverage reports.
+- **Build failures due to external dependencies**: Ensure all external dependencies are properly declared in package.json and available at runtime.
+- **CommonJS compatibility issues**: The external dependency approach resolves CommonJS dynamic require issues by letting Node.js handle resolution.
+- **Import errors in development**: Verify that all dependencies are installed and accessible in the node_modules directory.
+
+**Updated** Added troubleshooting guidance for build-specific issues related to the external dependency configuration.
 
 **Section sources**
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
@@ -421,11 +506,12 @@ vitest["vitest.config.ts"] --> coverage["Coverage Settings"]
 - [src/providers/deepl.test.ts](file://src/providers/deepl.test.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 - [src/providers/openai.test.ts](file://src/providers/openai.test.ts)
+- [tsup.config.ts](file://tsup.config.ts)
 
 ## Conclusion
-By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files ensures robust coverage across all core functionality. Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns, and implement new features by extending the context, commands, providers, or configuration schema.
+By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files ensures robust coverage across all core functionality. The enhanced build system with dependency externalization provides better CommonJS compatibility and runtime module resolution. Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns, and implement new features by extending the context, commands, providers, or configuration schema.
 
-Version 1.0.6 enhances the development experience with improved community contribution guidelines and repository metadata, making it easier for developers to participate in the project's growth and improvement.
+Version 1.0.7 enhances the development experience with improved build performance, better dependency management, and enhanced compatibility with modern Node.js environments.
 
 ## Appendices
 
@@ -446,6 +532,16 @@ Version 1.0.6 enhances the development experience with improved community contri
 
 **Section sources**
 - [tsconfig.json](file://tsconfig.json)
+
+### Build System Configuration
+- **External Dependencies**: All production dependencies are externalized for better CommonJS compatibility
+- **ESM Output**: Generated in ESM format for modern Node.js compatibility
+- **Source Maps**: Enabled for debugging and development
+- **Minification**: Disabled for better debugging experience
+
+**Section sources**
+- [tsup.config.ts](file://tsup.config.ts)
+- [package.json](file://package.json)
 
 ### Testing with Vitest
 - Global setup, Node environment, include patterns, and coverage configuration are centralized.

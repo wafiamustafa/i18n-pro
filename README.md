@@ -185,19 +185,53 @@ Example: `i18n-ai-cli remove:lang fr`
 
 #### Add a new translation key
 ```bash
-i18n-ai-cli add:key <key> --value <value>
+i18n-ai-cli add:key <key> --value <value> [--provider <provider>]
 ```
 Example: `i18n-ai-cli add:key auth.login.title --value "Login"`
 
-The key will be added to all locales with an empty string for non-default locales.
+The key will be added to all locales. The value is added to the default locale as-is, and automatically translated to all other locales using the configured provider.
+
+**Translation Providers:**
+- Uses OpenAI if `OPENAI_API_KEY` environment variable is set
+- Falls back to Google Translate otherwise
+- Or explicitly specify with `--provider openai` or `--provider google`
+
+**Examples:**
+```bash
+# Add key with automatic translation (uses OpenAI if API key is set, else Google)
+i18n-ai-cli add:key welcome.message --value "Welcome to our app"
+
+# Add key with specific provider
+i18n-ai-cli add:key welcome.message --value "Welcome to our app" --provider openai
+i18n-ai-cli add:key welcome.message --value "Welcome to our app" --provider google
+```
 
 #### Update a translation key
 ```bash
-i18n-ai-cli update:key <key> --value <value> [--locale <locale>]
+i18n-ai-cli update:key <key> --value <value> [--locale <locale>] [--sync] [--provider <provider>]
 ```
 Example: `i18n-ai-cli update:key auth.login.title --value "Sign In" --locale en`
 
 If `--locale` is omitted, updates the default locale.
+
+**Sync to all locales (`--sync`):**
+Use the `--sync` flag to propagate the update to all other locales via automatic translation:
+
+```bash
+# Update default locale and sync (translate) to all other locales
+i18n-ai-cli update:key welcome.message --value "Welcome" --sync
+
+# Update specific locale and sync to all others
+i18n-ai-cli update:key welcome.message --value "Willkommen" --locale de --sync
+
+# Sync with specific provider
+i18n-ai-cli update:key welcome.message --value "Welcome" --sync --provider openai
+```
+
+**Translation Providers:**
+- Uses OpenAI if `OPENAI_API_KEY` environment variable is set
+- Falls back to Google Translate otherwise
+- Or explicitly specify with `--provider openai` or `--provider google`
 
 #### Remove a translation key
 ```bash
@@ -294,6 +328,24 @@ i18n-ai-cli add:lang de --from en
 ### Preview changes before applying
 ```bash
 i18n-ai-cli remove:key auth.legacy --dry-run
+```
+
+### Add keys with auto-translation
+```bash
+# Add a key and auto-translate to all locales
+i18n-ai-cli add:key welcome.message --value "Welcome to our app"
+
+# With specific provider
+i18n-ai-cli add:key welcome.message --value "Welcome" --provider openai
+```
+
+### Update keys with sync to all locales
+```bash
+# Update and sync (translate) to all locales
+i18n-ai-cli update:key welcome.message --value "Welcome" --sync
+
+# Update specific locale and sync to all others
+i18n-ai-cli update:key welcome.message --value "Willkommen" --locale de --sync
 ```
 
 ### Validate with auto-translation
@@ -416,21 +468,40 @@ console.log(result.text); // "Hola mundo"
 
 **Using with CLI commands:**
 
-When using the `add:lang` command with the `--from` option, the CLI can automatically translate all keys from your default locale:
+The CLI uses translation providers for several commands:
 
+**`add:key` command:**
+Automatically translates the value to all non-default locales:
 ```bash
-# Set your API key
 export OPENAI_API_KEY=sk-your-api-key-here
+i18n-ai-cli add:key welcome.message --value "Welcome to our app"
+```
 
-# Add a new language with AI-powered translation
+**`update:key` command with `--sync`:**
+Updates the target locale and translates to all other locales:
+```bash
+export OPENAI_API_KEY=sk-your-api-key-here
+i18n-ai-cli update:key welcome.message --value "Welcome" --sync
+```
+
+**`add:lang` command with `--from`:**
+Automatically translates all keys when creating a new locale:
+```bash
+export OPENAI_API_KEY=sk-your-api-key-here
 i18n-ai-cli add:lang fr --from en
 ```
 
-This will:
-1. Create a new translation file for French (`fr`)
-2. Copy all keys from the English (`en`) locale
-3. Automatically translate all values using OpenAI
-4. Save the translated content to the new locale file
+**`validate` command:**
+Auto-translates missing keys during validation:
+```bash
+export OPENAI_API_KEY=sk-your-api-key-here
+i18n-ai-cli validate --provider openai
+```
+
+**Provider Selection Priority:**
+1. Explicit `--provider` flag (highest priority)
+2. `OPENAI_API_KEY` environment variable set → uses OpenAI
+3. Fallback to Google Translate (lowest priority)
 
 #### Context-Aware Translation
 

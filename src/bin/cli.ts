@@ -72,10 +72,32 @@ withGlobalOptions(
     .command("add:key")
     .argument("<key>", "Translation key (e.g., auth.login.title)")
     .requiredOption("-v, --value <value>", "Value for default locale")
+    .option("-p, --provider <provider>", "Translation provider (google, openai)")
     .description("Add new translation key to all locales")
     .action(async (key, options) => {
         const context = await buildContext(options);
-        await addKeyCommand(context, key, options);
+
+        let translator: Translator | undefined;
+
+        if (options.provider) {
+          const provider = options.provider as string;
+
+          if (provider === "google") {
+            translator = new GoogleTranslator();
+          } else if (provider === "openai") {
+            translator = new OpenAITranslator();
+          } else {
+            throw new Error(
+              `Unknown translation provider "${provider}". Use "google" or "openai".`
+            );
+          }
+        } else if (process.env.OPENAI_API_KEY) {
+          translator = new OpenAITranslator();
+        } else {
+          translator = new GoogleTranslator();
+        }
+
+        await addKeyCommand(context, key, options, translator);
     })
 );
 
@@ -85,10 +107,35 @@ withGlobalOptions(
     .argument("<key>", "Translation key")
     .requiredOption("-v, --value <value>", "New value")
     .option("-l, --locale <locale>", "Specific locale to update")
+    .option("-p, --provider <provider>", "Translation provider for syncing to other locales (google, openai)")
+    .option("-s, --sync", "Sync the updated value to all other locales via translation")
     .description("Update translation key")
     .action(async (key, options) => {
         const context = await buildContext(options);
-        await updateKeyCommand(context, key, options);
+
+        let translator: Translator | undefined;
+
+        if (options.sync) {
+          if (options.provider) {
+            const provider = options.provider as string;
+
+            if (provider === "google") {
+              translator = new GoogleTranslator();
+            } else if (provider === "openai") {
+              translator = new OpenAITranslator();
+            } else {
+              throw new Error(
+                `Unknown translation provider "${provider}". Use "google" or "openai".`
+              );
+            }
+          } else if (process.env.OPENAI_API_KEY) {
+            translator = new OpenAITranslator();
+          } else {
+            translator = new GoogleTranslator();
+          }
+        }
+
+        await updateKeyCommand(context, key, options, translator);
     })
 );
 

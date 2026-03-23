@@ -3,11 +3,13 @@ import type { CommandContext } from "../context/types.js";
 import { flattenObject, unflattenObject } from "../core/object-utils.js";
 import { validateNoStructuralConflict } from "../core/key-validator.js";
 import { confirmAction } from "../core/confirmation.js";
+import type { Translator } from "../providers/translator.js";
 
 export async function addKeyCommand(
   context: CommandContext,
   key: string,
-  options: { value: string }
+  options: { value: string },
+  translator: Translator
 ): Promise<void> {
   const { config, fileManager } = context;
   const { yes, dryRun, ci } = context.options;
@@ -62,11 +64,36 @@ export async function addKeyCommand(
     return;
   }
 
+  // Translate value for non-default locales
+  const translations: Record<string, string> = {
+    [config.defaultLocale]: value
+  };
+
+  for (const locale of locales) {
+    if (locale === config.defaultLocale) continue;
+
+    try {
+      const result = await translator.translate({
+        text: value,
+        targetLocale: locale,
+        sourceLocale: config.defaultLocale
+      });
+      translations[locale] = result.text;
+    } catch (err) {
+      console.log(
+        chalk.yellow(
+          `⚠ Warning: Failed to translate to "${locale}": ${(err as Error).message}`
+        )
+      );
+      translations[locale] = "";
+    }
+  }
+
   for (const locale of locales) {
     const nested = await fileManager.readLocale(locale);
     const flat = flattenObject(nested);
 
-    flat[key] = locale === config.defaultLocale ? value : "";
+    flat[key] = translations[locale]!;
 
     const finalData =
       config.keyStyle === "nested"
