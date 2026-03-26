@@ -11,28 +11,28 @@
 - [CONTRIBUTING.md](file://CONTRIBUTING.md)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
 - [src/context/types.ts](file://src/context/types.ts)
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 - [src/config/types.ts](file://src/config/types.ts)
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 - [src/core/confirmation.ts](file://src/core/confirmation.ts)
-- [src/core/confirmation.test.ts](file://src/core/confirmation.test.ts)
+- [unit-testing/core/confirmation.test.ts](file://unit-testing/core/confirmation.test.ts)
 - [src/core/object-utils.ts](file://src/core/object-utils.ts)
-- [src/core/object-utils.test.ts](file://src/core/object-utils.test.ts)
+- [unit-testing/core/object-utils.test.ts](file://unit-testing/core/object-utils.test.ts)
 - [src/core/key-validator.ts](file://src/core/key-validator.ts)
-- [src/core/key-validator.test.ts](file://src/core/key-validator.test.ts)
+- [unit-testing/core/key-validator.test.ts](file://unit-testing/core/key-validator.test.ts)
 - [src/providers/translator.ts](file://src/providers/translator.ts)
 - [src/providers/google.ts](file://src/providers/google.ts)
 - [src/providers/deepl.ts](file://src/providers/deepl.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
 - [src/services/translation-service.ts](file://src/services/translation-service.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
 - [src/commands/init.ts](file://src/commands/init.ts)
-- [src/commands/init.test.ts](file://src/commands/init.test.ts)
+- [unit-testing/commands/init.test.ts](file://unit-testing/commands/init.test.ts)
 - [src/commands/add-key.ts](file://src/commands/add-key.ts)
 - [src/commands/add-lang.ts](file://src/commands/add-lang.ts)
 - [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
@@ -43,13 +43,11 @@
 
 ## Update Summary
 **Changes Made**
-- Added comprehensive community governance documentation including Code of Conduct and Contributing guidelines
-- Updated version from 1.0.5 to 1.0.8 in package metadata
-- Enhanced build configuration documentation to reflect dependency externalization approach
-- Updated development workflow documentation with improved build process details
-- Revised TypeScript configuration documentation to align with current setup
-- Expanded troubleshooting guide with build-specific guidance
-- Integrated community standards and contribution workflows into development documentation
+- Updated project structure documentation to reflect reorganization of test files from `src/` to `unit-testing/` directory
+- Updated build configuration documentation to reflect changes in TypeScript include/exclude patterns and Vitest include patterns
+- Revised testing framework documentation to reflect new test organization and coverage configuration
+- Updated troubleshooting guide to address new test directory structure and build configuration changes
+- Enhanced development workflow documentation with improved test organization guidance
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -72,10 +70,10 @@
 ## Introduction
 This guide explains how to set up a development environment for i18n-ai-cli, contribute effectively, and maintain high-quality code. It covers prerequisites, build and test processes, project structure, TypeScript configuration, comprehensive unit testing with Vitest, code style, commit conventions, pull request expectations, and practical development tasks such as adding new commands, implementing translation providers, and extending configuration options.
 
-**Updated** The project now includes an enhanced build system with dependency externalization for better CommonJS compatibility and runtime module resolution. Version 1.0.8 introduces improved build performance and compatibility with modern Node.js environments. The project also establishes clear community governance standards through a comprehensive Code of Conduct and Contributing guidelines.
+**Updated** The project now features a reorganized test structure with dedicated `unit-testing/` directory for all test files, enhanced build configuration with improved TypeScript and Vitest setup, and streamlined development workflow with better separation of concerns between source and test code.
 
 ## Version History
-The project follows semantic versioning with the current version being 1.0.8. This release maintains backward compatibility while enhancing build system performance, dependency management, and community governance standards.
+The project follows semantic versioning with the current version being 1.0.8. This release maintains backward compatibility while introducing improved test organization, enhanced build system performance, and better development workflow practices.
 
 **Section sources**
 - [package.json](file://package.json)
@@ -170,11 +168,22 @@ src/
 ├── core/          # Core utilities (file-manager, validators, etc.)
 ├── providers/     # Translation providers (OpenAI, Google, etc.)
 └── services/      # Translation services
+
+unit-testing/
+├── commands/      # Unit tests for commands
+├── config/        # Unit tests for configuration
+├── context/       # Unit tests for context builder
+├── core/          # Unit tests for core utilities
+├── providers/     # Unit tests for translation providers
+└── services/      # Unit tests for translation services
 ```
 
+**Updated** The project now features a dedicated `unit-testing/` directory structure that separates test files from source files, improving code organization and maintainability.
+
 ### Testing Requirements
-- Tests are co-located with source files (e.g., `add-key.ts` and `add-key.test.ts`)
-- We use Vitest for testing with comprehensive coverage
+- Tests are organized in the `unit-testing/` directory following the same structure as source files
+- Each module has its own test file with naming convention ending in `.test.ts`
+- We use Vitest for testing with comprehensive coverage configuration
 - Aim for high test coverage, especially for new features
 - Mock external dependencies (file system, API calls, etc.)
 
@@ -206,7 +215,7 @@ The release process is handled by maintainers:
 - [package.json](file://package.json)
 
 ## Project Structure
-The project is organized around a CLI entrypoint, a command layer, configuration loading, a context builder, core utilities, providers for translation services, and a translation service wrapper. Tests live alongside source files with a naming convention ending in .test.ts.
+The project is organized around a CLI entrypoint, a command layer, configuration loading, a context builder, core utilities, providers for translation services, and a translation service wrapper. Tests are now organized in a dedicated `unit-testing/` directory with the same structure as source files.
 
 ```mermaid
 graph TB
@@ -216,7 +225,7 @@ CtxBuild --> FM["FileManager<br/>src/core/file-manager.ts"]
 CLI --> CmdInit["Init Command<br/>src/commands/init.ts"]
 CLI --> CmdAddKey["Add Key Command<br/>src/commands/add-key.ts"]
 Providers["Translators<br/>src/providers/*.ts"] --> TService["TranslationService<br/>src/services/translation-service.ts"]
-Tests["Unit Tests<br/>src/**/*.test.ts"] --> CLI
+Tests["Unit Tests<br/>unit-testing/**/*.test.ts"] --> CLI
 Tests --> CtxBuild
 Tests --> CfgLoad
 Tests --> FM
@@ -228,32 +237,32 @@ Tests --> TService
 **Diagram sources**
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 - [src/commands/init.ts](file://src/commands/init.ts)
-- [src/commands/init.test.ts](file://src/commands/init.test.ts)
+- [unit-testing/commands/init.test.ts](file://unit-testing/commands/init.test.ts)
 - [src/providers/translator.ts](file://src/providers/translator.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
 - [src/services/translation-service.ts](file://src/services/translation-service.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
 
 **Section sources**
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 - [src/commands/init.ts](file://src/commands/init.ts)
-- [src/commands/init.test.ts](file://src/commands/init.test.ts)
+- [unit-testing/commands/init.test.ts](file://unit-testing/commands/init.test.ts)
 - [src/providers/translator.ts](file://src/providers/translator.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
 - [src/services/translation-service.ts](file://src/services/translation-service.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
 
 ## Core Components
 - CLI Entrypoint: Defines commands, global options, and error handling.
@@ -267,15 +276,15 @@ Tests --> TService
 **Section sources**
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 - [src/providers/translator.ts](file://src/providers/translator.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
 - [src/services/translation-service.ts](file://src/services/translation-service.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
 
 ## Architecture Overview
 The CLI orchestrates commands that rely on a shared context built from configuration and a file manager. Commands delegate to core utilities for validation and transformations. Translation providers are swappable via the Translator interface.
@@ -304,20 +313,20 @@ Cmd-->>User : Output and logs
 **Diagram sources**
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 - [src/commands/init.ts](file://src/commands/init.ts)
-- [src/commands/init.test.ts](file://src/commands/init.test.ts)
+- [unit-testing/commands/init.test.ts](file://unit-testing/commands/init.test.ts)
 
 ## Build System
 
 ### Build Configuration Overview
 The project uses tsup as its build tool with a dependency externalization strategy for optimal CommonJS compatibility and runtime module resolution. The build configuration is designed to produce ESM bundles while letting Node.js handle dependency resolution at runtime.
 
-**Updated** The build system now employs a strategic externalization approach where all production dependencies are marked as external, allowing Node.js to resolve them dynamically at runtime rather than bundling them statically.
+**Updated** The build system now employs a strategic externalization approach where all production dependencies are marked as external, allowing Node.js to resolve them dynamically at runtime rather than bundling them statically. The TypeScript configuration has been updated to focus on source files in the `src/` directory.
 
 ### Tsup Configuration Details
 The build system is configured with the following key settings:
@@ -392,9 +401,11 @@ The project uses Vitest as its testing framework with comprehensive coverage con
 
 - **Global Setup**: Enables global test functions and assertions
 - **Environment**: Node.js environment for server-side testing
-- **Include Patterns**: Targets all files matching `src/**/*.test.ts`
+- **Include Patterns**: Targets all files matching `unit-testing/**/*.test.ts`
 - **Coverage**: V8 provider with text, json, and html reporters
 - **Exclusions**: Test files, type declarations, and CLI entry point
+
+**Updated** The Vitest configuration has been updated to reflect the new test directory structure, with include patterns pointing to `unit-testing/**/*.test.ts` and coverage configuration targeting `src/**/*.ts`.
 
 ### Testing Coverage
 The testing framework achieves comprehensive coverage across all core modules:
@@ -415,19 +426,19 @@ Extensive mocking is employed throughout the test suite:
 - **Process Environment**: stdout.isTTY and process.cwd mocked for environment detection
 
 ### Test Organization
-Tests are organized following the same directory structure as source files, with each module having its own test file. The naming convention `.test.ts` clearly identifies test files.
+Tests are organized following the same directory structure as source files, with each module having its own test file in the `unit-testing/` directory. The naming convention `.test.ts` clearly identifies test files.
 
 **Section sources**
 - [vitest.config.ts](file://vitest.config.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
-- [src/core/confirmation.test.ts](file://src/core/confirmation.test.ts)
-- [src/core/object-utils.test.ts](file://src/core/object-utils.test.ts)
-- [src/core/key-validator.test.ts](file://src/core/key-validator.test.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
-- [src/commands/init.test.ts](file://src/commands/init.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
+- [unit-testing/core/confirmation.test.ts](file://unit-testing/core/confirmation.test.ts)
+- [unit-testing/core/object-utils.test.ts](file://unit-testing/core/object-utils.test.ts)
+- [unit-testing/core/key-validator.test.ts](file://unit-testing/core/key-validator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
+- [unit-testing/commands/init.test.ts](file://unit-testing/commands/init.test.ts)
 
 ## Detailed Component Analysis
 
@@ -445,7 +456,7 @@ Tests are organized following the same directory structure as source files, with
 
 **Section sources**
 - [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
 - [src/context/types.ts](file://src/context/types.ts)
 
 ### Configuration Loader
@@ -455,7 +466,7 @@ Tests are organized following the same directory structure as source files, with
 
 **Section sources**
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 - [src/config/types.ts](file://src/config/types.ts)
 
 ### FileManager
@@ -464,7 +475,7 @@ Tests are organized following the same directory structure as source files, with
 
 **Section sources**
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 
 ### Commands
 - Initialization wizard with interactive prompts and non-interactive fallback.
@@ -472,7 +483,7 @@ Tests are organized following the same directory structure as source files, with
 
 **Section sources**
 - [src/commands/init.ts](file://src/commands/init.ts)
-- [src/commands/init.test.ts](file://src/commands/init.test.ts)
+- [unit-testing/commands/init.test.ts](file://unit-testing/commands/init.test.ts)
 - [src/commands/add-key.ts](file://src/commands/add-key.ts)
 - [src/commands/add-lang.ts](file://src/commands/add-lang.ts)
 - [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
@@ -526,12 +537,12 @@ TranslationService --> Translator : "delegates"
 
 **Diagram sources**
 - [src/providers/translator.ts](file://src/providers/translator.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
 - [src/providers/google.ts](file://src/providers/google.ts)
 - [src/providers/deepl.ts](file://src/providers/deepl.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 - [src/services/translation-service.ts](file://src/services/translation-service.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
 
 ### Core Utilities Testing
 The testing framework comprehensively covers utility functions:
@@ -542,11 +553,11 @@ The testing framework comprehensively covers utility functions:
 
 **Section sources**
 - [src/core/object-utils.ts](file://src/core/object-utils.ts)
-- [src/core/object-utils.test.ts](file://src/core/object-utils.test.ts)
+- [unit-testing/core/object-utils.test.ts](file://unit-testing/core/object-utils.test.ts)
 - [src/core/key-validator.ts](file://src/core/key-validator.ts)
-- [src/core/key-validator.test.ts](file://src/core/key-validator.test.ts)
+- [unit-testing/core/key-validator.test.ts](file://unit-testing/core/key-validator.test.ts)
 - [src/core/confirmation.ts](file://src/core/confirmation.ts)
-- [src/core/confirmation.test.ts](file://src/core/confirmation.test.ts)
+- [unit-testing/core/confirmation.test.ts](file://unit-testing/core/confirmation.test.ts)
 
 ## Dependency Analysis
 - Runtime dependencies include CLI parsing, filesystem helpers, inquirer, color output, and translation APIs.
@@ -579,6 +590,7 @@ tsup["tsup.config.ts"] --> external["External Dependencies"]
 - Keep usage patterns precise to avoid expensive scans during cleanup operations.
 - The external dependency approach reduces bundle size and improves startup performance.
 - ESM format provides better tree-shaking and import performance.
+- **Updated** The new test organization improves build performance by separating source and test files, reducing compilation overhead.
 
 ## Troubleshooting Guide
 - Configuration file not found or invalid JSON: ensure the configuration file exists and is valid JSON; review validation messages for missing or incorrect fields.
@@ -590,26 +602,29 @@ tsup["tsup.config.ts"] --> external["External Dependencies"]
 - **Build failures due to external dependencies**: Ensure all external dependencies are properly declared in package.json and available at runtime.
 - **CommonJS compatibility issues**: The external dependency approach resolves CommonJS dynamic require issues by letting Node.js handle resolution.
 - **Import errors in development**: Verify that all dependencies are installed and accessible in the node_modules directory.
+- **Test organization issues**: Ensure test files are located in the `unit-testing/` directory following the correct structure.
+- **Coverage not reflecting changes**: Verify that Vitest include patterns are correctly configured to include `src/**/*.ts` files.
 - **Community conduct concerns**: Report issues to wafiamustafa@gmail.com following the Code of Conduct enforcement guidelines.
 
-**Updated** Added troubleshooting guidance for community conduct issues and build-specific issues related to the external dependency configuration.
+**Updated** Added troubleshooting guidance for community conduct issues, test organization problems, and build-specific issues related to the new directory structure and configuration changes.
 
 **Section sources**
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 - [src/providers/deepl.ts](file://src/providers/deepl.ts)
-- [src/providers/deepl.test.ts](file://src/providers/deepl.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
-- [src/providers/openai.test.ts](file://src/providers/openai.test.ts)
 - [tsup.config.ts](file://tsup.config.ts)
 - [CODE_OF_CONDUCT.md](file://CODE_OF_CONDUCT.md)
 
 ## Conclusion
-By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files ensures robust coverage across all core functionality. The enhanced build system with dependency externalization provides better CommonJS compatibility and runtime module resolution. The project's community governance framework establishes clear behavioral standards and contribution workflows.
+By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files organized in the `unit-testing/` directory ensures robust coverage across all core functionality. The enhanced build system with dependency externalization provides better CommonJS compatibility and runtime module resolution. The project's community governance framework establishes clear behavioral standards and contribution workflows.
 
-Version 1.0.8 enhances the development experience with improved build performance, better dependency management, enhanced compatibility with modern Node.js environments, and established community standards. Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns, implement new features by extending the context, commands, providers, or configuration schema, and contribute to the community following the Code of Conduct and Contributing guidelines.
+Version 1.0.8 enhances the development experience with improved build performance, better dependency management, enhanced compatibility with modern Node.js environments, established community standards, and a well-organized test structure that improves maintainability and development workflow.
+
+Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns in the `unit-testing/` directory, implement new features by extending the context, commands, providers, or configuration schema, and contribute to the community following the Code of Conduct and Contributing guidelines.
 
 ## Appendices
 
@@ -627,6 +642,7 @@ Version 1.0.8 enhances the development experience with improved build performanc
 
 ### TypeScript Configuration
 - Strict compiler options, module resolution, target, declaration generation, and source maps are configured centrally.
+- **Updated** TypeScript configuration now focuses on `src/**/*` files for compilation.
 
 **Section sources**
 - [tsconfig.json](file://tsconfig.json)
@@ -643,6 +659,7 @@ Version 1.0.8 enhances the development experience with improved build performanc
 
 ### Testing with Vitest
 - Global setup, Node environment, include patterns, and coverage configuration are centralized.
+- **Updated** Vitest configuration now targets `unit-testing/**/*.test.ts` for test discovery and `src/**/*.ts` for coverage.
 
 **Section sources**
 - [vitest.config.ts](file://vitest.config.ts)
@@ -650,64 +667,65 @@ Version 1.0.8 enhances the development experience with improved build performanc
 ### Adding a New Command
 - Steps:
   - Define the command in the CLI entrypoint with arguments and options.
-  - Implement the command handler in a new file under commands/.
+  - Implement the command handler in a new file under `src/commands/`.
   - Use the context to access config and FileManager.
   - Respect global options (dry-run, yes, ci, force).
-  - Add unit tests following the existing .test.ts naming pattern.
+  - Add unit tests following the existing `.test.ts` naming pattern in `unit-testing/commands/`.
 
 **Section sources**
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
 - [src/core/file-manager.ts](file://src/core/file-manager.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
 
 ### Implementing a Translation Provider
 - Steps:
-  - Implement the Translator interface in a new provider file.
+  - Implement the Translator interface in a new provider file under `src/providers/`.
   - Integrate with the external service in the translate method.
   - Wrap usage with TranslationService for consistent behavior.
-  - Add tests verifying the provider's translate method.
+  - Add tests verifying the provider's translate method in `unit-testing/providers/`.
 
 **Section sources**
 - [src/providers/translator.ts](file://src/providers/translator.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
 - [src/services/translation-service.ts](file://src/services/translation-service.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
 - [src/providers/google.ts](file://src/providers/google.ts)
 - [src/providers/deepl.ts](file://src/providers/deepl.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 
 ### Extending Configuration Options
 - Steps:
-  - Add the new option to the configuration types.
+  - Add the new option to the configuration types in `src/config/types.ts`.
   - Extend the Zod schema with appropriate validation.
   - Apply defaults and derive computed fields (e.g., compiled usage patterns).
   - Update consumers to handle the new field.
+  - Add tests in `unit-testing/config/config-loader.test.ts`.
 
 **Section sources**
 - [src/config/types.ts](file://src/config/types.ts)
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
 
 ### Writing Effective Tests
 - Use Vitest with Node environment and global assertions enabled.
-- Place tests adjacent to source files with .test.ts suffix.
+- Place tests in the `unit-testing/` directory following the same structure as source files with `.test.ts` suffix.
 - Leverage mocks for filesystem and external services.
 - Ensure coverage targets include source files and exclude test and declaration files.
-- Follow the established testing patterns from the existing test suite.
+- Follow the established testing patterns from the existing test suite in the `unit-testing/` directory.
 
 **Section sources**
 - [vitest.config.ts](file://vitest.config.ts)
-- [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
-- [src/config/config-loader.test.ts](file://src/config/config-loader.test.ts)
-- [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
-- [src/core/confirmation.test.ts](file://src/core/confirmation.test.ts)
-- [src/core/object-utils.test.ts](file://src/core/object-utils.test.ts)
-- [src/core/key-validator.test.ts](file://src/core/key-validator.test.ts)
-- [src/providers/translator.test.ts](file://src/providers/translator.test.ts)
-- [src/services/translation-service.test.ts](file://src/services/translation-service.test.ts)
-- [src/commands/init.test.ts](file://src/commands/init.test.ts)
+- [unit-testing/context/build-context.test.ts](file://unit-testing/context/build-context.test.ts)
+- [unit-testing/config/config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
+- [unit-testing/core/file-manager.test.ts](file://unit-testing/core/file-manager.test.ts)
+- [unit-testing/core/confirmation.test.ts](file://unit-testing/core/confirmation.test.ts)
+- [unit-testing/core/object-utils.test.ts](file://unit-testing/core/object-utils.test.ts)
+- [unit-testing/core/key-validator.test.ts](file://unit-testing/core/key-validator.test.ts)
+- [unit-testing/providers/translator.test.ts](file://unit-testing/providers/translator.test.ts)
+- [unit-testing/services/translation-service.test.ts](file://unit-testing/services/translation-service.test.ts)
+- [unit-testing/commands/init.test.ts](file://unit-testing/commands/init.test.ts)
 
 ### Code Style Standards
 - Enforced by TypeScript strictness and compiler options.

@@ -30,7 +30,17 @@ export async function updateKeyCommand(
   }
 
   const targetLocale = locale ?? config.defaultLocale;
-  const shouldSync = options.sync ?? false;
+  let shouldSync = options.sync ?? false;
+
+  // Warn if both --locale and --sync are provided
+  if (locale && shouldSync) {
+    console.log(
+      chalk.yellow(
+        "⚠️  --locale and --sync are mutually exclusive. Using --locale."
+      )
+    );
+    shouldSync = false;
+  }
 
   if (!config.supportedLocales.includes(targetLocale)) {
     throw new Error(

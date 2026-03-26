@@ -106,7 +106,7 @@ withGlobalOptions(
     .command("update:key")
     .argument("<key>", "Translation key")
     .requiredOption("-v, --value <value>", "New value")
-    .option("-l, --locale <locale>", "Specific locale to update")
+    .option("-l, --locale <locale>", "Specific locale file to update (writes value as-is)")
     .option("-p, --provider <provider>", "Translation provider for syncing to other locales (google, openai)")
     .option("-s, --sync", "Sync the updated value to all other locales via translation")
     .description("Update translation key")

@@ -378,5 +378,84 @@ describe('update:key command', () => {
         'Key "greeting" does not exist in locale "de".'
       );
     });
+
+    it('should update a specific locale file with --locale fr without modifying default locale', async () => {
+      const frConfig: I18nConfig = { ...mockConfig, supportedLocales: ['en', 'fr'] };
+      const context = createMockContext();
+      const mockTranslator = createMockTranslator();
+      context.config = frConfig;
+
+      vi.mocked(context.fileManager.readLocale).mockImplementation(async (locale: string) => {
+        if (locale === 'fr') {
+          return { greeting: 'Bonjour' };
+        }
+        return { greeting: 'Hello' };
+      });
+      vi.mocked(context.fileManager.writeLocale).mockResolvedValue(undefined);
+
+      await updateKeyCommand(context, 'greeting', { value: 'Salut', locale: 'fr' }, mockTranslator);
+
+      // Should only write to fr locale
+      expect(context.fileManager.writeLocale).toHaveBeenCalledTimes(1);
+      expect(context.fileManager.writeLocale).toHaveBeenCalledWith(
+        'fr',
+        { greeting: 'Salut' },
+        { dryRun: false }
+      );
+
+      // Should not write to en locale
+      const calls = vi.mocked(context.fileManager.writeLocale).mock.calls;
+      expect(calls.some(call => call[0] === 'en')).toBe(false);
+    });
+
+    it('should throw error when key does not exist in the target locale specified by --locale', async () => {
+      const context = createMockContext();
+      const mockTranslator = createMockTranslator();
+
+      vi.mocked(context.fileManager.readLocale).mockResolvedValue({
+        other: 'value'
+      });
+
+      await expect(updateKeyCommand(context, 'nonexistent', { value: 'test', locale: 'de' }, mockTranslator)).rejects.toThrow(
+        'Key "nonexistent" does not exist in locale "de".'
+      );
+    });
+
+    it('should warn when both --locale and --sync are provided and only update the locale', async () => {
+      const frConfig: I18nConfig = { ...mockConfig, supportedLocales: ['en', 'fr'] };
+      const context = createMockContext();
+      const mockTranslator = createMockTranslator();
+      context.config = frConfig;
+
+      vi.mocked(context.fileManager.readLocale).mockImplementation(async (locale: string) => {
+        if (locale === 'fr') {
+          return { greeting: 'Bonjour' };
+        }
+        return { greeting: 'Hello' };
+      });
+      vi.mocked(context.fileManager.writeLocale).mockResolvedValue(undefined);
+
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      await updateKeyCommand(context, 'greeting', { value: 'Salut', locale: 'fr', sync: true }, mockTranslator);
+
+      // Should warn about mutual exclusivity
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('--locale and --sync are mutually exclusive')
+      );
+
+      // Should only write to fr locale (no sync)
+      expect(context.fileManager.writeLocale).toHaveBeenCalledTimes(1);
+      expect(context.fileManager.writeLocale).toHaveBeenCalledWith(
+        'fr',
+        { greeting: 'Salut' },
+        { dryRun: false }
+      );
+
+      // Should not translate or update other locales
+      expect(mockTranslator.translate).not.toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
   });
 });
