@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateNoStructuralConflict } from './key-validator.js';
+import { validateNoStructuralConflict } from '../../src/core/key-validator.js';
 
 describe('key-validator', () => {
   describe('validateNoStructuralConflict', () => {

@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { addLang } from './add-lang.js';
-import { confirmAction } from '../core/confirmation.js';
-import type { CommandContext } from '../context/types.js';
-import type { I18nConfig } from '../config/types.js';
+import { addLang } from '../../src/commands/add-lang.js';
+import { confirmAction } from '../../src/core/confirmation.js';
+import type { CommandContext } from '../../src/context/types.js';
+import type { I18nConfig } from '../../src/config/types.js';
 
 // Mock confirmation module
-vi.mock('../core/confirmation.js', () => ({
+vi.mock('../../src/core/confirmation.js', () => ({
   confirmAction: vi.fn()
 }));
 

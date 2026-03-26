@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { buildContext } from './build-context.js';
-import { loadConfig } from '../config/config-loader.js';
-import { FileManager } from '../core/file-manager.js';
-import type { I18nConfig } from '../config/types.js';
-import type { GlobalOptions } from './types.js';
+import { buildContext } from '../../src/context/build-context.js';
+import { loadConfig } from '../../src/config/config-loader.js';
+import { FileManager } from '../../src/core/file-manager.js';
+import type { I18nConfig } from '../../src/config/types.js';
+import type { GlobalOptions } from '../../src/context/types.js';
 
 // Mock dependencies
-vi.mock('../config/config-loader.js', () => ({
+vi.mock('../../src/config/config-loader.js', () => ({
   loadConfig: vi.fn()
 }));
 
-vi.mock('../core/file-manager.js', () => ({
+vi.mock('../../src/core/file-manager.js', () => ({
   FileManager: vi.fn().mockImplementation(() => ({
     // Mock FileManager instance
   }))

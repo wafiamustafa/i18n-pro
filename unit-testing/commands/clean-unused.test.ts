@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { cleanUnusedCommand } from './clean-unused.js';
-import { confirmAction } from '../core/confirmation.js';
+import { cleanUnusedCommand } from '../../src/commands/clean-unused.js';
+import { confirmAction } from '../../src/core/confirmation.js';
 import fs from 'fs-extra';
 import { glob } from 'glob';
-import type { CommandContext } from '../context/types.js';
-import type { I18nConfig } from '../config/types.js';
+import type { CommandContext } from '../../src/context/types.js';
+import type { I18nConfig } from '../../src/config/types.js';
 
 // Mock dependencies
-vi.mock('../core/confirmation.js', () => ({
+vi.mock('../../src/core/confirmation.js', () => ({
   confirmAction: vi.fn()
 }));
 
@@ -301,12 +301,11 @@ describe('clean:unused command', () => {
     });
 
     it('should handle multiple locales', async () => {
-      const multiConfig: I18nConfig = {
+      const context = createMockContext();
+      context.config = {
         ...mockConfig,
         supportedLocales: ['en', 'de', 'fr']
       };
-      const context = createMockContext();
-      context.config = multiConfig;
       
       vi.mocked(glob).mockResolvedValue(['src/app.ts']);
       (vi.mocked(fs.readFile) as any).mockResolvedValue("t('greeting')");

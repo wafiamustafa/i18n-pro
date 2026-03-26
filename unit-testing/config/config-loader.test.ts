@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
-import { loadConfig, compileUsagePatterns, CONFIG_FILE_NAME } from './config-loader.js';
-import type { I18nConfig } from './types.js';
+import { loadConfig, compileUsagePatterns, CONFIG_FILE_NAME } from '../../src/config/config-loader.js';
+import type { I18nConfig } from '../../src/config/types.js';
 
 // Mock fs-extra
 vi.mock('fs-extra', () => ({

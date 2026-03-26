@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
-import { initCommand } from './init.js';
-import { CONFIG_FILE_NAME } from '../config/config-loader.js';
-import type { GlobalOptions } from '../context/types.js';
+import { initCommand } from '../../src/commands/init.js';
+import { CONFIG_FILE_NAME } from '../../src/config/config-loader.js';
+import type { GlobalOptions } from '../../src/context/types.js';
 
 // Mock dependencies
 vi.mock('fs-extra', () => ({
@@ -20,12 +20,12 @@ vi.mock('inquirer', () => ({
   }
 }));
 
-vi.mock('../core/confirmation.js', () => ({
+vi.mock('../../src/core/confirmation.js', () => ({
   confirmAction: vi.fn()
 }));
 
 import inquirer from 'inquirer';
-import { confirmAction } from '../core/confirmation.js';
+import { confirmAction } from '../../src/core/confirmation.js';
 
 describe('init command', () => {
   const mockCwd = '/mock/project';

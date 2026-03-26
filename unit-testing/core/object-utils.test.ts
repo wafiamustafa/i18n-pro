@@ -4,7 +4,7 @@ import {
   unflattenObject,
   getAllFlatKeys,
   removeEmptyObjects
-} from './object-utils.js';
+} from '../../src/core/object-utils.js';
 
 describe('object-utils', () => {
   describe('flattenObject', () => {

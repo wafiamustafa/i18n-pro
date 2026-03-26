@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { validateCommand } from "./validate.js";
-import { confirmAction } from "../core/confirmation.js";
-import type { CommandContext } from "../context/types.js";
-import type { I18nConfig } from "../config/types.js";
-import type { Translator } from "../providers/translator.js";
+import { validateCommand } from "../../src/commands/validate.js";
+import { confirmAction } from "../../src/core/confirmation.js";
+import type { CommandContext } from "../../src/context/types.js";
+import type { I18nConfig } from "../../src/config/types.js";
+import type { Translator } from "../../src/providers/translator.js";
 
-vi.mock("../core/confirmation.js", () => ({
+vi.mock("../../src/core/confirmation.js", () => ({
   confirmAction: vi.fn(),
 }));
 
@@ -313,7 +313,7 @@ describe("validate command", () => {
     context.config = { ...mockConfig, supportedLocales: ["en", "de"] };
     vi.mocked(context.fileManager.readLocale)
       .mockResolvedValueOnce({ greeting: "Hello" }) // en
-      .mockResolvedValueOnce({}); // de (missing key)
+      .mockResolvedValueOnce({}) // de (missing key)
     vi.mocked(confirmAction).mockResolvedValue(false);
 
     await validateCommand(context);

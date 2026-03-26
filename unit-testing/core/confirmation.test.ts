@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import inquirer from 'inquirer';
-import { confirmAction } from './confirmation.js';
+import { confirmAction } from '../../src/core/confirmation.js';
 
 // Mock inquirer
 vi.mock('inquirer', () => ({

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
-import { FileManager } from './file-manager.js';
-import type { I18nConfig } from '../config/types.js';
+import { FileManager } from '../../src/core/file-manager.js';
+import type { I18nConfig } from '../../src/config/types.js';
 
 // Mock fs-extra
 vi.mock('fs-extra', () => ({

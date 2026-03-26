@@ -7,6 +7,8 @@
 - [tsup.config.ts](file://tsup.config.ts)
 - [vitest.config.ts](file://vitest.config.ts)
 - [README.md](file://README.md)
+- [CODE_OF_CONDUCT.md](file://CODE_OF_CONDUCT.md)
+- [CONTRIBUTING.md](file://CONTRIBUTING.md)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
 - [src/context/build-context.ts](file://src/context/build-context.ts)
 - [src/context/build-context.test.ts](file://src/context/build-context.test.ts)
@@ -41,36 +43,39 @@
 
 ## Update Summary
 **Changes Made**
-- Updated version from 1.0.5 to 1.0.7 in package metadata
+- Added comprehensive community governance documentation including Code of Conduct and Contributing guidelines
+- Updated version from 1.0.5 to 1.0.8 in package metadata
 - Enhanced build configuration documentation to reflect dependency externalization approach
 - Updated development workflow documentation with improved build process details
 - Revised TypeScript configuration documentation to align with current setup
 - Expanded troubleshooting guide with build-specific guidance
+- Integrated community standards and contribution workflows into development documentation
 
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Version History](#version-history)
 3. [Repository Metadata](#repository-metadata)
-4. [Contributing Guidelines](#contributing-guidelines)
-5. [Project Structure](#project-structure)
-6. [Core Components](#core-components)
-7. [Architecture Overview](#architecture-overview)
-8. [Build System](#build-system)
-9. [Testing Framework](#testing-framework)
-10. [Detailed Component Analysis](#detailed-component-analysis)
-11. [Dependency Analysis](#dependency-analysis)
-12. [Performance Considerations](#performance-considerations)
-13. [Troubleshooting Guide](#troubleshooting-guide)
-14. [Conclusion](#conclusion)
-15. [Appendices](#appendices)
+4. [Community Governance](#community-governance)
+5. [Contributing Guidelines](#contributing-guidelines)
+6. [Project Structure](#project-structure)
+7. [Core Components](#core-components)
+8. [Architecture Overview](#architecture-overview)
+9. [Build System](#build-system)
+10. [Testing Framework](#testing-framework)
+11. [Detailed Component Analysis](#detailed-component-analysis)
+12. [Dependency Analysis](#dependency-analysis)
+13. [Performance Considerations](#performance-considerations)
+14. [Troubleshooting Guide](#troubleshooting-guide)
+15. [Conclusion](#conclusion)
+16. [Appendices](#appendices)
 
 ## Introduction
 This guide explains how to set up a development environment for i18n-ai-cli, contribute effectively, and maintain high-quality code. It covers prerequisites, build and test processes, project structure, TypeScript configuration, comprehensive unit testing with Vitest, code style, commit conventions, pull request expectations, and practical development tasks such as adding new commands, implementing translation providers, and extending configuration options.
 
-**Updated** The project now includes an enhanced build system with dependency externalization for better CommonJS compatibility and runtime module resolution. Version 1.0.7 introduces improved build performance and compatibility with modern Node.js environments.
+**Updated** The project now includes an enhanced build system with dependency externalization for better CommonJS compatibility and runtime module resolution. Version 1.0.8 introduces improved build performance and compatibility with modern Node.js environments. The project also establishes clear community governance standards through a comprehensive Code of Conduct and Contributing guidelines.
 
 ## Version History
-The project follows semantic versioning with the current version being 1.0.7. This release maintains backward compatibility while enhancing build system performance and dependency management.
+The project follows semantic versioning with the current version being 1.0.8. This release maintains backward compatibility while enhancing build system performance, dependency management, and community governance standards.
 
 **Section sources**
 - [package.json](file://package.json)
@@ -81,31 +86,122 @@ The project maintains official repository metadata for community collaboration a
 **Section sources**
 - [package.json](file://package.json)
 
-## Contributing Guidelines
-We welcome community contributions to i18n-ai-cli! Feel free to open issues, suggest improvements, or submit pull requests to help enhance this AI-powered internationalization tool.
+## Community Governance
 
-### Pull Request Workflow
-- Fork the repository and create your branch from main
-- Ensure your code follows the established patterns and includes comprehensive tests
-- Update documentation as needed to reflect your changes
-- Submit pull requests with clear descriptions of the problem being solved and the solution implemented
+### Code of Conduct
+This project and everyone participating in it is governed by a Code of Conduct that promotes a welcoming and inclusive experience for everyone. The Code of Conduct establishes behavioral standards and enforcement responsibilities for all community members.
 
-### Issue Reporting
-When encountering bugs or requesting features:
-- Provide a clear and concise description of the problem
-- Include steps to reproduce the issue with expected vs. actual behavior
-- Specify your environment details (Node.js version, operating system)
-- Include relevant configuration and test scenarios
-- Reference related issues or pull requests when applicable
+**Key Principles:**
+- **Respectful Interaction**: Demonstrating empathy and kindness toward other people
+- **Constructive Feedback**: Being respectful of differing opinions and viewpoints
+- **Professional Conduct**: Accepting responsibility and apologizing when mistakes are made
+- **Community Focus**: Focusing on what is best for the overall community
 
-### Code Quality Expectations
-- Maintain consistent TypeScript coding standards
-- Include unit tests for all new functionality
-- Follow the existing architectural patterns
-- Keep changes focused and scoped appropriately
-- Update documentation and examples when modifying public APIs
+**Enforcement Scope:**
+- Applies within all community spaces
+- Also applies when an individual is officially representing the community in public spaces
+- Examples include using official email addresses or acting as appointed representatives
+
+**Reporting Mechanism:**
+- Instances of unacceptable behavior can be reported to community leaders at wafiamustafa@gmail.com
+- All complaints will be reviewed and investigated promptly and fairly
+- Community leaders are obligated to respect the privacy and security of reporters
 
 **Section sources**
+- [CODE_OF_CONDUCT.md](file://CODE_OF_CONDUCT.md)
+
+### Community Standards
+The project maintains high standards for community interaction and collaboration. All participants are expected to contribute to an open, welcoming, diverse, inclusive, and healthy community environment.
+
+**Positive Behaviors:**
+- Demonstrating empathy and kindness toward other people
+- Being respectful of differing opinions, viewpoints, and experiences
+- Giving and gracefully accepting constructive feedback
+- Accepting responsibility and apologizing to those affected by mistakes
+
+**Unacceptable Behaviors:**
+- Use of sexualized language or imagery
+- Trolling, insulting or derogatory comments
+- Personal or political attacks
+- Publishing others' private information without explicit permission
+- Other conduct considered inappropriate in a professional setting
+
+**Section sources**
+- [CODE_OF_CONDUCT.md](file://CODE_OF_CONDUCT.md)
+
+## Contributing Guidelines
+
+### Getting Started
+1. **Fork the repository** on GitHub
+2. **Clone your fork** locally and navigate to the project directory
+3. **Add the upstream remote** to track the main repository
+
+### Development Setup
+**Prerequisites:**
+- Node.js 18 or higher
+- npm or yarn package manager
+
+**Installation Steps:**
+1. Install dependencies: `npm install`
+2. Build the project: `npm run build`
+3. Link for local testing: `npm link`
+4. Test your changes: `i18n-ai-cli --help`
+5. Unlink when finished: `npm unlink -g i18n-ai-cli`
+
+### Branch Naming Convention
+Use descriptive branch names following these patterns:
+- `feature/add-new-command` - for new features
+- `fix/bug-description` - for bug fixes
+- `docs/update-readme` - for documentation updates
+- `refactor/some-component` - for code refactoring
+
+### Code Style and Standards
+- The project uses TypeScript with strict type checking
+- Follow existing code patterns and conventions
+- Ensure your code passes type checking: `npm run typecheck`
+
+### Project Structure
+```
+src/
+├── bin/           # CLI entry point
+├── commands/      # CLI commands (add-key, remove-lang, etc.)
+├── config/        # Configuration loading and types
+├── context/       # Context management and dependency injection
+├── core/          # Core utilities (file-manager, validators, etc.)
+├── providers/     # Translation providers (OpenAI, Google, etc.)
+└── services/      # Translation services
+```
+
+### Testing Requirements
+- Tests are co-located with source files (e.g., `add-key.ts` and `add-key.test.ts`)
+- We use Vitest for testing with comprehensive coverage
+- Aim for high test coverage, especially for new features
+- Mock external dependencies (file system, API calls, etc.)
+
+### Pull Request Process
+1. **Push your branch** to your fork
+2. **Create a Pull Request** on GitHub from your fork to the main repository
+3. **Fill out the PR template** with clear description of changes and rationale
+4. **Wait for review** - maintainers will review your PR and may request changes
+5. **Address feedback** by making additional commits to your branch
+
+### PR Checklist
+- [ ] Code builds successfully (`npm run build`)
+- [ ] Type checking passes (`npm run typecheck`)
+- [ ] All tests pass (`npm test`)
+- [ ] New tests added for new features
+- [ ] Documentation updated (if needed)
+- [ ] Commit messages are clear and descriptive
+
+### Release Process
+The release process is handled by maintainers:
+1. Update version in `package.json`
+2. Run `npm version patch|minor|major`
+3. Push tags: `git push --follow-tags`
+4. Publish to npm: `npm publish`
+
+**Section sources**
+- [CONTRIBUTING.md](file://CONTRIBUTING.md)
 - [README.md](file://README.md)
 - [package.json](file://package.json)
 
@@ -494,8 +590,9 @@ tsup["tsup.config.ts"] --> external["External Dependencies"]
 - **Build failures due to external dependencies**: Ensure all external dependencies are properly declared in package.json and available at runtime.
 - **CommonJS compatibility issues**: The external dependency approach resolves CommonJS dynamic require issues by letting Node.js handle resolution.
 - **Import errors in development**: Verify that all dependencies are installed and accessible in the node_modules directory.
+- **Community conduct concerns**: Report issues to wafiamustafa@gmail.com following the Code of Conduct enforcement guidelines.
 
-**Updated** Added troubleshooting guidance for build-specific issues related to the external dependency configuration.
+**Updated** Added troubleshooting guidance for community conduct issues and build-specific issues related to the external dependency configuration.
 
 **Section sources**
 - [src/config/config-loader.ts](file://src/config/config-loader.ts)
@@ -507,11 +604,12 @@ tsup["tsup.config.ts"] --> external["External Dependencies"]
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 - [src/providers/openai.test.ts](file://src/providers/openai.test.ts)
 - [tsup.config.ts](file://tsup.config.ts)
+- [CODE_OF_CONDUCT.md](file://CODE_OF_CONDUCT.md)
 
 ## Conclusion
-By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files ensures robust coverage across all core functionality. The enhanced build system with dependency externalization provides better CommonJS compatibility and runtime module resolution. Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns, and implement new features by extending the context, commands, providers, or configuration schema.
+By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files ensures robust coverage across all core functionality. The enhanced build system with dependency externalization provides better CommonJS compatibility and runtime module resolution. The project's community governance framework establishes clear behavioral standards and contribution workflows.
 
-Version 1.0.7 enhances the development experience with improved build performance, better dependency management, and enhanced compatibility with modern Node.js environments.
+Version 1.0.8 enhances the development experience with improved build performance, better dependency management, enhanced compatibility with modern Node.js environments, and established community standards. Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns, implement new features by extending the context, commands, providers, or configuration schema, and contribute to the community following the Code of Conduct and Contributing guidelines.
 
 ## Appendices
 
@@ -626,15 +724,19 @@ Version 1.0.7 enhances the development experience with improved build performanc
 ### Issue Reporting
 - Provide a clear description, reproduction steps, expected vs. actual behavior, and environment details (Node.js version, OS).
 - Include test coverage information and any failing test scenarios.
+- Follow community standards outlined in the Code of Conduct.
 
 ### Community Contribution Process
-- Fork the repository and create feature branches
+- Fork the repository and create feature branches following the naming convention
 - Follow established code patterns and testing requirements
-- Submit pull requests with comprehensive descriptions
+- Submit pull requests with comprehensive descriptions following the PR checklist
 - Engage constructively in code review discussions
 - Update documentation to reflect changes
 - Test thoroughly across supported environments
+- Adhere to the Code of Conduct in all community interactions
 
 **Section sources**
+- [CONTRIBUTING.md](file://CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](file://CODE_OF_CONDUCT.md)
 - [README.md](file://README.md)
 - [package.json](file://package.json)

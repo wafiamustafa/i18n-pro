@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { GoogleTranslator } from './google.js';
-import { DeeplTranslator } from './deepl.js';
-import { OpenAITranslator } from './openai.js';
-import type { TranslationRequest } from './translator.js';
+import { GoogleTranslator } from '../../src/providers/google.js';
+import { DeeplTranslator } from '../../src/providers/deepl.js';
+import { OpenAITranslator } from '../../src/providers/openai.js';
+import type { TranslationRequest } from '../../src/providers/translator.js';
 
 // Mock the google translate API
 vi.mock('@vitalets/google-translate-api', () => ({

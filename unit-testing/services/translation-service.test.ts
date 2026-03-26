@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { TranslationService } from './translation-service.js';
-import type { Translator, TranslationRequest, TranslationResult } from '../providers/translator.js';
+import { TranslationService } from '../../src/services/translation-service.js';
+import type { Translator, TranslationRequest, TranslationResult } from '../../src/providers/translator.js';
 
 // Create a mock translator
 const createMockTranslator = (name: string): Translator => ({
