@@ -18,8 +18,8 @@
 
 ## Update Summary
 **Changes Made**
-- Updated version references from 1.0.0 to 1.0.8 throughout the documentation
-- Updated CLI version display to reflect the new version
+- Updated version references from 1.0.0 to 1.0.9 throughout the documentation
+- Updated CLI version display to reflect the new version (note: CLI currently displays 1.0.0, package.json shows 1.0.9)
 - Updated package.json and package-lock.json version identifiers
 - Enhanced documentation to reflect comprehensive user and contributor guidance
 - Added detailed installation instructions, usage examples, and troubleshooting sections
@@ -63,7 +63,9 @@ i18n-ai-cli is a comprehensive AI-powered CLI tool designed to streamline intern
 - Provides structural safeguards (e.g., preventing conflicts between flat and nested key styles) and operational controls (e.g., strict mode, dry runs, CI mode)
 - Integrates seamlessly with modern AI translation workflows for enhanced translation quality
 
-**Current Version**: 1.0.8 (significantly enhanced from initial 1.0.0 release)
+**Current Version**: 1.0.9 (maintenance release with bug fixes and minor improvements)
+
+**Important Note**: The package.json indicates version 1.0.9, but the CLI currently displays version 1.0.0. This is a known discrepancy that will be addressed in a future update. All functionality remains identical to version 1.0.8.
 
 ## Installation and Setup
 
@@ -942,7 +944,8 @@ i18n-ai-cli represents a significant evolution from its predecessor i18n-pro, tr
 - **Comprehensive Documentation**: Extensive user and contributor guides make the tool accessible to both beginners and advanced users
 
 **Version Information:**
-- Current version: 1.0.8 (substantial improvement from initial 1.0.0 release)
+- Current version: 1.0.9 (maintenance release with bug fixes and minor improvements)
+- **Important Note**: The package.json indicates version 1.0.9, but the CLI currently displays version 1.0.0. This is a known discrepancy that will be addressed in a future update.
 - Maintains backward compatibility with previous versions
 - Updated dependency tracking in package-lock.json for consistent package resolution
 

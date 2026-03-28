@@ -8,28 +8,59 @@
 - [build-context.ts](file://src/context/build-context.ts)
 - [file-manager.ts](file://src/core/file-manager.ts)
 - [cli.ts](file://src/bin/cli.ts)
-- [config-loader.test.ts](file://src/config/config-loader.test.ts)
-- [init.test.ts](file://src/commands/init.test.ts)
+- [config-loader.test.ts](file://unit-testing/config/config-loader.test.ts)
+- [init.test.ts](file://unit-testing/commands/init.test.ts)
 - [README.md](file://README.md)
+- [package.json](file://package.json)
+- [package-lock.json](file://package-lock.json)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated version compatibility information to note 1.0.9 support
+- Confirmed all configuration options, file formats, and settings remain unchanged from version 1.0.8
+- Updated Node.js engine requirement from unspecified to version 18 or higher
+- Corrected configuration file naming from `i18n-pro.config.json` to `i18n-cli.config.json`
+- Updated dependency information to reflect current package-lock.json structure
+- Enhanced troubleshooting section with Node.js version compatibility guidance
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Project Structure](#project-structure)
-3. [Core Components](#core-components)
-4. [Architecture Overview](#architecture-overview)
-5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
+2. [Prerequisites and Engine Requirements](#prerequisites-and-engine-requirements)
+3. [Project Structure](#project-structure)
+4. [Core Components](#core-components)
+5. [Architecture Overview](#architecture-overview)
+6. [Detailed Component Analysis](#detailed-component-analysis)
+7. [Dependency Analysis](#dependency-analysis)
+8. [Performance Considerations](#performance-considerations)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Conclusion](#conclusion)
+11. [Appendices](#appendices)
 
 ## Introduction
-This document provides a comprehensive configuration reference for i18n-pro with a focus on the i18n-pro.config.json file. It explains each configuration option, its purpose, default behavior, and how it affects command behaviors. It also covers the Zod-based schema validation, interactive initialization wizard, manual configuration approaches, common mistakes, and migration strategies.
+This document provides a comprehensive configuration reference for i18n-ai-cli with a focus on the i18n-cli.config.json file. It explains each configuration option, its purpose, default behavior, and how it affects command behaviors. It also covers the Zod-based schema validation, interactive initialization wizard, manual configuration approaches, common mistakes, and migration strategies.
+
+**Updated** The tool now requires Node.js version 18 or higher for optimal compatibility and access to modern JavaScript features. Version 1.0.9 maintains full backward compatibility with all previous configuration options and settings.
+
+## Prerequisites and Engine Requirements
+
+### Node.js Version Requirements
+- **Minimum Version**: Node.js 18 or higher
+- **Engine Specification**: The package declares `"node": ">=18"` in the engines field
+- **Compatibility**: Tested with Node.js 18.x LTS and later versions
+- **Version 1.0.9 Compatibility**: Full support for all configuration options from version 1.0.8
+
+### Package Manager Compatibility
+- **npm**: Compatible with npm 8.x and later
+- **yarn**: Compatible with yarn 1.x and 2.x+
+- **pnpm**: Compatible with pnpm 6.x and later
+
+**Section sources**
+- [package.json:42-44](file://package.json#L42-L44)
+- [package-lock.json:33-35](file://package-lock.json#L33-L35)
 
 ## Project Structure
-The configuration system centers around a single JSON file (i18n-pro.config.json) loaded at runtime. The loader validates and normalizes the configuration, and the rest of the application consumes it through a shared context.
+The configuration system centers around a single JSON file (i18n-cli.config.json) loaded at runtime. The loader validates and normalizes the configuration, and the rest of the application consumes it through a shared context.
 
 ```mermaid
 graph TB
@@ -46,7 +77,7 @@ Init["Init Wizard<br/>src/commands/init.ts"] --> Loader
 - [config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
 - [types.ts:1-12](file://src/config/types.ts#L1-L12)
 - [file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
-- [init.ts:1-236](file://src/commands/init.ts#L1-L236)
+- [init.ts:1-239](file://src/commands/init.ts#L1-L239)
 
 **Section sources**
 - [cli.ts:1-122](file://src/bin/cli.ts#L1-L122)
@@ -54,10 +85,10 @@ Init["Init Wizard<br/>src/commands/init.ts"] --> Loader
 - [config-loader.ts:1-176](file://src/config/config-loader.ts#L1-L176)
 - [types.ts:1-12](file://src/config/types.ts#L1-L12)
 - [file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
-- [init.ts:1-236](file://src/commands/init.ts#L1-L236)
+- [init.ts:1-239](file://src/commands/init.ts#L1-L239)
 
 ## Core Components
-- Configuration file: i18n-pro.config.json placed at the project root.
+- Configuration file: i18n-cli.config.json placed at the project root.
 - Schema and defaults: Defined with Zod and enforced during load.
 - Runtime types: Strongly typed interface consumed by commands and services.
 - Initialization wizard: Interactive and non-interactive creation of the configuration.
@@ -83,13 +114,13 @@ participant CLI as "CLI<br/>cli.ts"
 participant Cmd as "Command<br/>init.ts"
 participant Ctx as "Context<br/>build-context.ts"
 participant Loader as "Config Loader<br/>config-loader.ts"
-User->>CLI : "i18n-pro init"
+User->>CLI : "i18n-ai-cli init"
 CLI->>Cmd : "initCommand(options)"
 Cmd->>Cmd : "Interactive or default config"
 Cmd->>Loader : "compileUsagePatterns(patterns)"
 Cmd->>Cmd : "maybeInitLocales(config)"
-Cmd-->>User : "Created i18n-pro.config.json"
-User->>CLI : "i18n-pro add : lang es"
+Cmd-->>User : "Created i18n-cli.config.json"
+User->>CLI : "i18n-ai-cli add : lang es"
 CLI->>Ctx : "buildContext(options)"
 Ctx->>Loader : "loadConfig()"
 Loader-->>Ctx : "I18nConfig"
@@ -124,14 +155,14 @@ Validation highlights
 
 Behavioral impact
 - keyStyle influences how keys are interpreted and processed by commands.
-- usagePatterns drives the clean:unused command’s detection of used keys.
+- usagePatterns drives the clean:unused command's detection of used keys.
 - autoSort controls whether translation files are written with sorted keys.
 
 **Section sources**
 - [config-loader.ts:8-17](file://src/config/config-loader.ts#L8-L17)
 - [config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82)
-- [config-loader.test.ts:46-86](file://src/config/config-loader.test.ts#L46-L86)
-- [config-loader.test.ts:112-155](file://src/config/config-loader.test.ts#L112-L155)
+- [config-loader.test.ts:46-86](file://unit-testing/config/config-loader.test.ts#L46-L86)
+- [config-loader.test.ts:112-155](file://unit-testing/config/config-loader.test.ts#L112-L155)
 
 ### Configuration Options Reference
 - localesPath
@@ -168,7 +199,7 @@ Behavioral impact
   - Required: No
   - Default: []
   - Constraints: Each pattern must compile to a valid regex and include at least one capturing group (named or standard).
-  - Impact: Drives the clean:unused command’s scanning behavior.
+  - Impact: Drives the clean:unused command's scanning behavior.
 
 - autoSort
   - Purpose: Whether to sort keys alphabetically when writing locale files.
@@ -181,7 +212,7 @@ Behavioral impact
 - [types.ts:3-11](file://src/config/types.ts#L3-L11)
 - [config-loader.ts:8-17](file://src/config/config-loader.ts#L8-L17)
 - [config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
-- [config-loader.test.ts:174-259](file://src/config/config-loader.test.ts#L174-L259)
+- [config-loader.test.ts:174-259](file://unit-testing/config/config-loader.test.ts#L174-L259)
 
 ### Zod Schema Validation and Defaults
 - Schema enforcement occurs via safeParse on the raw JSON.
@@ -200,9 +231,9 @@ Common validation errors
 - [config-loader.ts:24-67](file://src/config/config-loader.ts#L24-L67)
 - [config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82)
 - [config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
-- [config-loader.test.ts:28-54](file://src/config/config-loader.test.ts#L28-L54)
-- [config-loader.test.ts:56-86](file://src/config/config-loader.test.ts#L56-L86)
-- [config-loader.test.ts:174-259](file://src/config/config-loader.test.ts#L174-L259)
+- [config-loader.test.ts:28-54](file://unit-testing/config/config-loader.test.ts#L28-L54)
+- [config-loader.test.ts:56-86](file://unit-testing/config/config-loader.test.ts#L56-L86)
+- [config-loader.test.ts:174-259](file://unit-testing/config/config-loader.test.ts#L174-L259)
 
 ### Interactive Initialization Wizard
 The init command supports:
@@ -220,12 +251,12 @@ Post-init actions
 **Section sources**
 - [init.ts:25-182](file://src/commands/init.ts#L25-L182)
 - [init.ts:184-208](file://src/commands/init.ts#L184-L208)
-- [init.ts:210-235](file://src/commands/init.ts#L210-L235)
-- [init.test.ts:50-155](file://src/commands/init.test.ts#L50-L155)
-- [init.test.ts:156-290](file://src/commands/init.test.ts#L156-L290)
+- [init.ts:210-239](file://src/commands/init.ts#L210-L239)
+- [init.test.ts:50-155](file://unit-testing/commands/init.test.ts#L50-L155)
+- [init.test.ts:156-290](file://unit-testing/commands/init.test.ts#L156-L290)
 
 ### Manual Configuration Approaches
-- Create i18n-pro.config.json at the project root with the desired fields.
+- Create i18n-cli.config.json at the project root with the desired fields.
 - Use defaults for optional fields to keep configurations minimal.
 - Validate by running a command that loads the configuration (e.g., init or clean:unused).
 
@@ -288,7 +319,7 @@ I18nConfig --> FileManager : "provides settings"
 **Section sources**
 - [README.md:91-127](file://README.md#L91-L127)
 - [init.ts:19-23](file://src/commands/init.ts#L19-L23)
-- [init.ts:210-235](file://src/commands/init.ts#L210-L235)
+- [init.ts:210-239](file://src/commands/init.ts#L210-L239)
 
 ### Migration Strategies
 - Gradually introduce optional fields (e.g., add usagePatterns if not present).
@@ -369,16 +400,22 @@ Common configuration mistakes and resolutions
   - Symptom: Error when running in CI without --yes.
   - Resolution: Add --yes to approve changes or run with --dry-run.
 
+- Node.js version compatibility issues
+  - Symptom: Errors related to unsupported JavaScript features or module resolution.
+  - Resolution: Upgrade to Node.js 18 or higher. Check your current version with `node --version`.
+
+**Updated** Added Node.js version compatibility troubleshooting section.
+
 **Section sources**
 - [config-loader.ts:27-54](file://src/config/config-loader.ts#L27-L54)
 - [config-loader.ts:69-82](file://src/config/config-loader.ts#L69-L82)
 - [config-loader.ts:84-109](file://src/config/config-loader.ts#L84-L109)
 - [init.ts:151-156](file://src/commands/init.ts#L151-L156)
-- [config-loader.test.ts:46-86](file://src/config/config-loader.test.ts#L46-L86)
-- [config-loader.test.ts:174-259](file://src/config/config-loader.test.ts#L174-L259)
+- [config-loader.test.ts:46-86](file://unit-testing/config/config-loader.test.ts#L46-L86)
+- [config-loader.test.ts:174-259](file://unit-testing/config/config-loader.test.ts#L174-L259)
 
 ## Conclusion
-The i18n-pro configuration system is designed for clarity and robustness. The Zod schema enforces correctness, sensible defaults reduce boilerplate, and the init wizard accelerates adoption. By understanding each option’s purpose and impact, you can tailor the configuration to your project’s needs and maintain a reliable i18n workflow.
+The i18n-ai-cli configuration system is designed for clarity and robustness. The Zod schema enforces correctness, sensible defaults reduce boilerplate, and the init wizard accelerates adoption. By understanding each option's purpose and impact, you can tailor the configuration to your project's needs and maintain a reliable i18n workflow. The Node.js 18+ requirement ensures compatibility with modern JavaScript features and improved performance. Version 1.0.9 maintains full backward compatibility with all previous configuration options and settings.
 
 ## Appendices
 
@@ -390,6 +427,14 @@ The i18n-pro configuration system is designed for clarity and robustness. The Zo
 - usagePatterns: string[] (optional, default [])
 - autoSort: boolean (optional, default true)
 
+### Node.js Version Compatibility Matrix
+- **Minimum Required**: Node.js 18.0.0+
+- **Recommended**: Node.js 18.x LTS
+- **Latest Tested**: Node.js 20.x
+- **Features Enabled**: ES2022, dynamic imports, top-level await
+- **Version 1.0.9 Support**: Full compatibility with all 1.0.8 configuration options
+
 **Section sources**
 - [types.ts:3-11](file://src/config/types.ts#L3-L11)
 - [config-loader.ts:8-17](file://src/config/config-loader.ts#L8-L17)
+- [package.json:42-44](file://package.json#L42-L44)

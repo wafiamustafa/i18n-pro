@@ -19,6 +19,12 @@
 - [src/core/file-manager.test.ts](file://src/core/file-manager.test.ts)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Updated version information to reflect 1.0.9 release
+- Confirmed all programmatic interfaces, methods, and integration patterns remain unchanged from version 1.0.8
+- Verified API stability and backward compatibility
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -32,15 +38,17 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document describes the programmatic Node.js API of i18n-pro, focusing on the modules and classes available for integration into applications. It covers:
+This document describes the programmatic Node.js API of i18n-ai-cli, focusing on the modules and classes available for integration into applications. It covers:
 - The loadConfig() function: parameters, return types, and error handling
 - The FileManager class: reading and writing locale files, path resolution, and file operations
 - Configuration types and interfaces used across the API
-- Practical integration scenarios: automated translation file management, custom validation workflows, and CI/CD pipelines
+- Practical integration scenarios: automated translation file management, custom validation workflows, and CI/CD pipeline integration
 - Type safety and TypeScript definitions
 - Error propagation, async/await patterns, and resource management
 - Guidance for extending the API and integrating with existing applications
 - Performance considerations and best practices for large-scale usage
+
+**Version Note**: This documentation reflects version 1.0.9, where all programmatic interfaces, methods, and integration patterns remain unchanged from version 1.0.8.
 
 ## Project Structure
 The programmatic API centers around configuration loading, file management, and optional translation services. The CLI composes these building blocks via a context builder that wires configuration and file manager together.
@@ -87,19 +95,19 @@ O --> TR
 - [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
 - [src/core/key-validator.ts:1-33](file://src/core/key-validator.ts#L1-L33)
 - [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
-- [src/providers/translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
-- [src/providers/google.ts:1-56](file://src/providers/google.ts#L1-L56)
+- [src/providers/translator.ts:1-60](file://src/providers/translator.ts#L1-L60)
+- [src/providers/google.ts:1-50](file://src/providers/google.ts#L1-L50)
 - [src/providers/deepl.ts:1-26](file://src/providers/deepl.ts#L1-L26)
-- [src/providers/openai.ts:1-27](file://src/providers/openai.ts#L1-L27)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
 
 **Section sources**
-- [README.md:301-318](file://README.md#L301-L318)
-- [package.json:1-45](file://package.json#L1-L45)
+- [README.md:850-891](file://README.md#L850-L891)
+- [package.json:1-68](file://package.json#L1-L68)
 
 ## Core Components
 This section documents the primary programmatic entry points and their capabilities.
 
-- loadConfig(): Loads and validates the i18n-pro configuration from the project root.
+- loadConfig(): Loads and validates the i18n-ai-cli configuration from the project root.
 - FileManager: Provides CRUD operations for locale files with path resolution and optional dry-run behavior.
 - I18nConfig and related types: Define the shape of configuration and runtime options.
 - TranslationService and providers: Optional translation abstraction for integrations requiring automated translations.
@@ -111,7 +119,7 @@ This section documents the primary programmatic entry points and their capabilit
 - [src/context/build-context.ts:5-16](file://src/context/build-context.ts#L5-L16)
 - [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
 - [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
-- [src/providers/translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
+- [src/providers/translator.ts:1-60](file://src/providers/translator.ts#L1-L60)
 
 ## Architecture Overview
 The programmatic API follows a layered design:
@@ -269,17 +277,18 @@ CommandContext
 - TranslationRequest: text, targetLocale, optional sourceLocale, optional context
 - TranslationResult: translated text, optional detected source locale, provider identifier
 - GoogleTranslator: Implements Translator using @vitalets/google-translate-api
-- DeeplTranslator and OpenAITranslator: Stub implementations indicating missing adapters
+- OpenAITranslator: Implements Translator using OpenAI GPT models
+- DeeplTranslator: Stub implementation indicating missing adapter
 
 Integration pattern
-- Construct a translator (e.g., GoogleTranslator), wrap with TranslationService, and call translate(request)
+- Construct a translator (e.g., GoogleTranslator or OpenAITranslator), wrap with TranslationService, and call translate(request)
 
 **Section sources**
 - [src/services/translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
-- [src/providers/translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
-- [src/providers/google.ts:15-55](file://src/providers/google.ts#L15-L55)
+- [src/providers/translator.ts:1-60](file://src/providers/translator.ts#L1-L60)
+- [src/providers/google.ts:15-50](file://src/providers/google.ts#L15-L50)
 - [src/providers/deepl.ts:12-25](file://src/providers/deepl.ts#L12-L25)
-- [src/providers/openai.ts:13-26](file://src/providers/openai.ts#L13-L26)
+- [src/providers/openai.ts:13-60](file://src/providers/openai.ts#L13-L60)
 
 ### Key Structural Validator
 - validateNoStructuralConflict(flatObject, newKey): Detects structural conflicts when adding keys to ensure compatibility with keyStyle (flat vs nested).
@@ -334,11 +343,21 @@ class GoogleTranslator {
 +string name
 +translate(request) Promise<TranslationResult>
 }
+class OpenAITranslator {
++string name
++translate(request) Promise<TranslationResult>
+}
+class DeeplTranslator {
++string name
++translate(request) Promise<TranslationResult>
+}
 I18nConfig <.. FileManager : "configured by"
 CommandContext --> I18nConfig : "has"
 CommandContext --> FileManager : "has"
 TranslationService --> Translator : "uses"
 GoogleTranslator ..|> Translator : "implements"
+OpenAITranslator ..|> Translator : "implements"
+DeeplTranslator ..|> Translator : "implements"
 ```
 
 **Diagram sources**
@@ -347,7 +366,9 @@ GoogleTranslator ..|> Translator : "implements"
 - [src/context/types.ts:11-15](file://src/context/types.ts#L11-L15)
 - [src/services/translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
 - [src/providers/translator.ts:14-17](file://src/providers/translator.ts#L14-L17)
-- [src/providers/google.ts:15-55](file://src/providers/google.ts#L15-L55)
+- [src/providers/google.ts:15-50](file://src/providers/google.ts#L15-L50)
+- [src/providers/openai.ts:13-60](file://src/providers/openai.ts#L13-L60)
+- [src/providers/deepl.ts:12-25](file://src/providers/deepl.ts#L12-L25)
 
 ## Detailed Component Analysis
 
@@ -415,31 +436,36 @@ end
 ```mermaid
 sequenceDiagram
 participant App as "Application"
-participant GS as "GoogleTranslator"
+participant OT as "OpenAITranslator"
+participant GT as "GoogleTranslator"
 participant TS as "TranslationService"
-App->>GS : "translate({ text, targetLocale, sourceLocale?, context? })"
-GS-->>App : "Promise<TranslationResult>"
-App->>TS : "new TranslationService(GoogleTranslator)"
+App->>OT : "translate({ text, targetLocale, sourceLocale?, context? })"
+OT-->>App : "Promise<TranslationResult>"
+App->>GT : "translate({ text, targetLocale, sourceLocale?, context? })"
+GT-->>App : "Promise<TranslationResult>"
+App->>TS : "new TranslationService(OpenAITranslator)"
 App->>TS : "translate(request)"
-TS->>GS : "translate(request)"
-GS-->>TS : "TranslationResult"
+TS->>OT : "translate(request)"
+OT-->>TS : "TranslationResult"
 TS-->>App : "TranslationResult"
 ```
 
 **Diagram sources**
-- [src/providers/google.ts:23-54](file://src/providers/google.ts#L23-L54)
+- [src/providers/openai.ts:30-58](file://src/providers/openai.ts#L30-L58)
+- [src/providers/google.ts:17-48](file://src/providers/google.ts#L17-L48)
 - [src/services/translation-service.ts:14-16](file://src/services/translation-service.ts#L14-L16)
 
 **Section sources**
-- [src/providers/translator.ts:1-18](file://src/providers/translator.ts#L1-L18)
-- [src/providers/google.ts:15-55](file://src/providers/google.ts#L15-L55)
+- [src/providers/translator.ts:1-60](file://src/providers/translator.ts#L1-L60)
+- [src/providers/google.ts:15-50](file://src/providers/google.ts#L15-L50)
+- [src/providers/openai.ts:13-60](file://src/providers/openai.ts#L13-L60)
 - [src/services/translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
 
 ## Dependency Analysis
 - loadConfig() depends on fs-extra for file operations and Zod for schema validation
 - FileManager depends on I18nConfig and fs-extra for filesystem operations
 - buildContext() composes loadConfig() and FileManager into a CommandContext
-- TranslationService depends on the Translator interface; GoogleTranslator implements it
+- TranslationService depends on the Translator interface; GoogleTranslator and OpenAITranslator implement it
 - Tests validate error conditions and behavior for both loadConfig() and FileManager
 
 ```mermaid
@@ -452,6 +478,8 @@ BC["build-context.ts"] --> CL
 BC --> FM
 TS["translation-service.ts"] --> TR["translator.ts"]
 G["google.ts"] --> TR
+O["openai.ts"] --> TR
+D["deepl.ts"] --> TR
 ```
 
 **Diagram sources**
@@ -460,6 +488,8 @@ G["google.ts"] --> TR
 - [src/context/build-context.ts:1-3](file://src/context/build-context.ts#L1-L3)
 - [src/services/translation-service.ts:1-5](file://src/services/translation-service.ts#L1-L5)
 - [src/providers/google.ts:1-6](file://src/providers/google.ts#L1-L6)
+- [src/providers/openai.ts:1-6](file://src/providers/openai.ts#L1-L6)
+- [src/providers/deepl.ts:1-6](file://src/providers/deepl.ts#L1-L6)
 
 **Section sources**
 - [src/config/config-loader.ts:1-3](file://src/config/config-loader.ts#L1-L3)
@@ -467,6 +497,8 @@ G["google.ts"] --> TR
 - [src/context/build-context.ts:1-3](file://src/context/build-context.ts#L1-L3)
 - [src/services/translation-service.ts:1-5](file://src/services/translation-service.ts#L1-L5)
 - [src/providers/google.ts:1-6](file://src/providers/google.ts#L1-L6)
+- [src/providers/openai.ts:1-6](file://src/providers/openai.ts#L1-L6)
+- [src/providers/deepl.ts:1-6](file://src/providers/deepl.ts#L1-L6)
 
 ## Performance Considerations
 - Batch operations: Group reads/writes to minimize filesystem overhead
@@ -476,11 +508,9 @@ G["google.ts"] --> TR
 - Provider latency: Translation requests are network-bound; consider caching results and batching requests
 - Large-scale usage: Prefer streaming or chunked processing for bulk locale operations; monitor disk I/O and memory usage
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common issues and resolutions
-- Missing configuration file: Ensure i18n-pro.config.json exists in the project root and contains valid JSON
+- Missing configuration file: Ensure i18n-cli.config.json exists in the project root and contains valid JSON
 - Schema validation failures: Review required fields and types; usagePatterns must include capturing groups
 - Logical constraint violations: defaultLocale must be present in supportedLocales; supportedLocales must not contain duplicates
 - Locale file errors: Verify locale files exist and contain valid JSON; FileManager throws descriptive errors
@@ -494,12 +524,10 @@ Common issues and resolutions
 - [src/core/file-manager.ts:69-71](file://src/core/file-manager.ts#L69-L71)
 - [src/core/file-manager.ts:89-91](file://src/core/file-manager.ts#L89-L91)
 - [src/providers/deepl.ts:21-24](file://src/providers/deepl.ts#L21-L24)
-- [src/providers/openai.ts:22-25](file://src/providers/openai.ts#L22-L25)
+- [src/providers/openai.ts:17-21](file://src/providers/openai.ts#L17-L21)
 
 ## Conclusion
-The i18n-pro programmatic API offers a robust, type-safe foundation for managing translation files and integrating with CI/CD pipelines. By leveraging loadConfig(), FileManager, and optional translation services, developers can automate workflows, enforce structural consistency, and scale operations efficiently. Adhering to the documented patterns and best practices ensures reliable, maintainable integrations.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The i18n-ai-cli programmatic API offers a robust, type-safe foundation for managing translation files and integrating with CI/CD pipelines. By leveraging loadConfig(), FileManager, and optional translation services, developers can automate workflows, enforce structural consistency, and scale operations efficiently. Adhering to the documented patterns and best practices ensures reliable, maintainable integrations.
 
 ## Appendices
 
@@ -509,7 +537,7 @@ The i18n-pro programmatic API offers a robust, type-safe foundation for managing
   - Load configuration, ensure locales directory, and read/write locales as needed
   - Use autoSort to keep files organized
   - Example references:
-    - [README.md:301-318](file://README.md#L301-L318)
+    - [README.md:850-891](file://README.md#L850-L891)
     - [src/core/file-manager.ts:18-20](file://src/core/file-manager.ts#L18-L20)
     - [src/core/file-manager.ts:45-61](file://src/core/file-manager.ts#L45-L61)
 
@@ -521,7 +549,7 @@ The i18n-pro programmatic API offers a robust, type-safe foundation for managing
 - CI/CD pipeline integration
   - Use dry-run to preview changes; fail-fast when changes would occur without explicit approval
   - Example references:
-    - [README.md:202-231](file://README.md#L202-L231)
+    - [README.md:424-493](file://README.md#L424-L493)
     - [src/context/types.ts:4-9](file://src/context/types.ts#L4-L9)
 
 ### Extending the API
@@ -543,3 +571,8 @@ The i18n-pro programmatic API offers a robust, type-safe foundation for managing
 - Example references:
   - [src/config/types.ts:1-12](file://src/config/types.ts#L1-L12)
   - [src/config/config-loader.ts:8-17](file://src/config/config-loader.ts#L8-L17)
+
+### Version Information
+**Current Version**: 1.0.9
+**Status**: All programmatic interfaces, methods, and integration patterns remain unchanged from version 1.0.8
+**Compatibility**: Fully backward compatible with previous versions

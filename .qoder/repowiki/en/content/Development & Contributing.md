@@ -43,11 +43,10 @@
 
 ## Update Summary
 **Changes Made**
-- Updated project structure documentation to reflect reorganization of test files from `src/` to `unit-testing/` directory
-- Updated build configuration documentation to reflect changes in TypeScript include/exclude patterns and Vitest include patterns
-- Revised testing framework documentation to reflect new test organization and coverage configuration
-- Updated troubleshooting guide to address new test directory structure and build configuration changes
-- Enhanced development workflow documentation with improved test organization guidance
+- Updated version information to reflect current version 1.0.9
+- Maintained all development environment setup, build processes, and testing procedures as identical to version 1.0.8
+- Updated version history section to reflect the latest version
+- Kept all project structure, build configuration, and testing framework documentation unchanged
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -70,10 +69,10 @@
 ## Introduction
 This guide explains how to set up a development environment for i18n-ai-cli, contribute effectively, and maintain high-quality code. It covers prerequisites, build and test processes, project structure, TypeScript configuration, comprehensive unit testing with Vitest, code style, commit conventions, pull request expectations, and practical development tasks such as adding new commands, implementing translation providers, and extending configuration options.
 
-**Updated** The project now features a reorganized test structure with dedicated `unit-testing/` directory for all test files, enhanced build configuration with improved TypeScript and Vitest setup, and streamlined development workflow with better separation of concerns between source and test code.
+**Updated** The project is currently at version 1.0.9, maintaining the same development environment setup, build processes, and testing procedures as version 1.0.8 while providing enhanced stability and reliability for contributors.
 
 ## Version History
-The project follows semantic versioning with the current version being 1.0.8. This release maintains backward compatibility while introducing improved test organization, enhanced build system performance, and better development workflow practices.
+The project follows semantic versioning with the current version being 1.0.9. This release maintains backward compatibility while introducing improved test organization, enhanced build system performance, and better development workflow practices.
 
 **Section sources**
 - [package.json](file://package.json)
@@ -152,6 +151,8 @@ Use descriptive branch names following these patterns:
 - `fix/bug-description` - for bug fixes
 - `docs/update-readme` - for documentation updates
 - `refactor/some-component` - for code refactoring
+- `test/add-new-tests` - for test additions
+- `chore/update-dependencies` - for maintenance tasks
 
 ### Code Style and Standards
 - The project uses TypeScript with strict type checking
@@ -178,7 +179,7 @@ unit-testing/
 └── services/      # Unit tests for translation services
 ```
 
-**Updated** The project now features a dedicated `unit-testing/` directory structure that separates test files from source files, improving code organization and maintainability.
+**Updated** The project maintains a dedicated `unit-testing/` directory structure that separates test files from source files, improving code organization and maintainability. This structure has been consistently maintained across versions 1.0.8 and 1.0.9.
 
 ### Testing Requirements
 - Tests are organized in the `unit-testing/` directory following the same structure as source files
@@ -215,7 +216,7 @@ The release process is handled by maintainers:
 - [package.json](file://package.json)
 
 ## Project Structure
-The project is organized around a CLI entrypoint, a command layer, configuration loading, a context builder, core utilities, providers for translation services, and a translation service wrapper. Tests are now organized in a dedicated `unit-testing/` directory with the same structure as source files.
+The project is organized around a CLI entrypoint, a command layer, configuration loading, a context builder, core utilities, providers for translation services, and a translation service wrapper. Tests are organized in a dedicated `unit-testing/` directory with the same structure as source files.
 
 ```mermaid
 graph TB
@@ -326,7 +327,7 @@ Cmd-->>User : Output and logs
 ### Build Configuration Overview
 The project uses tsup as its build tool with a dependency externalization strategy for optimal CommonJS compatibility and runtime module resolution. The build configuration is designed to produce ESM bundles while letting Node.js handle dependency resolution at runtime.
 
-**Updated** The build system now employs a strategic externalization approach where all production dependencies are marked as external, allowing Node.js to resolve them dynamically at runtime rather than bundling them statically. The TypeScript configuration has been updated to focus on source files in the `src/` directory.
+**Updated** The build system continues to employ a strategic externalization approach where all production dependencies are marked as external, allowing Node.js to resolve them dynamically at runtime rather than bundling them statically. The TypeScript configuration has been updated to focus on source files in the `src/` directory.
 
 ### Tsup Configuration Details
 The build system is configured with the following key settings:
@@ -405,7 +406,7 @@ The project uses Vitest as its testing framework with comprehensive coverage con
 - **Coverage**: V8 provider with text, json, and html reporters
 - **Exclusions**: Test files, type declarations, and CLI entry point
 
-**Updated** The Vitest configuration has been updated to reflect the new test directory structure, with include patterns pointing to `unit-testing/**/*.test.ts` and coverage configuration targeting `src/**/*.ts`.
+**Updated** The Vitest configuration continues to target the `unit-testing/` directory structure with include patterns pointing to `unit-testing/**/*.test.ts` and coverage configuration targeting `src/**/*.ts`. This configuration has remained consistent across versions 1.0.8 and 1.0.9.
 
 ### Testing Coverage
 The testing framework achieves comprehensive coverage across all core modules:
@@ -622,7 +623,7 @@ tsup["tsup.config.ts"] --> external["External Dependencies"]
 ## Conclusion
 By following this guide, you can confidently develop, test, and extend i18n-ai-cli. The comprehensive unit testing framework with 16 test files organized in the `unit-testing/` directory ensures robust coverage across all core functionality. The enhanced build system with dependency externalization provides better CommonJS compatibility and runtime module resolution. The project's community governance framework establishes clear behavioral standards and contribution workflows.
 
-Version 1.0.8 enhances the development experience with improved build performance, better dependency management, enhanced compatibility with modern Node.js environments, established community standards, and a well-organized test structure that improves maintainability and development workflow.
+Version 1.0.9 enhances the development experience with improved build performance, better dependency management, enhanced compatibility with modern Node.js environments, established community standards, and a well-organized test structure that improves maintainability and development workflow. The project maintains consistency with version 1.0.8 while providing the latest improvements and stability.
 
 Use the provided scripts, adhere to the TypeScript configuration, write tests with Vitest following the established patterns in the `unit-testing/` directory, implement new features by extending the context, commands, providers, or configuration schema, and contribute to the community following the Code of Conduct and Contributing guidelines.
 
@@ -642,7 +643,7 @@ Use the provided scripts, adhere to the TypeScript configuration, write tests wi
 
 ### TypeScript Configuration
 - Strict compiler options, module resolution, target, declaration generation, and source maps are configured centrally.
-- **Updated** TypeScript configuration now focuses on `src/**/*` files for compilation.
+- **Updated** TypeScript configuration continues to focus on `src/**/*` files for compilation.
 
 **Section sources**
 - [tsconfig.json](file://tsconfig.json)
@@ -659,7 +660,7 @@ Use the provided scripts, adhere to the TypeScript configuration, write tests wi
 
 ### Testing with Vitest
 - Global setup, Node environment, include patterns, and coverage configuration are centralized.
-- **Updated** Vitest configuration now targets `unit-testing/**/*.test.ts` for test discovery and `src/**/*.ts` for coverage.
+- **Updated** Vitest configuration continues to target `unit-testing/**/*.test.ts` for test discovery and `src/**/*.ts` for coverage.
 
 **Section sources**
 - [vitest.config.ts](file://vitest.config.ts)
