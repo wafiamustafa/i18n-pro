@@ -4,27 +4,26 @@
 **Referenced Files in This Document**
 - [README.md](file://README.md)
 - [package.json](file://package.json)
+- [SECURITY.md](file://SECURITY.md)
 - [CONTRIBUTING.md](file://CONTRIBUTING.md)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
-- [src/commands/add-key.ts](file://src/commands/add-key.ts)
-- [src/commands/add-lang.ts](file://src/commands/add-lang.ts)
-- [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
 - [src/commands/validate.ts](file://src/commands/validate.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 - [src/providers/google.ts](file://src/providers/google.ts)
 - [src/providers/translator.ts](file://src/providers/translator.ts)
-- [src/services/translation-service.ts](file://src/services/translation-service.ts)
+- [src/context/build-context.ts](file://src/context/build-context.ts)
+- [src/context/types.ts](file://src/context/types.ts)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Updated version references from 1.0.0 to 1.0.9 throughout the documentation
-- Updated CLI version display to reflect the new version (note: CLI currently displays 1.0.0, package.json shows 1.0.9)
-- Updated package.json and package-lock.json version identifiers
-- Enhanced documentation to reflect comprehensive user and contributor guidance
-- Added detailed installation instructions, usage examples, and troubleshooting sections
-- Expanded AI-powered translation capabilities documentation
-- Updated project structure and architecture descriptions
+- Updated version references to reflect 1.0.9 throughout the documentation
+- Enhanced documentation to reflect comprehensive security policy integration
+- Updated Node.js engine requirement to version 18 or higher
+- Documented enhanced AI-powered translation capabilities with improved OpenAI provider
+- Updated validate command documentation to include provider flags and sync functionality
+- Added comprehensive security policy section with vulnerability reporting procedures
+- Updated CLI version display note to reflect current status
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -35,17 +34,18 @@
 6. [Command Reference](#command-reference)
 7. [AI Translation Providers](#ai-translation-providers)
 8. [Programmatic API](#programmatic-api)
-9. [Development Setup](#development-setup)
-10. [Troubleshooting Guide](#troubleshooting-guide)
-11. [Contributing](#contributing)
-12. [Conclusion](#conclusion)
+9. [Security Policy](#security-policy)
+10. [Development Setup](#development-setup)
+11. [Troubleshooting Guide](#troubleshooting-guide)
+12. [Contributing](#contributing)
+13. [Conclusion](#conclusion)
 
 ## Introduction
 
 i18n-ai-cli is a comprehensive AI-powered CLI tool designed to streamline internationalization (i18n) workflows for applications that manage translation files. Originally evolved from i18n-pro, this tool now provides cutting-edge AI capabilities while maintaining robust automation for managing translation assets across locales.
 
 **Key AI-Powered Value Propositions:**
-- **AI-Powered Translation**: Leverage OpenAI GPT models for context-aware, high-quality translations with automatic key cloning and translation workflows
+- **Enhanced AI-Powered Translation**: Leverage OpenAI GPT models for context-aware, high-quality translations with automatic key cloning and translation workflows
 - **Intelligent Key Management**: Enhanced key management with AI-assisted suggestions and validation
 - **Smart Cleanup**: Advanced unused key detection with AI-powered context analysis
 - **Flexible AI Providers**: Support for multiple translation providers including OpenAI, Google Translate, and DeepL stub implementations
@@ -63,7 +63,7 @@ i18n-ai-cli is a comprehensive AI-powered CLI tool designed to streamline intern
 - Provides structural safeguards (e.g., preventing conflicts between flat and nested key styles) and operational controls (e.g., strict mode, dry runs, CI mode)
 - Integrates seamlessly with modern AI translation workflows for enhanced translation quality
 
-**Current Version**: 1.0.9 (maintenance release with bug fixes and minor improvements)
+**Current Version**: 1.0.9 (maintenance release with enhanced AI capabilities and comprehensive security policy)
 
 **Important Note**: The package.json indicates version 1.0.9, but the CLI currently displays version 1.0.0. This is a known discrepancy that will be addressed in a future update. All functionality remains identical to version 1.0.8.
 
@@ -100,7 +100,7 @@ npm run i18n -- --help
 ```
 
 **Prerequisites:**
-- **Node.js**: Version 18 or higher
+- **Node.js**: Version 18 or higher (updated from previous requirements)
 - **Package Manager**: npm or yarn
 
 ## Quick Start Guide
@@ -121,17 +121,17 @@ i18n-ai-cli update:key welcome.message --value "Welcome!" --sync
 # Clean up unused keys
 i18n-ai-cli clean:unused
 
-# Validate translation files and auto-fix issues
-i18n-ai-cli validate
+# Validate translation files with AI-powered auto-correction
+i18n-ai-cli validate --provider openai
 ```
 
 ## Core Features
 
-### 🤖 AI-Powered Translation
-- **OpenAI GPT Integration**: Context-aware, high-quality translations using GPT-4o, GPT-4-turbo, or GPT-3.5-turbo
+### 🤖 Enhanced AI-Powered Translation
+- **Advanced OpenAI GPT Integration**: Context-aware, high-quality translations using GPT-4o, GPT-4-turbo, or GPT-3.5-turbo with improved context handling
 - **Google Translate**: Free, fast translations via `@vitalets/google-translate-api`
 - **Flexible Provider System**: Easy to extend with custom providers (DeepL coming soon)
-- **Context-Aware Translations**: Pass context to improve accuracy for ambiguous terms
+- **Context-Aware Translations**: Enhanced context passing to improve accuracy for ambiguous terms
 
 ### 🌍 Language Management
 - Add/remove locales with ISO 639-1 validation
@@ -146,8 +146,8 @@ i18n-ai-cli validate
 
 ### 🧹 Maintenance & Validation
 - **Unused Key Detection**: Scan source code to identify and remove unused keys
-- **Structural Validation**: Detect missing, extra, or type-mismatched keys
-- **Auto-Correction**: Automatically fix validation issues with optional provider support
+- **Structural Validation**: Detect missing, extra, or type-mismatched keys with AI-powered auto-correction
+- **Enhanced Auto-Correction**: Automatically fix validation issues with optional provider support and improved translation quality
 - **Conflict Prevention**: Prevents nested vs flat key structure conflicts
 
 ### ⚡ Developer Experience
@@ -432,6 +432,11 @@ i18n-ai-cli validate --provider google
   - Removes extra keys
   - Fixes type mismatches based on default locale's structure
 
+**Enhanced Auto-Correction Features:**
+- **AI-Powered Translation**: When a provider is specified, missing keys are translated using AI instead of filled with empty strings
+- **Improved Translation Quality**: Enhanced context handling and better translation accuracy
+- **Selective Translation**: Only translates keys that need correction, leaving intact keys that are already correct
+
 **Note:** Extra keys are always removed during auto-correction. Type mismatches are fixed to match the default locale's value type.
 
 #### Clean Unused Keys
@@ -497,7 +502,7 @@ The CLI automatically selects a provider based on this priority:
    i18n-ai-cli add:key welcome --value "Welcome"
    ```
 
-### OpenAI Provider
+### Enhanced OpenAI Provider
 
 The OpenAI provider uses GPT models to deliver context-aware, high-quality translations ideal for production applications.
 
@@ -540,7 +545,7 @@ If both are set, the constructor option takes precedence over the environment va
 - ✅ Rotate keys periodically for security
 - ❌ Don't hardcode API keys in source code
 
-#### Usage
+#### Enhanced Usage
 
 **Basic translation example:**
 
@@ -596,7 +601,7 @@ export OPENAI_API_KEY=sk-your-api-key-here
 i18n-ai-cli validate --provider openai
 ```
 
-#### Context-Aware Translation
+#### Enhanced Context-Aware Translation
 
 Pass a `context` field to improve translation accuracy for ambiguous terms:
 
@@ -609,7 +614,7 @@ const result = await service.translate({
 // Returns "Banco" (not "Orilla" which means riverbank)
 ```
 
-#### Options
+#### Enhanced Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -641,7 +646,7 @@ const translator = new OpenAITranslator({
 });
 ```
 
-#### Troubleshooting
+#### Enhanced Troubleshooting
 
 **Error: "OpenAI API key is required"**
 - ✅ Ensure you've set the `OPENAI_API_KEY` environment variable or passed the `apiKey` option
@@ -743,11 +748,179 @@ console.log(translated.text); // "Bienvenido a nuestra aplicación"
 - `KeyValidator` - Validate translation keys
 - `buildContext()` - Build CLI context for commands
 
+## Security Policy
+
+i18n-ai-cli maintains a comprehensive security policy to ensure the safety and integrity of translation workflows.
+
+### Supported Versions
+
+We release patches for security vulnerabilities in the latest version of i18n-ai-cli.
+
+| Version | Supported |
+|---------|-----------|
+| Latest  | ✅ |
+| < 1.0   | ❌ |
+
+### Reporting a Vulnerability
+
+We take the security of i18n-ai-cli seriously. If you believe you've found a security vulnerability, please follow these guidelines:
+
+**How to Report**
+- **Email**: Send a detailed report to **wafiamustafa@gmail.com**
+- **Subject Line**: `[Security Vulnerability] Brief description`
+
+**What to Include**
+Please provide as much information as possible:
+1. **Description**: Clear description of the vulnerability
+2. **Impact**: Potential impact if exploited
+3. **Reproduction Steps**: Detailed steps to reproduce the issue
+4. **Affected Versions**: Which versions are affected
+5. **Suggested Fix**: If you have suggestions for addressing the issue
+6. **Your Contact Info**: Name and preferred contact method (optional but helpful)
+
+**Response Time**
+- **Acknowledgment**: You will receive a confirmation within **48 hours**
+- **Initial Assessment**: We will respond with our initial assessment within **5 business days**
+- **Updates**: You will receive updates at least every **7 business days**
+- **Resolution**: We aim to resolve critical issues within **30 days**
+
+**What to Expect**
+1. **Confidentiality**: Your report will be kept confidential
+2. **No Retaliation**: We do not retaliate against good-faith reporters
+3. **Credit**: We will credit you for the discovery (unless you prefer to remain anonymous)
+4. **Communication**: We will keep you informed of our progress
+
+### Security Best Practices
+
+When using i18n-ai-cli, please follow these security best practices:
+
+**API Key Management**
+- ✅ **DO**: Store API keys in environment variables or `.env` files
+- ✅ **DO**: Add `.env` to your `.gitignore` file
+- ✅ **DO**: Rotate API keys periodically
+- ❌ **DON'T**: Commit API keys to version control
+- ❌ **DON'T**: Hardcode API keys in source code
+- ❌ **DON'T**: Share API keys publicly
+
+**Example:**
+```bash
+# Recommended
+export OPENAI_API_KEY=sk-your-api-key-here
+
+# Or use a .env file (add to .gitignore)
+OPENAI_API_KEY=sk-your-api-key-here
+```
+
+**File Permissions**
+- Ensure locale files have appropriate read/write permissions
+- Restrict access to configuration files containing sensitive data
+- Use file system permissions to protect translation files in production
+
+**Data Handling**
+**What i18n-ai-cli Processes:**
+- Translation JSON files in your project
+- Source code files (for unused key detection)
+- API keys for translation providers
+
+**Data Storage:**
+- All data is stored locally in your project directory
+- No data is sent to third-party services except through official translation APIs
+- Configuration is stored in `i18n-cli.config.json` in your project root
+
+**Network Requests:**
+- Translation requests go directly to OpenAI or Google Translate APIs
+- No intermediate servers or proxies are used
+- API endpoints:
+  - OpenAI: `https://api.openai.com/v1`
+  - Google Translate: Public Google Translate API
+
+### Dependency Security
+
+We maintain secure dependencies:
+- Regular dependency audits via `npm audit`
+- Prompt updates for security patches
+- Use of locked dependency versions in `package-lock.json`
+
+**To check for vulnerabilities in your installation:**
+```bash
+npm audit
+npm audit fix
+```
+
+### Known Security Considerations
+
+**Translation Provider APIs**
+**OpenAI Integration:**
+- Requires valid API key with billing setup
+- Subject to OpenAI's rate limits and usage policies
+- Review OpenAI's [security documentation](https://platform.openai.com/docs/security)
+
+**Google Translate Integration:**
+- Uses free `@vitalets/google-translate-api` package
+- Subject to Google's rate limits
+- Not recommended for high-volume production use
+
+**File System Access**
+The CLI requires read/write access to:
+- Locale directory (configured in `localesPath`)
+- Configuration file (`i18n-cli.config.json`)
+- Source code directories (for `clean:unused` command)
+
+Ensure these directories have appropriate permissions.
+
+### Security Features
+
+**Input Validation**
+- Language codes validated against ISO 639-1 standard
+- Translation keys validated for proper format
+- JSON structure validation prevents malformed files
+
+**Confirmation Prompts**
+- Destructive operations require explicit confirmation
+- `--yes` flag bypasses prompts (use carefully in automation)
+- `--dry-run` mode previews changes before applying
+
+**Non-Interactive Mode**
+- CI/CD pipelines can use `--ci` flag for non-interactive validation
+- Deterministic exit codes for automated workflows
+- No interactive prompts in CI mode
+
+### Incident Response Process
+
+When a security vulnerability is reported:
+1. **Triage**: Assess severity and impact
+2. **Investigation**: Reproduce and analyze the issue
+3. **Fix Development**: Create and test a patch
+4. **Release**: Publish updated version with security advisory
+5. **Disclosure**: Coordinate public disclosure with reporter
+
+### Security Updates
+
+Security updates are released as patch versions (e.g., `1.0.8` → `1.0.9`).
+
+**To stay updated:**
+- Watch the repository on GitHub for security advisories
+- Update regularly: `npm update i18n-ai-cli`
+- Review CHANGELOG for security-related fixes
+
+### Scope
+
+**In Scope:**
+- The i18n-ai-cli npm package
+- Official CLI commands and programmatic API
+- Translation provider integrations
+- Configuration file handling
+
+**Out of Scope:**
+- Third-party translation providers' security (OpenAI, Google)
+- Vulnerabilities in dependencies (report to respective projects)
+- Issues in forked or modified versions
+
 ## Development Setup
 
 ### Prerequisites
 
-- **Node.js**: Version 18 or higher
+- **Node.js**: Version 18 or higher (updated requirement)
 - **Package Manager**: npm or yarn
 
 ### Installation
@@ -797,7 +970,7 @@ npm run typecheck
 i18n-cli/
 ├── src/                    # Source code
 │   ├── bin/                # CLI entry point
-│   │   └── cli.ts          # Main CLI router
+│   │   └── cli.ts          # Main CLI router and command definitions
 │   ├── commands/           # CLI commands
 │   │   ├── add-key.ts      # Add translation keys
 │   │   ├── add-lang.ts     # Add new locales
@@ -812,6 +985,7 @@ i18n-cli/
 │   │   └── types.ts        # Config type definitions
 │   ├── context/            # Context management
 │   │   └── build-context.ts # Build CLI context
+│   │   └── types.ts        # Context type definitions
 │   ├── core/               # Core utilities
 │   │   ├── confirmation.ts  # User confirmation prompts
 │   │   ├── file-manager.ts  # File I/O operations
@@ -889,6 +1063,9 @@ To debug the CLI:
 - **Rate Limit Exceeded**: Implement backoff strategies or upgrade OpenAI plan.
 - **Model Access**: Verify your account has access to the requested GPT model.
 
+**Node.js Version Issues:**
+- **Version Mismatch**: Ensure you're using Node.js version 18 or higher as required by the package.
+
 ### Operational Tips
 
 - Use --dry-run to preview changes before applying.
@@ -942,12 +1119,14 @@ i18n-ai-cli represents a significant evolution from its predecessor i18n-pro, tr
 - **Future-Ready Architecture**: Extensible provider system prepares for additional AI services and advanced translation features
 - **Developer Experience**: Maintains familiar CLI interface while adding powerful AI capabilities
 - **Comprehensive Documentation**: Extensive user and contributor guides make the tool accessible to both beginners and advanced users
+- **Enhanced Security**: Comprehensive security policy with vulnerability reporting and best practices
 
 **Version Information:**
-- Current version: 1.0.9 (maintenance release with bug fixes and minor improvements)
+- Current version: 1.0.9 (maintenance release with enhanced AI capabilities and comprehensive security policy)
 - **Important Note**: The package.json indicates version 1.0.9, but the CLI currently displays version 1.0.0. This is a known discrepancy that will be addressed in a future update.
 - Maintains backward compatibility with previous versions
 - Updated dependency tracking in package-lock.json for consistent package resolution
+- Enhanced Node.js version requirement to 18 or higher
 
 **Major Enhancements Since Initial Release:**
 - Comprehensive user documentation with installation guides
@@ -957,7 +1136,11 @@ i18n-ai-cli represents a significant evolution from its predecessor i18n-pro, tr
 - Development setup and contribution guidelines
 - Extensive troubleshooting sections
 - CI/CD integration examples
+- **New**: Comprehensive security policy with vulnerability reporting procedures
+- **New**: Enhanced AI translation capabilities with improved OpenAI provider
+- **New**: Validate command with provider flags for AI-powered auto-correction
+- **New**: Updated Node.js engine requirement to version 18 or higher
 
-Whether you are adding languages, managing keys, cleaning unused translations, or leveraging AI-powered translations, i18n-ai-cli provides predictable, safe operations with flexible customization and deterministic behavior in automated environments. The AI integration represents a significant enhancement while preserving the reliability and developer-friendly approach that makes this tool essential for modern internationalization workflows.
+Whether you are adding languages, managing keys, cleaning unused translations, leveraging AI-powered translations, or following security best practices, i18n-ai-cli provides predictable, safe operations with flexible customization and deterministic behavior in automated environments. The AI integration and comprehensive security policy represent significant enhancements while preserving the reliability and developer-friendly approach that makes this tool essential for modern internationalization workflows.
 
 **Made with ❤️ by Wafia Mustafa R. and contributors**

@@ -3,9 +3,11 @@
 <cite>
 **Referenced Files in This Document**
 - [validate.ts](file://src/commands/validate.ts)
-- [validate.test.ts](file://src/commands/validate.test.ts)
+- [validate.test.ts](file://unit-testing/commands/validate.test.ts)
 - [cli.ts](file://src/bin/cli.ts)
 - [translator.ts](file://src/providers/translator.ts)
+- [google.ts](file://src/providers/google.ts)
+- [openai.ts](file://src/providers/openai.ts)
 - [object-utils.ts](file://src/core/object-utils.ts)
 - [confirmation.ts](file://src/core/confirmation.ts)
 - [file-manager.ts](file://src/core/file-manager.ts)
@@ -13,6 +15,13 @@
 - [types.ts](file://src/config/types.ts)
 - [README.md](file://README.md)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Added documentation for the new --provider flag in the validate command
+- Updated CLI integration section to reflect the new provider flag implementation
+- Enhanced validation command architecture to include provider selection logic
+- Updated troubleshooting guide with provider-related considerations
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -29,6 +38,8 @@
 The Validation Command is a core feature of the i18n-ai-cli that ensures translation files remain consistent across all supported locales. It performs comprehensive validation by comparing each locale against a default reference locale, identifying missing keys, extra keys, and type mismatches. The command provides both reporting capabilities and automatic correction features, with optional AI-powered translation for missing keys.
 
 The validation system operates on two primary key styles: nested (hierarchical object structure) and flat (dot-delimited key paths). It maintains strict structural integrity while providing flexible correction mechanisms that preserve existing translations while filling gaps.
+
+**Updated** Added support for the --provider flag that enables AI-powered translation capabilities during validation operations.
 
 ## Project Structure
 The validation functionality is organized within the commands module, with supporting infrastructure distributed across several core modules:
@@ -65,12 +76,12 @@ ValidateCmd --> OpenAI
 ```
 
 **Diagram sources**
-- [cli.ts:117-151](file://src/bin/cli.ts#L117-L151)
+- [cli.ts:164-198](file://src/bin/cli.ts#L164-L198)
 - [validate.ts:121-253](file://src/commands/validate.ts#L121-L253)
 
 **Section sources**
 - [validate.ts:1-254](file://src/commands/validate.ts#L1-L254)
-- [cli.ts:117-151](file://src/bin/cli.ts#L117-L151)
+- [cli.ts:164-198](file://src/bin/cli.ts#L164-L198)
 
 ## Core Components
 
@@ -87,16 +98,28 @@ The validation command serves as the central orchestrator for the entire validat
 - Extra keys: Removed from target locale
 - Type mismatches: Reset to empty strings or re-translated based on default locale type
 
+**Updated** The validation command now accepts a translator instance through the ValidateOptions interface, enabling AI-powered translation capabilities when a provider is specified.
+
 **Section sources**
 - [validate.ts:121-253](file://src/commands/validate.ts#L121-L253)
+- [translator.ts:57-59](file://src/providers/translator.ts#L57-L59)
 
-### Translation Provider Integration
-The validation system supports pluggable translation providers through a unified interface. Currently implemented providers include Google Translate and OpenAI GPT, with DeepL support planned.
+### Provider Selection and Integration
+The validation command supports pluggable translation providers through a unified interface. The --provider flag allows users to specify which translation service to use during validation operations.
 
-The provider selection logic follows a priority order: explicit provider specification, environment-based detection, and fallback to Google Translate. This ensures the system remains functional even without explicit configuration.
+**Provider Selection Logic**: The system follows a priority order for provider selection:
+1. Explicit provider specification via --provider flag
+2. Environment-based detection (OpenAI API key availability)
+3. Fallback to Google Translate
+
+**Supported Providers**:
+- **Google Translate**: Free, widely available, suitable for basic translation needs
+- **OpenAI GPT**: Higher quality translations, requires API key configuration
+
+**Updated** The validate command now includes comprehensive provider flag support with explicit validation and error handling for unknown provider types.
 
 **Section sources**
-- [cli.ts:129-149](file://src/bin/cli.ts#L129-L149)
+- [cli.ts:178-194](file://src/bin/cli.ts#L178-L194)
 - [translator.ts:14-17](file://src/providers/translator.ts#L14-L17)
 
 ### File Management Integration
@@ -119,7 +142,10 @@ participant FM as FileManager
 participant Provider as Translation Provider
 participant Confirm as Confirmation Handler
 User->>CLI : validate [--provider]
-CLI->>Validator : validateCommand(context, options)
+CLI->>Validator : validateCommand(context, {translator})
+CLI->>CLI : selectProvider(options.provider)
+CLI->>CLI : instantiateTranslator(provider)
+CLI->>Validator : validateCommand(context, {translator})
 Validator->>FM : readLocale(defaultLocale)
 Validator->>FM : readLocale(otherLocales[i])
 loop For each locale comparison
@@ -153,7 +179,7 @@ Validator-->>User : validation results
 
 **Diagram sources**
 - [validate.ts:121-253](file://src/commands/validate.ts#L121-L253)
-- [cli.ts:126-149](file://src/bin/cli.ts#L126-L149)
+- [cli.ts:173-196](file://src/bin/cli.ts#L173-L196)
 - [confirmation.ts:9-42](file://src/core/confirmation.ts#L9-L42)
 
 ## Detailed Component Analysis
@@ -266,7 +292,6 @@ CIConfirmed --> Proceed
 Proceed --> ApplyCorrections
 UserCancelled --> [*]
 CICancelled --> [*]
-ApplyCorrections --> [*]
 ```
 
 **Diagram sources**
@@ -340,6 +365,9 @@ The validation command is designed for efficiency with several optimization stra
 **Missing Translation Provider**
 If no translation provider is configured, the validation command will still function but will fill missing keys with empty strings rather than attempting AI translation. This is the intended behavior for environments without API access.
 
+**Unknown Provider Type**
+The --provider flag only accepts "google" or "openai" values. Using any other value will result in an error with guidance on supported providers.
+
 **CI/CD Pipeline Failures**
 The validation command is designed to fail in CI environments when issues are detected but no correction is applied. Use the `--yes` flag to enable automatic corrections in CI pipelines.
 
@@ -349,9 +377,14 @@ File permission issues during validation typically indicate insufficient write p
 **Large Translation Files**
 For very large translation files, consider using the `--dry-run` option to preview changes before applying them. This helps identify potential performance impacts before committing to modifications.
 
+**Provider Configuration Issues**
+- **OpenAI**: Requires OPENAI_API_KEY environment variable or explicit apiKey option
+- **Google**: No authentication required, but may have rate limiting considerations
+
 **Section sources**
 - [validate.ts:172-176](file://src/commands/validate.ts#L172-L176)
 - [validate.ts:242-252](file://src/commands/validate.ts#L242-L252)
+- [cli.ts:185-189](file://src/bin/cli.ts#L185-L189)
 
 ### Debugging Validation Results
 
@@ -363,11 +396,15 @@ The validation command provides detailed reporting that includes:
 
 Use the verbose output to identify patterns in translation inconsistencies and address root causes systematically.
 
+**Updated** When using the --provider flag, the validation command will automatically use AI translation for missing keys and type mismatches, providing more accurate translations than empty strings.
+
 ## Conclusion
 
 The Validation Command represents a comprehensive solution for maintaining translation file consistency across internationalized applications. Its dual-phase approach ensures both awareness and remediation of translation issues, while the pluggable architecture supports various translation providers and operational environments.
 
 The command's design emphasizes reliability, flexibility, and developer experience through thoughtful error handling, CI-friendly behavior, and extensive testing coverage. By integrating seamlessly with the broader i18n-ai-cli ecosystem, it provides a complete solution for translation file management and maintenance.
+
+**Updated** The addition of the --provider flag significantly enhances the validation command's capabilities by enabling AI-powered translation for missing keys and type mismatches, providing more accurate and contextually appropriate translations than simple empty string fallbacks.
 
 Key strengths of the implementation include:
 - Comprehensive issue detection covering missing, extra, and type mismatch scenarios
@@ -375,5 +412,6 @@ Key strengths of the implementation include:
 - Robust CI/CD support with non-interactive operation modes
 - Strong type safety and error handling throughout the validation pipeline
 - Extensive test coverage validating both positive and negative scenarios
+- Dynamic provider selection with clear error messaging
 
 The validation command serves as a foundation for maintaining high-quality internationalization across diverse development environments and project scales.
