@@ -1,6 +1,6 @@
 # i18n-ai-cli
 
-AI-powered CLI tool for managing translation files in internationalized applications.
+AI-powered CLI tool for managing translation files in internationalized applications. It detects and fixes missing translations automatically. Simplify your i18n workflow with automated key management, unused key detection, AI-powered translations via OpenAI and Google Translate, and flexible configuration.
 
 [![npm version](https://img.shields.io/npm/v/i18n-ai-cli.svg)](https://www.npmjs.com/package/i18n-ai-cli)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
