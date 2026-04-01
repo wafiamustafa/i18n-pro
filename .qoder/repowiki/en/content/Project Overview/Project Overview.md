@@ -4,1143 +4,457 @@
 **Referenced Files in This Document**
 - [README.md](file://README.md)
 - [package.json](file://package.json)
-- [SECURITY.md](file://SECURITY.md)
-- [CONTRIBUTING.md](file://CONTRIBUTING.md)
 - [src/bin/cli.ts](file://src/bin/cli.ts)
+- [src/commands/init.ts](file://src/commands/init.ts)
+- [src/commands/add-lang.ts](file://src/commands/add-lang.ts)
+- [src/commands/add-key.ts](file://src/commands/add-key.ts)
 - [src/commands/validate.ts](file://src/commands/validate.ts)
+- [src/commands/clean-unused.ts](file://src/commands/clean-unused.ts)
+- [src/config/types.ts](file://src/config/types.ts)
+- [src/context/types.ts](file://src/context/types.ts)
+- [src/providers/translator.ts](file://src/providers/translator.ts)
 - [src/providers/openai.ts](file://src/providers/openai.ts)
 - [src/providers/google.ts](file://src/providers/google.ts)
-- [src/providers/translator.ts](file://src/providers/translator.ts)
-- [src/context/build-context.ts](file://src/context/build-context.ts)
-- [src/context/types.ts](file://src/context/types.ts)
+- [src/services/translation-service.ts](file://src/services/translation-service.ts)
+- [src/core/file-manager.ts](file://src/core/file-manager.ts)
 </cite>
-
-## Update Summary
-**Changes Made**
-- Updated version references to reflect 1.0.9 throughout the documentation
-- Enhanced documentation to reflect comprehensive security policy integration
-- Updated Node.js engine requirement to version 18 or higher
-- Documented enhanced AI-powered translation capabilities with improved OpenAI provider
-- Updated validate command documentation to include provider flags and sync functionality
-- Added comprehensive security policy section with vulnerability reporting procedures
-- Updated CLI version display note to reflect current status
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Installation and Setup](#installation-and-setup)
-3. [Quick Start Guide](#quick-start-guide)
-4. [Core Features](#core-features)
-5. [Configuration](#configuration)
-6. [Command Reference](#command-reference)
-7. [AI Translation Providers](#ai-translation-providers)
-8. [Programmatic API](#programmatic-api)
-9. [Security Policy](#security-policy)
-10. [Development Setup](#development-setup)
-11. [Troubleshooting Guide](#troubleshooting-guide)
-12. [Contributing](#contributing)
-13. [Conclusion](#conclusion)
+2. [Project Structure](#project-structure)
+3. [Core Components](#core-components)
+4. [Architecture Overview](#architecture-overview)
+5. [Detailed Component Analysis](#detailed-component-analysis)
+6. [Dependency Analysis](#dependency-analysis)
+7. [Performance Considerations](#performance-considerations)
+8. [Troubleshooting Guide](#troubleshooting-guide)
+9. [Conclusion](#conclusion)
 
 ## Introduction
+i18n-ai-cli is an AI-powered CLI tool designed to streamline internationalization (i18n) workflows for applications that manage translation files. Its mission is to reduce manual effort and human error by automating key tasks such as:
+- Automated key management across locales
+- Unused key detection and cleanup
+- AI-powered translations powered by OpenAI and Google Translate
+- Flexible configuration tailored to your project’s structure
 
-i18n-ai-cli is a comprehensive AI-powered CLI tool designed to streamline internationalization (i18n) workflows for applications that manage translation files. Originally evolved from i18n-pro, this tool now provides cutting-edge AI capabilities while maintaining robust automation for managing translation assets across locales.
+The tool integrates seamlessly into development and CI/CD pipelines, offering dry-run previews, non-interactive modes, and robust validation to keep translation files consistent and up-to-date.
 
-**Key AI-Powered Value Propositions:**
-- **Enhanced AI-Powered Translation**: Leverage OpenAI GPT models for context-aware, high-quality translations with automatic key cloning and translation workflows
-- **Intelligent Key Management**: Enhanced key management with AI-assisted suggestions and validation
-- **Smart Cleanup**: Advanced unused key detection with AI-powered context analysis
-- **Flexible AI Providers**: Support for multiple translation providers including OpenAI, Google Translate, and DeepL stub implementations
+## Project Structure
+At a high level, the project follows a modular CLI architecture:
+- A central CLI binary defines commands and global options
+- Commands encapsulate specific operations (init, language management, key operations, validation, cleanup)
+- A configuration loader and typed config define project-wide settings
+- A context builder shares configuration, file manager, and options across commands
+- A provider abstraction enables pluggable translation engines (OpenAI, Google)
+- A translation service wraps provider logic for consistent translation requests
+- A file manager handles reading, writing, and maintaining locale files
 
-**Traditional Capabilities:**
-- Automated key management: Add, update, and remove translation keys consistently across all supported locales
-- Unused key detection: Scan source code using configurable usage patterns to identify and remove orphaned translation keys
-- Flexible configuration: Define locales path, default locale, supported locales, key styles (flat or nested), usage patterns, and auto-sort behavior
-- CI/CD friendly: Non-interactive mode with deterministic exit codes and dry-run previews to prevent unintended changes
-- TypeScript foundation: Built with TypeScript for strong typing and developer ergonomics
-- Global or local installation: Install globally or locally and use with npx for quick access
-
-**Position in the internationalization ecosystem:**
-- Acts as a command-line orchestrator for translation assets with AI assistance, complementing frontend frameworks and backend localization stacks
-- Provides structural safeguards (e.g., preventing conflicts between flat and nested key styles) and operational controls (e.g., strict mode, dry runs, CI mode)
-- Integrates seamlessly with modern AI translation workflows for enhanced translation quality
-
-**Current Version**: 1.0.9 (maintenance release with enhanced AI capabilities and comprehensive security policy)
-
-**Important Note**: The package.json indicates version 1.0.9, but the CLI currently displays version 1.0.0. This is a known discrepancy that will be addressed in a future update. All functionality remains identical to version 1.0.8.
-
-## Installation and Setup
-
-### Global Installation
-```bash
-npm install -g i18n-ai-cli
+```mermaid
+graph TB
+CLI["CLI Binary<br/>src/bin/cli.ts"] --> CMD_INIT["init<br/>src/commands/init.ts"]
+CLI --> CMD_ADD_LANG["add:lang<br/>src/commands/add-lang.ts"]
+CLI --> CMD_REMOVE_LANG["remove:lang<br/>src/commands/remove-lang.ts"]
+CLI --> CMD_ADD_KEY["add:key<br/>src/commands/add-key.ts"]
+CLI --> CMD_UPDATE_KEY["update:key<br/>src/commands/update-key.ts"]
+CLI --> CMD_REMOVE_KEY["remove:key<br/>src/commands/remove-key.ts"]
+CLI --> CMD_CLEAN["clean:unused<br/>src/commands/clean-unused.ts"]
+CLI --> CMD_VALIDATE["validate<br/>src/commands/validate.ts"]
+CMD_INIT --> CFG["Config Types<br/>src/config/types.ts"]
+CMD_ADD_LANG --> CTX["Context Types<br/>src/context/types.ts"]
+CMD_ADD_KEY --> FM["FileManager<br/>src/core/file-manager.ts"]
+CMD_VALIDATE --> FM
+CMD_CLEAN --> FM
+CMD_ADD_KEY --> TS["TranslationService<br/>src/services/translation-service.ts"]
+CMD_VALIDATE --> TS
+TS --> P_OPENAI["OpenAITranslator<br/>src/providers/openai.ts"]
+TS --> P_GOOGLE["GoogleTranslator<br/>src/providers/google.ts"]
+P_OPENAI --> IFACE["Translator Interface<br/>src/providers/translator.ts"]
+P_GOOGLE --> IFACE
 ```
 
-### Local Installation (Recommended for Projects)
-```bash
-npm install --save-dev i18n-ai-cli
+**Diagram sources**
+- [src/bin/cli.ts:1-209](file://src/bin/cli.ts#L1-L209)
+- [src/commands/init.ts:1-239](file://src/commands/init.ts#L1-L239)
+- [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
+- [src/commands/add-key.ts:1-120](file://src/commands/add-key.ts#L1-L120)
+- [src/commands/validate.ts:1-254](file://src/commands/validate.ts#L1-L254)
+- [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [src/config/types.ts:1-12](file://src/config/types.ts#L1-L12)
+- [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
+- [src/providers/google.ts:1-50](file://src/providers/google.ts#L1-L50)
+- [src/providers/translator.ts:1-60](file://src/providers/translator.ts#L1-L60)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
+
+**Section sources**
+- [README.md:1-381](file://README.md#L1-L381)
+- [package.json:1-68](file://package.json#L1-L68)
+- [src/bin/cli.ts:1-209](file://src/bin/cli.ts#L1-L209)
+
+## Core Components
+- CLI entrypoint and command wiring: Defines commands, global options, and provider selection logic.
+- Commands: Encapsulate operations for initialization, language management, key operations, validation, and cleanup.
+- Configuration: Typed configuration for locales path, default locale, supported locales, key style, usage patterns, and sorting behavior.
+- Context: Provides shared access to configuration, file manager, and parsed global options across commands.
+- Translation providers: Abstractions for OpenAI and Google Translate with a unified interface.
+- Translation service: Thin wrapper around providers to expose a consistent translation API.
+- File manager: Handles reading, writing, creating, deleting, and validating locale files, with optional auto-sorting.
+
+Practical examples (see Usage Reference in README for full commands):
+- Initialize configuration and default locale file
+- Add a language and optionally clone from an existing locale
+- Add a translation key with auto-translation to other locales
+- Update a key and optionally sync translations across locales
+- Detect and remove unused keys based on configured usage patterns
+- Validate files and auto-correct issues (including missing/extra keys and type mismatches)
+
+**Section sources**
+- [README.md:85-235](file://README.md#L85-L235)
+- [src/bin/cli.ts:18-198](file://src/bin/cli.ts#L18-L198)
+- [src/commands/init.ts:25-182](file://src/commands/init.ts#L25-L182)
+- [src/commands/add-lang.ts:26-97](file://src/commands/add-lang.ts#L26-L97)
+- [src/commands/add-key.ts:8-119](file://src/commands/add-key.ts#L8-L119)
+- [src/commands/validate.ts:121-253](file://src/commands/validate.ts#L121-L253)
+- [src/commands/clean-unused.ts:8-137](file://src/commands/clean-unused.ts#L8-L137)
+- [src/config/types.ts:3-11](file://src/config/types.ts#L3-L11)
+- [src/context/types.ts:11-15](file://src/context/types.ts#L11-L15)
+- [src/providers/translator.ts:14-17](file://src/providers/translator.ts#L14-L17)
+- [src/services/translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
+- [src/core/file-manager.ts:5-117](file://src/core/file-manager.ts#L5-L117)
+
+## Architecture Overview
+The CLI is organized around a command-driven architecture with a clear separation of concerns:
+- CLI binary registers commands and global options
+- Each command builds a runtime context (configuration, file manager, options)
+- Commands delegate to providers and services for translation and file operations
+- Configuration and context types enforce consistency across modules
+
+```mermaid
+graph TB
+subgraph "CLI Layer"
+BIN["src/bin/cli.ts"]
+end
+subgraph "Commands"
+INIT["init.ts"]
+LANG["add-lang.ts / remove-lang.ts"]
+KEY["add-key.ts / update-key.ts / remove-key.ts"]
+CLEAN["clean-unused.ts"]
+VALID["validate.ts"]
+end
+subgraph "Core"
+CFG["config/types.ts"]
+CTX["context/types.ts"]
+FM["core/file-manager.ts"]
+end
+subgraph "Providers"
+IFACE["providers/translator.ts"]
+OPENAI["providers/openai.ts"]
+GOOGLE["providers/google.ts"]
+SVC["services/translation-service.ts"]
+end
+BIN --> INIT
+BIN --> LANG
+BIN --> KEY
+BIN --> CLEAN
+BIN --> VALID
+INIT --> CFG
+LANG --> CTX
+KEY --> CTX
+CLEAN --> CTX
+VALID --> CTX
+KEY --> SVC
+VALID --> SVC
+SVC --> IFACE
+IFACE --> OPENAI
+IFACE --> GOOGLE
+KEY --> FM
+VALID --> FM
+CLEAN --> FM
 ```
 
-When installed locally, use one of these methods:
+**Diagram sources**
+- [src/bin/cli.ts:1-209](file://src/bin/cli.ts#L1-L209)
+- [src/commands/init.ts:1-239](file://src/commands/init.ts#L1-L239)
+- [src/commands/add-lang.ts:1-98](file://src/commands/add-lang.ts#L1-L98)
+- [src/commands/add-key.ts:1-120](file://src/commands/add-key.ts#L1-L120)
+- [src/commands/validate.ts:1-254](file://src/commands/validate.ts#L1-L254)
+- [src/commands/clean-unused.ts:1-138](file://src/commands/clean-unused.ts#L1-L138)
+- [src/config/types.ts:1-12](file://src/config/types.ts#L1-L12)
+- [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+- [src/providers/translator.ts:1-60](file://src/providers/translator.ts#L1-L60)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
+- [src/providers/google.ts:1-50](file://src/providers/google.ts#L1-L50)
+- [src/core/file-manager.ts:1-118](file://src/core/file-manager.ts#L1-L118)
 
-**Option 1: Use npx (recommended)**
-```bash
-npx i18n-ai-cli --help
+## Detailed Component Analysis
+
+### CLI and Command Wiring
+- Registers global options: yes, dry-run, ci, force
+- Defines commands: init, add:lang, remove:lang, add:key, update:key, remove:key, clean:unused, validate
+- Builds a command context per invocation and delegates to respective handlers
+- Selects translation provider based on explicit flag, environment variable, or falls back to Google Translate
+
+```mermaid
+sequenceDiagram
+participant User as "Developer"
+participant CLI as "CLI Binary"
+participant Ctx as "buildContext()"
+participant Cmd as "Command Handler"
+participant FM as "FileManager"
+participant TS as "TranslationService"
+participant Prov as "Translator"
+User->>CLI : Run command with options
+CLI->>Ctx : Build context (config, file manager, options)
+CLI->>Cmd : Invoke handler with context
+alt Translation involved
+Cmd->>TS : translate(request)
+TS->>Prov : translate(request)
+Prov-->>TS : result
+TS-->>Cmd : result
+end
+Cmd->>FM : read/write/create/delete locale files
+FM-->>Cmd : success/failure
+Cmd-->>CLI : completion
+CLI-->>User : output and exit code
 ```
 
-**Option 2: Add a script to your package.json**
-```json
-{
-  "scripts": {
-    "i18n": "i18n-ai-cli"
-  }
+**Diagram sources**
+- [src/bin/cli.ts:18-198](file://src/bin/cli.ts#L18-L198)
+- [src/commands/add-key.ts:67-104](file://src/commands/add-key.ts#L67-L104)
+- [src/commands/validate.ts:192-240](file://src/commands/validate.ts#L192-L240)
+- [src/services/translation-service.ts:14-16](file://src/services/translation-service.ts#L14-L16)
+- [src/providers/openai.ts:30-58](file://src/providers/openai.ts#L30-L58)
+- [src/providers/google.ts:17-48](file://src/providers/google.ts#L17-L48)
+- [src/core/file-manager.ts:31-61](file://src/core/file-manager.ts#L31-L61)
+
+**Section sources**
+- [src/bin/cli.ts:18-198](file://src/bin/cli.ts#L18-L198)
+
+### Language Management
+- Validates language codes against ISO standards (accepts both simple and region variants)
+- Supports cloning from an existing locale and pre-populating new locale content
+- Integrates with configuration to track supported locales and writes locale files
+
+```mermaid
+flowchart TD
+Start(["add:lang invoked"]) --> Validate["Validate locale code"]
+Validate --> Exists{"Locale exists?"}
+Exists --> |Yes| Error["Throw error: already exists"]
+Exists --> |No| Confirm["Confirm action (supports --yes/--dry-run/--ci)"]
+Confirm --> |Cancel| End(["Exit"])
+Confirm --> |Proceed| Clone{"Clone from base locale?"}
+Clone --> |Yes| ReadBase["Read base locale JSON"]
+Clone --> |No| Empty["Use empty object"]
+ReadBase --> Write["Write new locale file"]
+Empty --> Write
+Write --> Done(["Success"])
+```
+
+**Diagram sources**
+- [src/commands/add-lang.ts:34-96](file://src/commands/add-lang.ts#L34-L96)
+
+**Section sources**
+- [src/commands/add-lang.ts:26-97](file://src/commands/add-lang.ts#L26-L97)
+
+### Key Operations
+- Add key: Ensures no structural conflicts, translates to other locales, and writes updated files respecting key style (flat/nested)
+- Update key: Updates a single key or syncs changes across locales using the selected provider
+- Remove key: Removes a key from all supported locales
+
+```mermaid
+sequenceDiagram
+participant CLI as "CLI"
+participant AddKey as "add : key"
+participant FM as "FileManager"
+participant TS as "TranslationService"
+participant Prov as "Translator"
+CLI->>AddKey : add : key <key> --value <val>
+AddKey->>FM : read all locales
+AddKey->>AddKey : validateNoStructuralConflict
+AddKey->>TS : translate(val, target, source)
+TS->>Prov : translate
+Prov-->>TS : translated text
+TS-->>AddKey : translated text
+AddKey->>FM : write updated locale files
+AddKey-->>CLI : success
+```
+
+**Diagram sources**
+- [src/commands/add-key.ts:34-104](file://src/commands/add-key.ts#L34-L104)
+- [src/services/translation-service.ts:14-16](file://src/services/translation-service.ts#L14-L16)
+- [src/providers/openai.ts:30-58](file://src/providers/openai.ts#L30-L58)
+- [src/providers/google.ts:17-48](file://src/providers/google.ts#L17-L48)
+- [src/core/file-manager.ts:45-61](file://src/core/file-manager.ts#L45-L61)
+
+**Section sources**
+- [src/commands/add-key.ts:8-119](file://src/commands/add-key.ts#L8-L119)
+
+### Validation and Cleanup
+- Validation compares each locale to the default locale to detect missing keys, extra keys, and type mismatches
+- Auto-correction can translate missing/type-mismatched keys or fill with empty strings if no provider is available
+- Cleanup scans project files using configured usage patterns to find unused keys and removes them from all locales
+
+```mermaid
+flowchart TD
+VStart(["validate invoked"]) --> ReadRef["Read default locale"]
+ReadRef --> LoopLocales["For each non-default locale"]
+LoopLocales --> Compare["Compare keys and types"]
+Compare --> Report["Collect issues"]
+Report --> Any{"Any issues?"}
+Any --> |No| VEnd(["Done"])
+Any --> |Yes| Confirm["Confirm auto-correction (--yes/--ci)"]
+Confirm --> |Cancel| VEnd
+Confirm --> |Proceed| Fix["Fix missing/extra/type issues"]
+Fix --> Write["Write corrected locale files"]
+Write --> VEnd
+```
+
+**Diagram sources**
+- [src/commands/validate.ts:121-253](file://src/commands/validate.ts#L121-L253)
+
+**Section sources**
+- [src/commands/validate.ts:11-29](file://src/commands/validate.ts#L11-L29)
+- [src/commands/validate.ts:121-253](file://src/commands/validate.ts#L121-L253)
+
+### Translation Providers and Services
+- Translator interface defines a uniform contract for translation
+- OpenAI provider uses chat completions with a concise system prompt
+- Google provider uses a community API for free translations
+- TranslationService wraps provider calls for consistent behavior
+
+```mermaid
+classDiagram
+class Translator {
++string name
++translate(request) TranslationResult
+}
+class OpenAITranslator {
++string name
+-client OpenAI
+-model string
++translate(request) TranslationResult
+}
+class GoogleTranslator {
++string name
+-options GoogleTranslatorOptions
++translate(request) TranslationResult
+}
+class TranslationService {
+-translator Translator
++translate(request) TranslationResult
+}
+Translator <|.. OpenAITranslator
+Translator <|.. GoogleTranslator
+TranslationService --> Translator : "delegates to"
+```
+
+**Diagram sources**
+- [src/providers/translator.ts:14-17](file://src/providers/translator.ts#L14-L17)
+- [src/providers/openai.ts:9-58](file://src/providers/openai.ts#L9-L58)
+- [src/providers/google.ts:9-48](file://src/providers/google.ts#L9-L48)
+- [src/services/translation-service.ts:7-17](file://src/services/translation-service.ts#L7-L17)
+
+**Section sources**
+- [src/providers/translator.ts:1-60](file://src/providers/translator.ts#L1-L60)
+- [src/providers/openai.ts:1-60](file://src/providers/openai.ts#L1-L60)
+- [src/providers/google.ts:1-50](file://src/providers/google.ts#L1-L50)
+- [src/services/translation-service.ts:1-18](file://src/services/translation-service.ts#L1-L18)
+
+### Configuration and Context
+- Typed configuration includes locales path, default locale, supported locales, key style, usage patterns, compiled patterns, and auto-sort
+- Context carries configuration, file manager, and parsed global options to commands
+
+```mermaid
+classDiagram
+class I18nConfig {
++string localesPath
++string defaultLocale
++string[] supportedLocales
++KeyStyle keyStyle
++string[] usagePatterns
++RegExp[] compiledUsagePatterns
++boolean autoSort
+}
+class CommandContext {
++I18nConfig config
++FileManager fileManager
++GlobalOptions options
+}
+class GlobalOptions {
++boolean yes
++boolean dryRun
++boolean ci
++boolean force
 }
 ```
-Then run:
-```bash
-npm run i18n -- --help
+
+**Diagram sources**
+- [src/config/types.ts:3-11](file://src/config/types.ts#L3-L11)
+- [src/context/types.ts:4-15](file://src/context/types.ts#L4-L15)
+
+**Section sources**
+- [src/config/types.ts:1-12](file://src/config/types.ts#L1-L12)
+- [src/context/types.ts:1-15](file://src/context/types.ts#L1-L15)
+
+## Dependency Analysis
+External dependencies include:
+- Command parsing and UX: commander, inquirer, chalk
+- File system operations: fs-extra, glob
+- ISO locale validation: iso-639-1
+- Translation providers: openai, @vitalets/google-translate-api
+- Type validation: zod
+- TypeScript toolchain and testing: tsup, typescript, vitest
+
+These dependencies map cleanly to the CLI’s responsibilities:
+- CLI argument parsing and prompting
+- File system operations and globbing
+- Locale validation and translation
+- Type-safe configuration and validation
+
+```mermaid
+graph TB
+PKG["package.json"] --> DEPS["Dependencies"]
+DEPS --> CMDR["commander"]
+DEPS --> INQ["inquirer"]
+DEPS --> CHALK["chalk"]
+DEPS --> FSE["fs-extra"]
+DEPS --> GLOB["glob"]
+DEPS --> ISO["iso-639-1"]
+DEPS --> OA["openai"]
+DEPS --> GT["google-translate-api"]
+DEPS --> ZOD["zod"]
 ```
 
-**Prerequisites:**
-- **Node.js**: Version 18 or higher (updated from previous requirements)
-- **Package Manager**: npm or yarn
-
-## Quick Start Guide
-
-```bash
-# Initialize configuration with interactive wizard
-i18n-ai-cli init
-
-# Add a new language (e.g., Spanish from English)
-i18n-ai-cli add:lang es --from en
-
-# Add a translation key (auto-translates to all locales)
-i18n-ai-cli add:key welcome.message --value "Welcome to our app"
-
-# Update a key and sync translations to all locales
-i18n-ai-cli update:key welcome.message --value "Welcome!" --sync
-
-# Clean up unused keys
-i18n-ai-cli clean:unused
-
-# Validate translation files with AI-powered auto-correction
-i18n-ai-cli validate --provider openai
-```
-
-## Core Features
-
-### 🤖 Enhanced AI-Powered Translation
-- **Advanced OpenAI GPT Integration**: Context-aware, high-quality translations using GPT-4o, GPT-4-turbo, or GPT-3.5-turbo with improved context handling
-- **Google Translate**: Free, fast translations via `@vitalets/google-translate-api`
-- **Flexible Provider System**: Easy to extend with custom providers (DeepL coming soon)
-- **Context-Aware Translations**: Enhanced context passing to improve accuracy for ambiguous terms
-
-### 🌍 Language Management
-- Add/remove locales with ISO 639-1 validation
-- Clone existing locales when adding new languages
-- Support for language variants (e.g., `en-US`, `pt-BR`)
-
-### 🔑 Key Management
-- Add, update, or remove translation keys across all locales
-- Automatic translation of new keys to all supported languages
-- Sync updates across all locales with `--sync` flag
-- Support for both flat (`auth.login.title`) and nested key styles
-
-### 🧹 Maintenance & Validation
-- **Unused Key Detection**: Scan source code to identify and remove unused keys
-- **Structural Validation**: Detect missing, extra, or type-mismatched keys with AI-powered auto-correction
-- **Enhanced Auto-Correction**: Automatically fix validation issues with optional provider support and improved translation quality
-- **Conflict Prevention**: Prevents nested vs flat key structure conflicts
-
-### ⚡ Developer Experience
-- **Dry Run Mode**: Preview changes before applying them
-- **CI/CD Ready**: Non-interactive mode with deterministic exit codes
-- **Auto-Sort**: Automatically sort keys alphabetically
-- **Interactive Wizard**: Easy configuration setup with `init` command
-- **Type Safety**: Written in TypeScript with full type definitions
-- **Programmatic API**: Use i18n-ai-cli in your Node.js applications
-
-## Configuration
-
-Create an `i18n-cli.config.json` file in your project root:
-
-```bash
-i18n-ai-cli init
-```
-
-Or create it manually:
-
-```json
-{
-  "localesPath": "./locales",
-  "defaultLocale": "en",
-  "supportedLocales": ["en", "es", "fr", "de"],
-  "keyStyle": "nested",
-  "usagePatterns": [
-    "t\\(['\"](?<key>.*?)['\"]\\)",
-    "translate\\(['\"](?<key>.*?)['\"]\\)",
-    "i18n\\.t\\(['\"](?<key>.*?)['\"]\\)"
-  ],
-  "autoSort": true
-}
-```
-
-### Configuration Options
-
-| Option | Type | Required | Default | Description |
-|--------|------|----------|---------|-------------|
-| `localesPath` | `string` | Yes | - | Directory containing translation files (e.g., `./locales`, `./src/i18n/translations`) |
-| `defaultLocale` | `string` | Yes | - | Default/source language code (e.g., `"en"`, `"en-US"`) |
-| `supportedLocales` | `string[]` | Yes | - | List of all supported language codes |
-| `keyStyle` | `"flat"` \| `"nested"` | No | `"nested"` | Key structure style for JSON files |
-| `usagePatterns` | `string[]` | No | `[]` | Regex patterns to detect key usage in source code (must include a capturing group) |
-| `autoSort` | `boolean` | No | `true` | Automatically sort keys alphabetically in JSON files |
-
-### Key Style Examples
-
-**Nested style** (`auth.login.title`):
-```json
-{
-  "auth": {
-    "login": {
-      "title": "Login"
-    }
-  }
-}
-```
-
-**Flat style** (`auth.login.title`):
-```json
-{
-  "auth.login.title": "Login"
-}
-```
-
-### Usage Patterns
-
-The `usagePatterns` array contains regex patterns used by the `clean:unused` command to detect which translation keys are actively used in your source code. Patterns must include a capturing group for the key.
-
-**Default patterns detect:**
-- `t('key')` or `t("key")`
-- `translate('key')` or `translate("key")`
-- `i18n.t('key')` or `i18n.t("key")`
-
-**Custom pattern with named group:**
-```json
-{
-  "usagePatterns": [
-    "useTranslation\\(['\"](?<key>[^'\"]+)['\"]\\)",
-    "\\$t\\(['\"](?<key>[^'\"]+)['\"]\\)"
-  ]
-}
-```
-
-**Supported file types:** `.ts`, `.tsx`, `.js`, `.jsx`, `.html`
-
-## Command Reference
-
-### Initialize Configuration
-```bash
-i18n-ai-cli init
-```
-
-**Options:**
-- `-f, --force`: Overwrite an existing config file
-- `-y, --yes`: Skip interactive prompts (use default values)
-
-**What it does:**
-- Creates `i18n-cli.config.json` in your project root
-- Interactive wizard guides you through setup
-- Detects existing translation files automatically
-
-### Language Management Commands
-
-#### Add a New Language
-```bash
-i18n-ai-cli add:lang <lang-code> [--from <locale>] [--strict]
-```
-
-**Examples:**
-```bash
-# Add French locale
-i18n-ai-cli add:lang fr
-
-# Add German locale, cloning from English
-i18n-ai-cli add:lang de --from en
-
-# Add Brazilian Portuguese with strict validation
-i18n-ai-cli add:lang pt-BR --strict
-```
-
-**Options:**
-- `--from <locale>`: Clone translations from an existing locale (auto-translates all keys)
-- `--strict`: Enable strict mode for additional validations
-- `-y, --yes`: Skip confirmation prompts
-- `--dry-run`: Preview changes without writing files
-
-**What it does:**
-- Validates language code against ISO 639-1 standard
-- Creates new locale file (e.g., `fr.json`)
-- If `--from` is specified, translates all keys from source locale
-- Updates `supportedLocales` in config automatically
-
-**Language Code Format:**
-- Simple: `en`, `es`, `fr`, `de`, `ja`, `zh`
-- With region: `en-US`, `en-GB`, `pt-BR`, `zh-CN`, `zh-TW`
-
-#### Remove a Language
-```bash
-i18n-ai-cli remove:lang <lang-code>
-```
-
-**Example:**
-```bash
-i18n-ai-cli remove:lang fr
-```
-
-**Options:**
-- `-y, --yes`: Skip confirmation prompts
-- `--dry-run`: Preview changes without writing files
-
-**What it does:**
-- Removes locale file (e.g., `fr.json`)
-- Updates `supportedLocales` in config
-- Prompts for confirmation before deletion
-
-### Key Management Commands
-
-#### Add a New Translation Key
-```bash
-i18n-ai-cli add:key <key> --value <value> [--provider <provider>]
-```
-
-**Examples:**
-```bash
-# Add key with auto-translation to all locales
-i18n-ai-cli add:key auth.login.title --value "Login"
-
-# Add key with specific provider
-i18n-ai-cli add:key welcome.message --value "Welcome to our app" --provider openai
-i18n-ai-cli add:key welcome.message --value "Welcome" --provider google
-```
-
-**Options:**
-- `-v, --value <value>`: **Required**. Value for the default locale
-- `-p, --provider <provider>`: Translation provider (`openai` or `google`)
-- `-y, --yes`: Skip confirmation prompts
-- `--dry-run`: Preview changes without writing files
-
-**What it does:**
-- Adds the key to all locale files
-- Value is added to default locale as-is
-- Automatically translates to all other locales using configured provider
-
-**Translation Provider Behavior:**
-- Uses OpenAI if `OPENAI_API_KEY` environment variable is set
-- Falls back to Google Translate otherwise
-- Explicitly specify with `--provider openai` or `--provider google`
-
-#### Update a Translation Key
-```bash
-i18n-ai-cli update:key <key> --value <value> [--locale <locale>] [--sync] [--provider <provider>]
-```
-
-**Examples:**
-```bash
-# Update default locale only
-i18n-ai-cli update:key auth.login.title --value "Sign In"
-
-# Update specific locale
-i18n-ai-cli update:key auth.login.title --value "Anmelden" --locale de
-
-# Update and sync (translate) to all other locales
-i18n-ai-cli update:key welcome.message --value "Welcome" --sync
-
-# Sync with specific provider
-i18n-ai-cli update:key welcome.message --value "Welcome" --sync --provider openai
-```
-
-**Options:**
-- `-v, --value <value>`: **Required**. New value
-- `-l, --locale <locale>`: Specific locale to update (default: default locale)
-- `-s, --sync`: Sync the updated value to all other locales via translation
-- `-p, --provider <provider>`: Translation provider for syncing (`openai` or `google`)
-- `-y, --yes`: Skip confirmation prompts
-- `--dry-run`: Preview changes without writing files
-
-**What it does:**
-- Updates the specified key in the target locale
-- With `--sync`, translates the new value to all other locales
-- Preserves key structure across all files
-
-**Translation Provider Behavior:**
-- Uses OpenAI if `OPENAI_API_KEY` environment variable is set
-- Falls back to Google Translate otherwise
-- Explicitly specify with `--provider openai` or `--provider google`
-
-#### Remove a Translation Key
-```bash
-i18n-ai-cli remove:key <key>
-```
-
-**Example:**
-```bash
-i18n-ai-cli remove:key auth.legacy.title
-```
-
-**Options:**
-- `-y, --yes`: Skip confirmation prompts
-- `--dry-run`: Preview changes without writing files
-
-**What it does:**
-- Removes the key from all locale files
-- Cleans up empty nested objects after removal
-- Prompts for confirmation before deletion
-
-### Validation & Maintenance Commands
-
-#### Validate Translation Files
-```bash
-i18n-ai-cli validate [--provider <provider>]
-```
-
-**Examples:**
-```bash
-# Validate without auto-translation (fills missing keys with empty strings)
-i18n-ai-cli validate
-
-# Validate and auto-translate missing keys using OpenAI
-export OPENAI_API_KEY=sk-your-api-key-here
-i18n-ai-cli validate --provider openai
-
-# Validate and auto-translate using Google Translate
-i18n-ai-cli validate --provider google
-```
-
-**Options:**
-- `-p, --provider <provider>`: Translation provider for auto-translating missing keys (`openai` or `google`)
-- `-y, --yes`: Skip confirmation prompts
-- `--dry-run`: Preview changes without writing files
-- `--ci`: Run in CI mode (non-interactive, fails if issues found)
-
-**What it does:**
-- Validates all locale files against the default locale
-- Detects and reports:
-  - **Missing keys**: Present in default locale but missing in other locales
-  - **Extra keys**: Present in other locales but not in default locale
-  - **Type mismatches**: Value types differ from default locale (e.g., string vs object)
-- Auto-corrects issues:
-  - Adds missing keys (with empty strings or translated values if provider specified)
-  - Removes extra keys
-  - Fixes type mismatches based on default locale's structure
-
-**Enhanced Auto-Correction Features:**
-- **AI-Powered Translation**: When a provider is specified, missing keys are translated using AI instead of filled with empty strings
-- **Improved Translation Quality**: Enhanced context handling and better translation accuracy
-- **Selective Translation**: Only translates keys that need correction, leaving intact keys that are already correct
-
-**Note:** Extra keys are always removed during auto-correction. Type mismatches are fixed to match the default locale's value type.
-
-#### Clean Unused Keys
-```bash
-i18n-ai-cli clean:unused
-```
-
-**Options:**
-- `-y, --yes`: Skip confirmation prompts
-- `--dry-run`: Preview changes without writing files
-- `--ci`: Run in CI mode (non-interactive, fails if unused keys found)
-
-**What it does:**
-1. Scans source code files in `src/**/*.{ts,tsx,js,jsx,html}`
-2. Matches regex patterns defined in `usagePatterns` config
-3. Compares found keys against translation files
-4. Removes unused keys from all locales
-5. Rebuilds JSON structure according to `keyStyle` setting
-
-**How It Works:**
-- Uses patterns from config to detect key usage
-- Only removes keys that are truly unused
-- Preserves keys that match any pattern
-- Safe to run multiple times
-
-**Example Output:**
-```
-Found 120 used keys in source code
-Removing 5 unused keys: auth.legacy.*, old.homepage.*
-✓ Cleaned 5 unused keys from all locales
-```
-
-## AI Translation Providers
-
-i18n-ai-cli includes a flexible provider system for translation services. The following providers are available:
-
-### Available Providers
-
-| Provider | Description | Cost | Best For |
-|----------|-------------|------|----------|
-| **OpenAI** | AI-powered translation using GPT models (context-aware, high quality) | Paid (API usage) | Production, nuanced translations, context-aware needs |
-| **Google Translate** | Free translation via `@vitalets/google-translate-api` | Free | Quick translations, development, testing |
-| **DeepL** | Stub implementation | Coming soon | European languages, high-quality translations |
-
-### Provider Selection Priority
-
-The CLI automatically selects a provider based on this priority:
-
-1. **Explicit `--provider` flag** (highest priority)
-   ```bash
-   i18n-ai-cli add:key welcome --value "Welcome" --provider openai
-   ```
-
-2. **`OPENAI_API_KEY` environment variable set** → uses OpenAI
-   ```bash
-   export OPENAI_API_KEY=sk-...
-   i18n-ai-cli add:key welcome --value "Welcome"  # Uses OpenAI
-   ```
-
-3. **Fallback to Google Translate** (lowest priority)
-   ```bash
-   # No API key set → uses Google
-   i18n-ai-cli add:key welcome --value "Welcome"
-   ```
-
-### Enhanced OpenAI Provider
-
-The OpenAI provider uses GPT models to deliver context-aware, high-quality translations ideal for production applications.
-
-#### Getting an OpenAI API Key
-
-1. **Sign up for OpenAI**: Go to [platform.openai.com](https://platform.openai.com) and create an account
-2. **Navigate to API Keys**: Click on your profile → "View API Keys" or go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-3. **Create a new key**: Click "Create new secret key", give it a name (e.g., "i18n-cli"), and copy the key
-4. **Secure your key**: Store it securely - you won't be able to see it again after closing the dialog
-
-**Note**: OpenAI requires a valid payment method to use the API. New accounts may receive free credits to start.
-
-#### Setup
-
-Provide your OpenAI API key using one of these methods:
-
-**Option 1: Environment variable (recommended for CLI usage)**
-```bash
-export OPENAI_API_KEY=sk-your-api-key-here
-```
-
-Or add it to your `.env` file in your project root:
-```
-OPENAI_API_KEY=sk-your-api-key-here
-```
-
-**Option 2: Constructor option (recommended for programmatic usage)**
-```typescript
-const translator = new OpenAITranslator({
-  apiKey: 'sk-your-api-key-here'
-});
-```
-
-If both are set, the constructor option takes precedence over the environment variable.
-
-**Security best practices:**
-- ✅ Never commit your API key to version control
-- ✅ Add `.env` to your `.gitignore` file
-- ✅ Use environment variables in CI/CD pipelines
-- ✅ Rotate keys periodically for security
-- ❌ Don't hardcode API keys in source code
-
-#### Enhanced Usage
-
-**Basic translation example:**
-
-```typescript
-import { TranslationService } from 'i18n-ai-cli/services';
-import { OpenAITranslator } from 'i18n-ai-cli/providers';
-
-// The API key will be read from OPENAI_API_KEY environment variable
-const translator = new OpenAITranslator({
-  apiKey: 'sk-your-api-key-here',  // or use OPENAI_API_KEY env var
-  model: 'gpt-3.5-turbo',          // default model
-});
-const service = new TranslationService(translator);
-
-const result = await service.translate({
-  text: 'Hello world',
-  targetLocale: 'es',
-  sourceLocale: 'en',
-});
-
-console.log(result.text); // "Hola mundo"
-```
-
-**Using with CLI commands:**
-
-The CLI uses translation providers for several commands:
-
-**`add:key` command:**
-Automatically translates the value to all non-default locales:
-```bash
-export OPENAI_API_KEY=sk-your-api-key-here
-i18n-ai-cli add:key welcome.message --value "Welcome to our app"
-```
-
-**`update:key` command with `--sync`:**
-Updates the target locale and translates to all other locales:
-```bash
-export OPENAI_API_KEY=sk-your-api-key-here
-i18n-ai-cli update:key welcome.message --value "Welcome" --sync
-```
-
-**`add:lang` command with `--from`:**
-Automatically translates all keys when creating a new locale:
-```bash
-export OPENAI_API_KEY=sk-your-api-key-here
-i18n-ai-cli add:lang fr --from en
-```
-
-**`validate` command:**
-Auto-translates missing keys during validation:
-```bash
-export OPENAI_API_KEY=sk-your-api-key-here
-i18n-ai-cli validate --provider openai
-```
-
-#### Enhanced Context-Aware Translation
-
-Pass a `context` field to improve translation accuracy for ambiguous terms:
-
-```typescript
-const result = await service.translate({
-  text: 'Bank',
-  targetLocale: 'es',
-  context: 'financial institution',
-});
-// Returns "Banco" (not "Orilla" which means riverbank)
-```
-
-#### Enhanced Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `apiKey` | `string` | `process.env.OPENAI_API_KEY` | OpenAI API key |
-| `model` | `string` | `"gpt-3.5-turbo"` | GPT model to use |
-| `baseUrl` | `string` | OpenAI default | Custom API base URL (for Azure OpenAI, local models, etc.) |
-
-**Available models:**
-- `gpt-4o` - Latest flagship model, best quality (recommended for production)
-- `gpt-4o-mini` - Faster and more cost-effective
-- `gpt-4-turbo` - Previous generation, high quality
-- `gpt-3.5-turbo` - Default, fast and cost-effective (good for development)
-
-**Choose a model based on your needs:**
-- **Production/Nuanced content**: Use `gpt-4o` for best quality
-- **Development/Testing**: Use `gpt-3.5-turbo` for speed and cost savings
-- **Bulk translations**: Use `gpt-4o-mini` for balance of quality and cost
-- **Complex/niche languages**: Use `gpt-4-turbo` or `gpt-4o`
-
-#### Custom Endpoint
-
-Use the `baseUrl` option to point to Azure OpenAI, a local LLM, or any OpenAI-compatible API:
-
-```typescript
-const translator = new OpenAITranslator({
-  apiKey: 'your-key',
-  baseUrl: 'https://your-resource.openai.azure.com',
-  model: 'your-deployment-name',
-});
-```
-
-#### Enhanced Troubleshooting
-
-**Error: "OpenAI API key is required"**
-- ✅ Ensure you've set the `OPENAI_API_KEY` environment variable or passed the `apiKey` option
-- ✅ Verify the key starts with `sk-` (or `sk-proj-` for project keys)
-- ✅ Check that there are no extra spaces or quotes around the key
-
-**Error: "Incorrect API key provided"**
-- ✅ Verify your API key is valid at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- ✅ Ensure you have billing set up at [platform.openai.com/settings/organization/billing/overview](https://platform.openai.com/settings/organization/billing/overview)
-- ✅ Check if your API key has been revoked or expired
-
-**Error: "Rate limit exceeded"**
-- ⏱️ You're making too many requests too quickly
-- ⏱️ Implement delays between requests or upgrade your OpenAI plan
-- ⏱️ Consider using a less expensive model like `gpt-3.5-turbo` for bulk translations
-
-**Error: "Model not found"**
-- ✅ Verify the model name is correct (e.g., `gpt-4o`, not `gpt-4`)
-- ✅ Check that your OpenAI account has access to the requested model
-- ✅ Some models require specific permissions or higher tier access
-
-**Poor translation quality**
-- 🎯 Use a more capable model like `gpt-4o` for better results
-- 🎯 Provide context using the `context` parameter for ambiguous terms
-- 🎯 Consider post-editing critical translations manually
-
-### Google Translate Provider
-
-The Google Translate provider uses the free `@vitalets/google-translate-api` package for quick translations without requiring API keys.
-
-**Basic usage:**
-
-```typescript
-import { TranslationService } from 'i18n-ai-cli/services';
-import { GoogleTranslator } from 'i18n-ai-cli/providers';
-
-const translator = new GoogleTranslator();
-const service = new TranslationService(translator);
-
-const result = await service.translate({
-  text: "Hello world",
-  targetLocale: "es",
-  sourceLocale: "en"
-});
-
-console.log(result.text); // "Hola mundo"
-```
-
-**When to use Google Translate:**
-- ✅ Quick development and testing
-- ✅ Projects with limited budget
-- ✅ Simple, straightforward translations
-- ✅ Languages well-supported by Google Translate
-
-**Limitations:**
-- ⚠️ Less context-aware than OpenAI
-- ⚠️ May struggle with nuanced or technical content
-- ⚠️ Rate limits may apply for bulk translations
-
-## Programmatic API
-
-You can use i18n-ai-cli programmatically in your Node.js applications:
-
-```typescript
-import { loadConfig } from 'i18n-ai-cli/config/config-loader';
-import { FileManager } from 'i18n-ai-cli/core/file-manager';
-import { TranslationService } from 'i18n-ai-cli/services';
-import { OpenAITranslator } from 'i18n-ai-cli/providers';
-
-// Load configuration
-const config = await loadConfig();
-const fileManager = new FileManager(config);
-
-// Read a locale
-const enTranslations = await fileManager.readLocale('en');
-
-// Write a locale
-await fileManager.writeLocale('en', { greeting: 'Hello' }, { dryRun: false });
-
-// Use translation service
-const translator = new OpenAITranslator({ apiKey: 'sk-your-key' });
-const service = new TranslationService(translator);
-
-const translated = await service.translate({
-  text: 'Welcome to our app',
-  targetLocale: 'es',
-  sourceLocale: 'en',
-  context: 'greeting message on homepage'
-});
-
-console.log(translated.text); // "Bienvenido a nuestra aplicación"
-```
-
-**Available APIs:**
-- `loadConfig()` - Load i18n-cli configuration
-- `FileManager` - Read/write locale files
-- `TranslationService` - Translate text using providers
-- `OpenAITranslator`, `GoogleTranslator` - Translation providers
-- `KeyValidator` - Validate translation keys
-- `buildContext()` - Build CLI context for commands
-
-## Security Policy
-
-i18n-ai-cli maintains a comprehensive security policy to ensure the safety and integrity of translation workflows.
-
-### Supported Versions
-
-We release patches for security vulnerabilities in the latest version of i18n-ai-cli.
-
-| Version | Supported |
-|---------|-----------|
-| Latest  | ✅ |
-| < 1.0   | ❌ |
-
-### Reporting a Vulnerability
-
-We take the security of i18n-ai-cli seriously. If you believe you've found a security vulnerability, please follow these guidelines:
-
-**How to Report**
-- **Email**: Send a detailed report to **wafiamustafa@gmail.com**
-- **Subject Line**: `[Security Vulnerability] Brief description`
-
-**What to Include**
-Please provide as much information as possible:
-1. **Description**: Clear description of the vulnerability
-2. **Impact**: Potential impact if exploited
-3. **Reproduction Steps**: Detailed steps to reproduce the issue
-4. **Affected Versions**: Which versions are affected
-5. **Suggested Fix**: If you have suggestions for addressing the issue
-6. **Your Contact Info**: Name and preferred contact method (optional but helpful)
-
-**Response Time**
-- **Acknowledgment**: You will receive a confirmation within **48 hours**
-- **Initial Assessment**: We will respond with our initial assessment within **5 business days**
-- **Updates**: You will receive updates at least every **7 business days**
-- **Resolution**: We aim to resolve critical issues within **30 days**
-
-**What to Expect**
-1. **Confidentiality**: Your report will be kept confidential
-2. **No Retaliation**: We do not retaliate against good-faith reporters
-3. **Credit**: We will credit you for the discovery (unless you prefer to remain anonymous)
-4. **Communication**: We will keep you informed of our progress
-
-### Security Best Practices
-
-When using i18n-ai-cli, please follow these security best practices:
-
-**API Key Management**
-- ✅ **DO**: Store API keys in environment variables or `.env` files
-- ✅ **DO**: Add `.env` to your `.gitignore` file
-- ✅ **DO**: Rotate API keys periodically
-- ❌ **DON'T**: Commit API keys to version control
-- ❌ **DON'T**: Hardcode API keys in source code
-- ❌ **DON'T**: Share API keys publicly
-
-**Example:**
-```bash
-# Recommended
-export OPENAI_API_KEY=sk-your-api-key-here
-
-# Or use a .env file (add to .gitignore)
-OPENAI_API_KEY=sk-your-api-key-here
-```
-
-**File Permissions**
-- Ensure locale files have appropriate read/write permissions
-- Restrict access to configuration files containing sensitive data
-- Use file system permissions to protect translation files in production
-
-**Data Handling**
-**What i18n-ai-cli Processes:**
-- Translation JSON files in your project
-- Source code files (for unused key detection)
-- API keys for translation providers
-
-**Data Storage:**
-- All data is stored locally in your project directory
-- No data is sent to third-party services except through official translation APIs
-- Configuration is stored in `i18n-cli.config.json` in your project root
-
-**Network Requests:**
-- Translation requests go directly to OpenAI or Google Translate APIs
-- No intermediate servers or proxies are used
-- API endpoints:
-  - OpenAI: `https://api.openai.com/v1`
-  - Google Translate: Public Google Translate API
-
-### Dependency Security
-
-We maintain secure dependencies:
-- Regular dependency audits via `npm audit`
-- Prompt updates for security patches
-- Use of locked dependency versions in `package-lock.json`
-
-**To check for vulnerabilities in your installation:**
-```bash
-npm audit
-npm audit fix
-```
-
-### Known Security Considerations
-
-**Translation Provider APIs**
-**OpenAI Integration:**
-- Requires valid API key with billing setup
-- Subject to OpenAI's rate limits and usage policies
-- Review OpenAI's [security documentation](https://platform.openai.com/docs/security)
-
-**Google Translate Integration:**
-- Uses free `@vitalets/google-translate-api` package
-- Subject to Google's rate limits
-- Not recommended for high-volume production use
-
-**File System Access**
-The CLI requires read/write access to:
-- Locale directory (configured in `localesPath`)
-- Configuration file (`i18n-cli.config.json`)
-- Source code directories (for `clean:unused` command)
-
-Ensure these directories have appropriate permissions.
-
-### Security Features
-
-**Input Validation**
-- Language codes validated against ISO 639-1 standard
-- Translation keys validated for proper format
-- JSON structure validation prevents malformed files
-
-**Confirmation Prompts**
-- Destructive operations require explicit confirmation
-- `--yes` flag bypasses prompts (use carefully in automation)
-- `--dry-run` mode previews changes before applying
-
-**Non-Interactive Mode**
-- CI/CD pipelines can use `--ci` flag for non-interactive validation
-- Deterministic exit codes for automated workflows
-- No interactive prompts in CI mode
-
-### Incident Response Process
-
-When a security vulnerability is reported:
-1. **Triage**: Assess severity and impact
-2. **Investigation**: Reproduce and analyze the issue
-3. **Fix Development**: Create and test a patch
-4. **Release**: Publish updated version with security advisory
-5. **Disclosure**: Coordinate public disclosure with reporter
-
-### Security Updates
-
-Security updates are released as patch versions (e.g., `1.0.8` → `1.0.9`).
-
-**To stay updated:**
-- Watch the repository on GitHub for security advisories
-- Update regularly: `npm update i18n-ai-cli`
-- Review CHANGELOG for security-related fixes
-
-### Scope
-
-**In Scope:**
-- The i18n-ai-cli npm package
-- Official CLI commands and programmatic API
-- Translation provider integrations
-- Configuration file handling
-
-**Out of Scope:**
-- Third-party translation providers' security (OpenAI, Google)
-- Vulnerabilities in dependencies (report to respective projects)
-- Issues in forked or modified versions
-
-## Development Setup
-
-### Prerequisites
-
-- **Node.js**: Version 18 or higher (updated requirement)
-- **Package Manager**: npm or yarn
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/wafiamustafa/i18n-cli.git
-cd i18n-cli
-
-# Install dependencies
-npm install
-```
-
-### Build
-
-```bash
-# Build the project
-npm run build
-
-# Watch mode for development
-npm run dev
-```
-
-### Run Tests
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test -- --watch
-
-# Run tests with coverage
-npm test -- --coverage
-```
-
-### Type Checking
-
-```bash
-# Run TypeScript type checking
-npm run typecheck
-```
-
-### Project Structure
-
-```
-i18n-cli/
-├── src/                    # Source code
-│   ├── bin/                # CLI entry point
-│   │   └── cli.ts          # Main CLI router and command definitions
-│   ├── commands/           # CLI commands
-│   │   ├── add-key.ts      # Add translation keys
-│   │   ├── add-lang.ts     # Add new locales
-│   │   ├── clean-unused.ts # Remove unused keys
-│   │   ├── init.ts         # Initialize config
-│   │   ├── remove-key.ts   # Remove keys
-│   │   ├── remove-lang.ts  # Remove locales
-│   │   ├── update-key.ts   # Update existing keys
-│   │   └── validate.ts     # Validate translations
-│   ├── config/             # Configuration
-│   │   ├── config-loader.ts # Load and parse config
-│   │   └── types.ts        # Config type definitions
-│   ├── context/            # Context management
-│   │   └── build-context.ts # Build CLI context
-│   │   └── types.ts        # Context type definitions
-│   ├── core/               # Core utilities
-│   │   ├── confirmation.ts  # User confirmation prompts
-│   │   ├── file-manager.ts  # File I/O operations
-│   │   ├── key-validator.ts # Key validation logic
-│   │   └── object-utils.ts  # Object manipulation helpers
-│   ├── providers/          # Translation providers
-│   │   ├── deepl.ts        # DeepL provider (stub)
-│   │   ├── google.ts       # Google Translate provider
-│   │   ├── openai.ts       # OpenAI GPT provider
-│   │   └── translator.ts   # Provider interface
-│   └── services/           # Business logic
-│       └── translation-service.ts # Translation orchestration
-│
-├── unit-testing/           # Test files (mirrors src/ structure)
-│   ├── commands/           # Command tests
-│   ├── config/             # Config tests
-│   ├── context/            # Context tests
-│   ├── core/               # Core utility tests
-│   ├── providers/          # Provider tests
-│   └── services/           # Service tests
-│
-├── dist/                   # Compiled output
-├── package.json            # Project metadata
-├── tsconfig.json           # TypeScript configuration
-└── tsup.config.ts          # Build configuration
-```
-
-### Local Testing
-
-```bash
-# Link the package locally
-npm link
-
-# Use in another project or test directory
-i18n-ai-cli --help
-
-# Unlink when done
-npm unlink -g i18n-ai-cli
-```
-
-### Debugging
-
-To debug the CLI:
-
-1. Build in watch mode: `npm run dev`
-2. Run with Node.js debugger:
-   ```bash
-   node --inspect ./dist/cli.js --help
-   ```
-3. Connect using Chrome DevTools or VS Code debugger
+**Diagram sources**
+- [package.json:48-59](file://package.json#L48-L59)
+
+**Section sources**
+- [package.json:1-68](file://package.json#L1-L68)
+
+## Performance Considerations
+- Dry-run mode prevents unnecessary disk writes during planning and CI checks
+- Auto-sorting can add overhead when writing large locale files; consider disabling for very large datasets if needed
+- Translation calls are asynchronous; batching or rate limiting is handled by provider libraries
+- Globbing scans project files; restrict usage patterns to minimize scanning scope
+
+[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
+Common issues and resolutions:
+- Missing or invalid configuration: Use init to generate a configuration file and ensure supported locales include the default locale
+- Invalid language code: Ensure codes conform to ISO standards; the tool accepts simple and region variants
+- Translation provider errors: Set OPENAI_API_KEY for OpenAI or rely on Google Translate fallback; verify network connectivity
+- JSON parsing errors: Validate locale files; the file manager throws descriptive errors for malformed JSON
+- CI mode failures: Use --yes to auto-apply changes or --dry-run to preview; --force overrides validation prompts
 
-### Common Issues and Resolutions
-
-**Configuration not found or invalid:**
-- Ensure the configuration file exists in the project root and contains valid JSON.
-- Use the initialization wizard to generate a baseline configuration.
-
-**Invalid locale code:**
-- Locale codes must conform to ISO 639-1 standards; region variants are accepted.
-
-**Structural conflicts when adding keys:**
-- Avoid creating keys that conflict with existing nested or flat structures.
-
-**Usage patterns misconfiguration:**
-- Ensure patterns include a capturing group for the key; invalid regex triggers explicit errors.
-
-**CI mode behavior:**
-- Without --yes, CI mode throws errors instead of applying changes; use --dry-run to preview.
-
-**AI Translation Issues:**
-- **OpenAI API Key Required**: Ensure OPENAI_API_KEY environment variable is set or apiKey option is provided.
-- **API Key Validation**: Verify the key starts with 'sk-' and has proper permissions.
-- **Rate Limit Exceeded**: Implement backoff strategies or upgrade OpenAI plan.
-- **Model Access**: Verify your account has access to the requested GPT model.
-
-**Node.js Version Issues:**
-- **Version Mismatch**: Ensure you're using Node.js version 18 or higher as required by the package.
-
-### Operational Tips
-
-- Use --dry-run to preview changes before applying.
-- Use --ci with --yes to automatically apply changes in pipelines.
-- Use --force with init to overwrite existing configuration.
-- **AI Integration Tips**: Set OPENAI_API_KEY environment variable for seamless AI operations.
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
-
-- Development setup
-- Code style and standards
-- Testing requirements
-- Submitting pull requests
-
-### Getting Started
-
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/i18n-cli.git
-   cd i18n-cli
-   ```
-3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-4. **Create a branch**:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-5. **Make your changes** and test thoroughly
-6. **Submit a pull request** to the main repository
-
-For detailed guidelines, see our [Contributing Guide](CONTRIBUTING.md).
-
-### Need Help?
-
-- 💬 Open an [issue](https://github.com/wafiamustafa/i18n-cli/issues) for bug reports or feature requests
-- 💡 Start a [discussion](https://github.com/wafiamustafa/i18n-cli/discussions) for questions or ideas
-- 📧 Contact: wafiamustafa@gmail.com
+**Section sources**
+- [src/commands/init.ts:32-37](file://src/commands/init.ts#L32-L37)
+- [src/commands/add-lang.ts:36-38](file://src/commands/add-lang.ts#L36-L38)
+- [src/bin/cli.ts:84-98](file://src/bin/cli.ts#L84-L98)
+- [src/core/file-manager.ts:34-42](file://src/core/file-manager.ts#L34-L42)
+- [README.md:220-235](file://README.md#L220-L235)
 
 ## Conclusion
-
-i18n-ai-cli represents a significant evolution from its predecessor i18n-pro, transforming into a comprehensive AI-powered CLI tool that delivers robust automation for managing translation assets across locales. The extensive documentation overhaul in README.md reflects this transformation, providing users with detailed installation instructions, comprehensive usage examples, and thorough troubleshooting guidance.
-
-**Key Advantages of the AI Transformation:**
-- **Enhanced Translation Quality**: AI-powered context-aware translations improve accuracy and cultural appropriateness
-- **Seamless Integration**: AI capabilities integrate naturally with existing workflows without disrupting established processes
-- **Future-Ready Architecture**: Extensible provider system prepares for additional AI services and advanced translation features
-- **Developer Experience**: Maintains familiar CLI interface while adding powerful AI capabilities
-- **Comprehensive Documentation**: Extensive user and contributor guides make the tool accessible to both beginners and advanced users
-- **Enhanced Security**: Comprehensive security policy with vulnerability reporting and best practices
-
-**Version Information:**
-- Current version: 1.0.9 (maintenance release with enhanced AI capabilities and comprehensive security policy)
-- **Important Note**: The package.json indicates version 1.0.9, but the CLI currently displays version 1.0.0. This is a known discrepancy that will be addressed in a future update.
-- Maintains backward compatibility with previous versions
-- Updated dependency tracking in package-lock.json for consistent package resolution
-- Enhanced Node.js version requirement to 18 or higher
-
-**Major Enhancements Since Initial Release:**
-- Comprehensive user documentation with installation guides
-- Detailed command reference with examples
-- AI provider integration documentation
-- Programmatic API documentation
-- Development setup and contribution guidelines
-- Extensive troubleshooting sections
-- CI/CD integration examples
-- **New**: Comprehensive security policy with vulnerability reporting procedures
-- **New**: Enhanced AI translation capabilities with improved OpenAI provider
-- **New**: Validate command with provider flags for AI-powered auto-correction
-- **New**: Updated Node.js engine requirement to version 18 or higher
-
-Whether you are adding languages, managing keys, cleaning unused translations, leveraging AI-powered translations, or following security best practices, i18n-ai-cli provides predictable, safe operations with flexible customization and deterministic behavior in automated environments. The AI integration and comprehensive security policy represent significant enhancements while preserving the reliability and developer-friendly approach that makes this tool essential for modern internationalization workflows.
-
-**Made with ❤️ by Wafia Mustafa R. and contributors**
+i18n-ai-cli simplifies internationalization workflows by combining automation, validation, and AI-powered translation into a cohesive CLI. Its modular design, typed configuration, and provider abstraction make it adaptable to diverse projects while maintaining developer ergonomics and CI readiness. Whether you are adding languages, managing keys, detecting unused content, or validating consistency, the tool offers predictable, composable operations backed by robust defaults and flexible options.
